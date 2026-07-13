@@ -14,19 +14,22 @@ struct ParticleInstance {
 class World {
 public:
     World(int width, int height, ParticleRegistry& registry);
-    
+
     void setParticle(int x, int y, ParticleId id, float temperature = 20.0f);
-    
+
     ParticleId getParticleId(int x, int y) const;
-    
+
+
     ParticleInstance& getParticle(int x, int y);
-    
+    const ParticleInstance& getParticle(int x, int y) const;
+
     bool isInside(int x, int y) const;
-    
+
     int getWidth() const { return m_width; }
     int getHeight() const { return m_height; }
     ParticleRegistry& getRegistry() { return m_registry; }
-    
+    const ParticleRegistry& getRegistry() const { return m_registry; }
+
 private:
     int m_width;
     int m_height;

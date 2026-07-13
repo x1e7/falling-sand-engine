@@ -20,7 +20,7 @@ A real-time 2D particle sandbox simulation with physics-based interactions. Feat
 - [ ] Optimize rendering with VertexArray
 - [x] Variable brush size
 - [ ] Pause simulation (Spacebar)
-- [ ] Save/load worlds
+- [x] Save/load worlds
 
 - [ ] Temperature system (hot/cold particles)
 - [x] New particles
@@ -35,6 +35,8 @@ A real-time 2D particle sandbox simulation with physics-based interactions. Feat
 | `2` | Select Water |
 | `3` | Select Fire |
 | `4` | Select Wall |
+| `CTRL + S` | Save World |
+| `CTRL + L` | Load World |
 | `LMB` | Place particle |
 | `RMB` | Delete particle |
 | `ESC` | Exit |

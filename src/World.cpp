@@ -2,7 +2,7 @@
 
 namespace Sand2D {
 
-World::World(int width, int height, ParticleRegistry& registry) 
+World::World(int width, int height, ParticleRegistry& registry)
     : m_width(width), m_height(height)
     , m_grid(width * height)
     , m_registry(registry)
@@ -19,6 +19,10 @@ ParticleId World::getParticleId(int x, int y) const {
 }
 
 ParticleInstance& World::getParticle(int x, int y) {
+    return m_grid[y * m_width + x];
+}
+
+const ParticleInstance& World::getParticle(int x, int y) const {
     return m_grid[y * m_width + x];
 }
 

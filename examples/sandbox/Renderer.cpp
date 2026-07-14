@@ -5,36 +5,37 @@
 const char* vertexShaderSource = R"(
     #version 330 core
     layout(location = 0) in vec2 aPos;
-    layout(location = 1) in vec3 aColor;
+    layout(location = 1) in vec2 aTexCoord;
 
-    out vec3 vertexColor;
-    uniform vec2 u_offset;
+    out vec2 TexCoord;
 
     void main() {
-        vertexColor = aColor;
-        gl_Position = vec4(aPos.x + u_offset.x, aPos.y + u_offset.y, 0.0, 1.0);
+        TexCoord = aTexCoord;
+        gl_Position = vec4(aPos.x, aPos.y, 0.0, 1.0);
     }
 )";
 
 const char* fragmentShaderSource = R"(
     #version 330 core
-    in vec3 vertexColor;
+    in vec2 TexCoord;
     out vec4 FragColor;
 
+    uniform sampler2D worldTexture;
+
     void main() {
-        vec3 color = vertexColor;
-        color = color * 1.15;
-        float gray = (color.r + color.g + color.b) / 3.0;
-        color = mix(vec3(gray), color, 1.3);
-        color = min(color, 1.0);
-        FragColor = vec4(color, 1.0);
+        vec4 color = texture(worldTexture, TexCoord);
+        FragColor = color;
     }
 )";
 
 Renderer::Renderer(int width, int height, const std::string& title, Sand2D::ParticleRegistry& registry)
-    : m_windowWidth(width), m_windowHeight(height),
-      m_viewportX(0), m_viewportY(0), m_viewportWidth(0), m_viewportHeight(0),
-      m_registry(registry)
+    : m_windowWidth(width)
+    , m_windowHeight(height)
+    , m_viewportX(0)
+    , m_viewportY(0)
+    , m_viewportWidth(0)
+    , m_viewportHeight(0)
+    , m_registry(registry)
 {
     if (!glfwInit()) {
         std::cerr << "Failed to initialize GLFW" << std::endl;
@@ -54,8 +55,8 @@ Renderer::Renderer(int width, int height, const std::string& title, Sand2D::Part
     }
 
     glfwMakeContextCurrent(m_window);
-
     glfwSetWindowUserPointer(m_window, this);
+
     glfwSetFramebufferSizeCallback(m_window, [](GLFWwindow* window, int w, int h) {
         Renderer* renderer = static_cast<Renderer*>(glfwGetWindowUserPointer(window));
         renderer->updateViewport();
@@ -71,13 +72,16 @@ Renderer::Renderer(int width, int height, const std::string& title, Sand2D::Part
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     compileShaders();
-    setupBuffers();
+    setupTexture(width, height);
+    setupQuad();
     updateViewport();
 }
 
 Renderer::~Renderer() {
     glDeleteVertexArrays(1, &m_vao);
     glDeleteBuffers(1, &m_vbo);
+    glDeleteBuffers(1, &m_ebo);
+    glDeleteTextures(1, &m_texture);
     glDeleteProgram(m_shaderProgram);
     glfwDestroyWindow(m_window);
     glfwTerminate();
@@ -132,94 +136,131 @@ void Renderer::compileShaders() {
     glDeleteShader(fragmentShader);
 }
 
-void Renderer::setupBuffers() {
+void Renderer::setupTexture(int width, int height) {
+    m_pixelBuffer.resize(static_cast<size_t>(width) * height);
+
+    glGenTextures(1, &m_texture);
+    glBindTexture(GL_TEXTURE_2D, m_texture);
+
+    glTexImage2D(
+        GL_TEXTURE_2D,
+        0,
+        GL_RGBA,
+        width,
+        height,
+        0,
+        GL_RGBA,
+        GL_UNSIGNED_BYTE,
+        nullptr
+    );
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+    glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+void Renderer::setupQuad() {
+    float vertices[] = {
+        -1.0f, -1.0f,     0.0f, 0.0f,
+         1.0f, -1.0f,     1.0f, 0.0f,
+         1.0f,  1.0f,     1.0f, 1.0f,
+        -1.0f,  1.0f,     0.0f, 1.0f
+    };
+
+    unsigned int indices[] = {
+        0, 1, 2,
+        0, 2, 3
+    };
+
     glGenVertexArrays(1, &m_vao);
-    glGenBuffers(1, &m_vbo);
-
     glBindVertexArray(m_vao);
-    glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
 
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+    glGenBuffers(1, &m_vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+    glGenBuffers(1, &m_ebo);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_ebo);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+
+    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(2 * sizeof(float)));
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)(2 * sizeof(float)));
     glEnableVertexAttribArray(1);
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
 }
 
-void Renderer::getColorFromId(Sand2D::ParticleId id, float& r, float& g, float& b) const {
-    const auto& def = m_registry.get(id);
-    uint32_t color = def.color;
+void Renderer::updateTexture(Sand2D::World& world) {
+    const int width = world.getWidth();
+    const int height = world.getHeight();
+    const auto& registry = world.getRegistry();
 
-    r = ((color >> 24) & 0xFF) / 255.0f;
-    g = ((color >> 16) & 0xFF) / 255.0f;
-    b = ((color >> 8) & 0xFF) / 255.0f;
-}
+    for (int y = 0; y < height; ++y) {
+        for (int x = 0; x < width; ++x) {
+            Sand2D::ParticleId id = world.getParticleId(x, height - 1 - y);
+            uint32_t color;
 
-void Renderer::rebuildVertexArray(Sand2D::World& world) {
-    m_vertices.clear();
+            if (id == Sand2D::ParticleRegistry::Empty) {
+                color = 0x00000000;
+            } else {
+                uint32_t rawColor = registry.get(id).color;
 
-    float worldWidth = world.getWidth();
-    float worldHeight = world.getHeight();
-    m_scaleX = 2.0f / worldWidth;
-    m_scaleY = 2.0f / worldHeight;
+                uint8_t r = (rawColor >> 24) & 0xFF;
+                uint8_t g = (rawColor >> 16) & 0xFF;
+                uint8_t b = (rawColor >> 8) & 0xFF;
+                uint8_t a = rawColor & 0xFF;
 
-    for (int y = 0; y < world.getHeight(); ++y) {
-        for (int x = 0; x < world.getWidth(); ++x) {
-            Sand2D::ParticleId id = world.getParticleId(x, y);
-            if (id == Sand2D::ParticleRegistry::Empty) continue;
+                color = (a << 24) | (b << 16) | (g << 8) | r;
+            }
 
-            float r, g, b;
-            getColorFromId(id, r, g, b);
-
-            float px = -1.0f + x * m_scaleX;
-            float py = 1.0f - y * m_scaleY;
-            float pw = m_scaleX;
-            float ph = m_scaleY;
-
-            // Triangle 1
-            m_vertices.push_back(px); m_vertices.push_back(py);
-            m_vertices.push_back(r); m_vertices.push_back(g); m_vertices.push_back(b);
-
-            m_vertices.push_back(px + pw); m_vertices.push_back(py);
-            m_vertices.push_back(r); m_vertices.push_back(g); m_vertices.push_back(b);
-
-            m_vertices.push_back(px + pw); m_vertices.push_back(py - ph);
-            m_vertices.push_back(r); m_vertices.push_back(g); m_vertices.push_back(b);
-
-            // Triangle 2
-            m_vertices.push_back(px); m_vertices.push_back(py);
-            m_vertices.push_back(r); m_vertices.push_back(g); m_vertices.push_back(b);
-
-            m_vertices.push_back(px + pw); m_vertices.push_back(py - ph);
-            m_vertices.push_back(r); m_vertices.push_back(g); m_vertices.push_back(b);
-
-            m_vertices.push_back(px); m_vertices.push_back(py - ph);
-            m_vertices.push_back(r); m_vertices.push_back(g); m_vertices.push_back(b);
+            m_pixelBuffer[static_cast<size_t>(y) * width + x] = color;
         }
     }
+
+    glBindTexture(GL_TEXTURE_2D, m_texture);
+    glTexSubImage2D(
+        GL_TEXTURE_2D,
+        0,
+        0, 0,
+        width,
+        height,
+        GL_RGBA,
+        GL_UNSIGNED_BYTE,
+        m_pixelBuffer.data()
+    );
+    glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 void Renderer::render(Sand2D::World& world) {
-    rebuildVertexArray(world);
+    updateTexture(world);
 
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClearColor(0.1f, 0.2f, 0.4f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
     glUseProgram(m_shaderProgram);
 
-    glBindVertexArray(m_vao);
-    glBindBuffer(GL_ARRAY_BUFFER, m_vbo);
-    glBufferData(GL_ARRAY_BUFFER, m_vertices.size() * sizeof(float), m_vertices.data(), GL_DYNAMIC_DRAW);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, m_texture);
+    GLint textureLoc = glGetUniformLocation(m_shaderProgram, "worldTexture");
+    glUniform1i(textureLoc, 0);
 
-    glDrawArrays(GL_TRIANGLES, 0, m_vertices.size() / 5);
+    glBindVertexArray(m_vao);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
     glfwSwapBuffers(m_window);
 }
 
 void Renderer::handleEvents() {
     glfwPollEvents();
-    if (glfwGetKey(m_window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+    if (glfwGetKey(m_window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
         glfwSetWindowShouldClose(m_window, true);
+    }
 }
 
 void Renderer::getMouseWorldPosition(Sand2D::World& world, int& x, int& y) const {

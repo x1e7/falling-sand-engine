@@ -5,7 +5,6 @@
 #include <Sand2D/World/World.h>
 #include <string>
 #include <vector>
-#include <unordered_set>
 
 class Renderer {
 public:
@@ -14,29 +13,30 @@ public:
 
     void render(Sand2D::World& world);
     void handleEvents();
-    void markDirty(int x, int y) { m_dirtyCells.insert(y * 10000 + x); }
 
     bool isOpen() const { return !glfwWindowShouldClose(m_window); }
     GLFWwindow* getWindow() { return m_window; }
     void getMouseWorldPosition(Sand2D::World& world, int& x, int& y) const;
 
 private:
-    void setupBuffers();
-    void rebuildVertexArray(Sand2D::World& world);
-    void updateDirtyCells(Sand2D::World& world);
+    void setupQuad();
+    void setupTexture(int width, int height);
+    void updateTexture(Sand2D::World& world);
     void compileShaders();
     void updateViewport();
+    uint32_t getColor(Sand2D::ParticleId id) const;
 
-    void getColorFromId(Sand2D::ParticleId id, float& r, float& g, float& b) const;
+    GLuint m_vao;
+    GLuint m_vbo;
+    GLuint m_ebo;
+    GLuint m_texture;
+    GLuint m_shaderProgram;
 
-    GLuint m_vao, m_vbo, m_shaderProgram;
     GLFWwindow* m_window;
-    int m_windowWidth, m_windowHeight;
+    int m_windowWidth;
+    int m_windowHeight;
     int m_viewportX, m_viewportY, m_viewportWidth, m_viewportHeight;
 
-    std::vector<float> m_vertices;
-
+    std::vector<uint32_t> m_pixelBuffer;
     Sand2D::ParticleRegistry& m_registry;
-
-    float m_scaleX, m_scaleY;
 };

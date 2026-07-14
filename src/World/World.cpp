@@ -1,4 +1,4 @@
-#include <Sand2D/World.h>
+#include <Sand2D/World/World.h>
 
 namespace Sand2D {
 

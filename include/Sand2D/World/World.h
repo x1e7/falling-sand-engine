@@ -1,7 +1,7 @@
 #pragma once
 
-#include <Sand2D/ParticleTypes.h>
-#include <Sand2D/ParticleRegistry.h>
+#include <Sand2D/Core/ParticleTypes.h>
+#include <Sand2D/Core/ParticleRegistry.h>
 #include <vector>
 
 namespace Sand2D {

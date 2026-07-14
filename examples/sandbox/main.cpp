@@ -1,5 +1,4 @@
 #include <Sand2D/Sand2D.h>
-#include <Sand2D/WorldSerializer.h>
 #include "Renderer.h"
 #include <cstdlib>
 #include <ctime>
@@ -8,7 +7,7 @@ int main() {
     Sand2D::ParticleRegistry registry;
     Sand2D::registerSand2DParticles(registry);
 
-    Sand2D::World world(200, 150, registry);
+    Sand2D::World world(600, 450, registry);
     Sand2D::PhysicsSystem physics;
 
     Renderer renderer(1280, 720, "Sandbox - Physics Demo", registry);

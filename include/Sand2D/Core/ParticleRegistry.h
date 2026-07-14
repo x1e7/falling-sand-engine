@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Sand2D/ParticleTypes.h>
+#include <Sand2D/Core/ParticleTypes.h>
 #include <unordered_map>
 #include <vector>
 
@@ -14,24 +14,24 @@ public:
         m_nameToId[def.name] = id;
         return id;
     }
-    
+
     const ParticleDefinition& get(ParticleId id) const {
         static ParticleDefinition empty;
         if (id >= m_definitions.size()) return empty;
         return m_definitions[id];
     }
-    
+
     ParticleId findId(const std::string& name) const {
         auto it = m_nameToId.find(name);
         return it != m_nameToId.end() ? it->second : Empty;
     }
-    
+
     const std::vector<ParticleDefinition>& getAll() const {
         return m_definitions;
     }
-    
+
     static constexpr ParticleId Empty = 0;
-    
+
 private:
     std::vector<ParticleDefinition> m_definitions = {
         ParticleDefinition("Empty", PhysicalState::Empty, 0.0f)
@@ -49,7 +49,7 @@ inline void registerSand2DParticles(ParticleRegistry& registry) {
     sand.friction = 0.6f;
     sand.color = 0xC4B280FF;
     registry.registerParticle(sand);
-    
+
     ParticleDefinition water;
     water.name = "Water";
     water.state = PhysicalState::Liquid;
@@ -76,7 +76,7 @@ inline void registerSand2DParticles(ParticleRegistry& registry) {
     fire.friction = 0.0f;
     fire.color = 0xFF6600FF;        // Bright orange
     registry.registerParticle(fire);
-    
+
     ParticleDefinition wall;
     wall.name = "Wall";
     wall.state = PhysicalState::Solid;

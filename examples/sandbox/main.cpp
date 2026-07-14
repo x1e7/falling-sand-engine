@@ -18,9 +18,7 @@ int main() {
     Sand2D::ParticleId wallId = registry.findId("Wall");
     Sand2D::ParticleId emptyId = Sand2D::ParticleRegistry::Empty;
 
-
-
-    if (!Sand2D::WorldSerializer::loadWorld(world, "sandbox.save"))
+    if (!Sand2D::WorldSerializer::loadWorld(world, "world.bin"))
     {
         for (int x = 95; x < 105; ++x)
             for (int y = 0; y < 20; ++y)
@@ -50,10 +48,10 @@ int main() {
         if (glfwGetKey(renderer.getWindow(), GLFW_KEY_4) == GLFW_PRESS)
             currentBrush = wallId;
         if (glfwGetKey(renderer.getWindow(), GLFW_KEY_S) == GLFW_PRESS && glfwGetKey(renderer.getWindow(), GLFW_KEY_LEFT_CONTROL)) {
-            Sand2D::WorldSerializer::saveWorld(world, "sandbox.save");
+            Sand2D::WorldSerializer::saveWorld(world, "world.bin");
         }
         if (glfwGetKey(renderer.getWindow(), GLFW_KEY_L) == GLFW_PRESS && glfwGetKey(renderer.getWindow(), GLFW_KEY_LEFT_CONTROL)) {
-            Sand2D::WorldSerializer::loadWorld(world, "sandbox.save");
+            Sand2D::WorldSerializer::loadWorld(world, "world.bin");
         }
 
         int x, y;

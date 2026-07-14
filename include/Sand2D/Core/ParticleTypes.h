@@ -28,9 +28,9 @@ struct ParticleDefinition {
     float meltingPoint = 0.0f;
     float boilingPoint = 0.0f;
     uint32_t color = 0xFFFFFFFF;
-    
+
     ParticleDefinition() = default;
-    
+
     ParticleDefinition(const std::string& n, PhysicalState s, float d)
         : name(n), state(s), density(d) {}
 };

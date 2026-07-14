@@ -2,6 +2,7 @@
 
 #include <Sand2D/Core/ParticleTypes.h>
 #include <Sand2D/Core/ParticleRegistry.h>
+#include <Sand2D/Core/Math/Vector2.h>
 #include <vector>
 
 namespace Sand2D {
@@ -9,6 +10,7 @@ namespace Sand2D {
 struct ParticleInstance {
     ParticleId id;
     float temperature = 20.0f;
+    Math::Vec2f velocity {0.0f, 0.0f};
 };
 
 class World {

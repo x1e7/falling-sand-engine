@@ -35,7 +35,7 @@ private:
     int m_viewportX, m_viewportY, m_viewportWidth, m_viewportHeight;
 
     std::vector<float> m_vertices;
-    std::unordered_set<int> m_dirtyCells;
+
     Sand2D::ParticleRegistry& m_registry;
 
     float m_scaleX, m_scaleY;

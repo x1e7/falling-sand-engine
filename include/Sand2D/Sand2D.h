@@ -3,6 +3,8 @@
 #include <Sand2D/Core/ParticleTypes.h>
 #include <Sand2D/Core/ParticleRegistry.h>
 
+#include <Sand2D/Core/Math/Vector2.h>
+
 #include <Sand2D/World/World.h>
 
 #include <Sand2D/Physics/PhysicsSystem.h>

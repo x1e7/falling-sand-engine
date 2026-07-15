@@ -1,19 +1,19 @@
 #include <Sand2D/Sand2D.h>
-#include "Renderer.h"
-#include <cstdlib>
-#include <ctime>
+#include "Render/Renderer.h"
 
-int main() {
+int main(int argc, char* argv[]) {
     Sand2D::ParticleRegistry registry;
     Sand2D::registerSand2DParticles(registry);
 
     // World size matches window size for perfect pixel mapping
     const int WORLD_WIDTH = 600;
     const int WORLD_HEIGHT = 450;
+    const int WINDOW_WIDTH = 1280;
+    const int WINDOW_HEIGHT = 720;
 
     Sand2D::World world(WORLD_WIDTH, WORLD_HEIGHT, registry);
     Sand2D::PhysicsSystem physics;
-    Renderer renderer(WORLD_WIDTH, WORLD_HEIGHT, "Sandbox - Physics Demo", registry);
+    Renderer renderer(WORLD_WIDTH, WORLD_HEIGHT, WINDOW_WIDTH, WINDOW_HEIGHT, "Sandbox - Physics Demo", registry);
 
     Sand2D::ParticleId sandId = registry.findId("Sand");
     Sand2D::ParticleId waterId = registry.findId("Water");
@@ -39,26 +39,26 @@ int main() {
     Sand2D::ParticleId currentBrush = sandId;
     int brushRadius = 1;
 
+    const Uint8* keyboardState = SDL_GetKeyboardState(nullptr);
+    bool ctrlPressed = false;
+
     while (renderer.isOpen()) {
         renderer.handleEvents();
 
+        keyboardState = SDL_GetKeyboardState(nullptr);
+        ctrlPressed = keyboardState[SDL_SCANCODE_LCTRL] || keyboardState[SDL_SCANCODE_RCTRL];
+
         // Brush selection
-        if (glfwGetKey(renderer.getWindow(), GLFW_KEY_1) == GLFW_PRESS)
-            currentBrush = sandId;
-        if (glfwGetKey(renderer.getWindow(), GLFW_KEY_2) == GLFW_PRESS)
-            currentBrush = waterId;
-        if (glfwGetKey(renderer.getWindow(), GLFW_KEY_3) == GLFW_PRESS)
-            currentBrush = registry.findId("Fire");
-        if (glfwGetKey(renderer.getWindow(), GLFW_KEY_4) == GLFW_PRESS)
-            currentBrush = wallId;
+        if (keyboardState[SDL_SCANCODE_1]) currentBrush = sandId;
+        if (keyboardState[SDL_SCANCODE_2]) currentBrush = waterId;
+        if (keyboardState[SDL_SCANCODE_3]) currentBrush = registry.findId("Fire");
+        if (keyboardState[SDL_SCANCODE_4]) currentBrush = wallId;
 
         // Save/Load (Ctrl+S / Ctrl+L)
-        if (glfwGetKey(renderer.getWindow(), GLFW_KEY_S) == GLFW_PRESS &&
-            glfwGetKey(renderer.getWindow(), GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) {
+        if (ctrlPressed && keyboardState[SDL_SCANCODE_S]) {
             Sand2D::WorldSerializer::saveWorld(world, "world.bin");
         }
-        if (glfwGetKey(renderer.getWindow(), GLFW_KEY_L) == GLFW_PRESS &&
-            glfwGetKey(renderer.getWindow(), GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS) {
+        if (ctrlPressed && keyboardState[SDL_SCANCODE_L]) {
             Sand2D::WorldSerializer::loadWorld(world, "world.bin");
         }
 
@@ -67,19 +67,19 @@ int main() {
         renderer.getMouseWorldPosition(world, x, y);
 
         // Brush size
-        if (glfwGetKey(renderer.getWindow(), GLFW_KEY_KP_ADD) == GLFW_PRESS ||
-            glfwGetKey(renderer.getWindow(), GLFW_KEY_EQUAL) == GLFW_PRESS) {
+        if (keyboardState[SDL_SCANCODE_EQUALS] || keyboardState[SDL_SCANCODE_KP_PLUS]) {
             brushRadius = std::min(brushRadius + 1, 10);
-            glfwWaitEventsTimeout(0.05);
+            SDL_Delay(50);
         }
-        if (glfwGetKey(renderer.getWindow(), GLFW_KEY_KP_SUBTRACT) == GLFW_PRESS ||
-            glfwGetKey(renderer.getWindow(), GLFW_KEY_MINUS) == GLFW_PRESS) {
+        if (keyboardState[SDL_SCANCODE_MINUS] || keyboardState[SDL_SCANCODE_KP_MINUS]) {
             brushRadius = std::max(brushRadius - 1, 1);
-            glfwWaitEventsTimeout(0.05);
+            SDL_Delay(50);
         }
 
+        Uint32 mouseState = SDL_GetMouseState(nullptr, nullptr);
+
         // Left click: place particles
-        if (glfwGetMouseButton(renderer.getWindow(), GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
+        if (mouseState & SDL_BUTTON(SDL_BUTTON_LEFT) && x >= 0 && y >= 0) {
             for (int dy = -brushRadius; dy <= brushRadius; dy++) {
                 for (int dx = -brushRadius; dx <= brushRadius; dx++) {
                     int nx = x + dx;
@@ -95,7 +95,7 @@ int main() {
         }
 
         // Right click: erase particles
-        if (glfwGetMouseButton(renderer.getWindow(), GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS) {
+        if (mouseState & SDL_BUTTON(SDL_BUTTON_RIGHT) && x >= 0 && y >= 0) {
             for (int dy = -brushRadius; dy <= brushRadius; dy++) {
                 for (int dx = -brushRadius; dx <= brushRadius; dx++) {
                     int nx = x + dx;

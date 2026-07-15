@@ -1,0 +1,150 @@
+#include "Renderer.h"
+#include <iostream>
+#include <algorithm>
+
+Renderer::Renderer(int worldWidth, int worldHeight, int windowWidth, int windowHeight,
+                   const std::string& title, Sand2D::ParticleRegistry& registry)
+    : m_windowWidth(windowWidth)
+    , m_windowHeight(windowHeight)
+    , m_textureWidth(worldWidth)
+    , m_textureHeight(worldHeight)
+    , m_registry(registry)
+{
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0) {
+        std::cerr << "SDL_Init Error: " << SDL_GetError() << std::endl;
+        exit(1);
+    }
+
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
+    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+    SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
+
+    m_window = SDL_CreateWindow(title.c_str(),
+                                SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+                                m_windowWidth, m_windowHeight,
+                                SDL_WINDOW_RESIZABLE | SDL_WINDOW_OPENGL);
+
+    if (!m_window) {
+        std::cerr << "SDL_CreateWindow Error: " << SDL_GetError() << std::endl;
+        exit(1);
+    }
+
+    m_glContext = SDL_GL_CreateContext(m_window);
+    if (!m_glContext) {
+        std::cerr << "SDL_GL_CreateContext Error: " << SDL_GetError() << std::endl;
+        exit(1);
+    }
+
+    SDL_GL_SetSwapInterval(1);
+
+    m_renderer = SDL_CreateRenderer(m_window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+    if (!m_renderer) {
+        std::cerr << "SDL_CreateRenderer Error: " << SDL_GetError() << std::endl;
+        exit(1);
+    }
+
+    m_texture = SDL_CreateTexture(m_renderer,
+                                  SDL_PIXELFORMAT_RGB888,
+                                  SDL_TEXTUREACCESS_STREAMING,
+                                  m_textureWidth, m_textureHeight);
+    if (!m_texture) {
+        std::cerr << "SDL_CreateTexture Error: " << SDL_GetError() << std::endl;
+        exit(1);
+    }
+
+    m_pixelBuffer.resize(m_textureWidth * m_textureHeight, 0);
+}
+
+Renderer::~Renderer() {
+    if (m_texture) SDL_DestroyTexture(m_texture);
+    if (m_renderer) SDL_DestroyRenderer(m_renderer);
+    if (m_glContext) SDL_GL_DeleteContext(m_glContext);
+    if (m_window) SDL_DestroyWindow(m_window);
+    SDL_Quit();
+}
+
+void Renderer::updateViewport(int width, int height) {
+    m_windowWidth = width;
+    m_windowHeight = height;
+}
+
+void Renderer::updateTexture(Sand2D::World& world) {
+    const int width = world.getWidth();
+    const int height = world.getHeight();
+    const auto& registry = world.getRegistry();
+
+    if (m_pixelBuffer.size() != static_cast<size_t>(width * height)) {
+        m_pixelBuffer.resize(width * height, 0);
+        m_textureWidth = width;
+        m_textureHeight = height;
+    }
+
+    for (int y = 0; y < height; ++y) {
+        for (int x = 0; x < width; ++x) {
+            Sand2D::ParticleId id = world.getParticleId(x, y);
+            uint32_t color;
+
+            if (id == Sand2D::ParticleRegistry::Empty) {
+                color = 0x00000000;
+            } else {
+                uint32_t rawColor = registry.get(id).color;
+
+                uint8_t r = (rawColor >> 24) & 0xFF;
+                uint8_t g = (rawColor >> 16) & 0xFF;
+                uint8_t b = (rawColor >> 8) & 0xFF;
+
+                color = (r << 16) | (g << 8) | b;
+            }
+
+            m_pixelBuffer[static_cast<size_t>(y) * width + x] = color;
+        }
+    }
+}
+
+void Renderer::render(Sand2D::World& world) {
+    updateTexture(world);
+
+    SDL_UpdateTexture(m_texture, nullptr, m_pixelBuffer.data(), m_textureWidth * sizeof(uint32_t));
+    SDL_RenderClear(m_renderer);
+    SDL_RenderCopy(m_renderer, m_texture, nullptr, nullptr);
+    SDL_RenderPresent(m_renderer);
+}
+
+void Renderer::handleEvents() {
+    SDL_Event event;
+    while (SDL_PollEvent(&event)) {
+        switch (event.type) {
+            case SDL_QUIT:
+                m_isRunning = false;
+                break;
+            case SDL_WINDOWEVENT:
+                if (event.window.event == SDL_WINDOWEVENT_RESIZED) {
+                    updateViewport(event.window.data1, event.window.data2);
+                }
+                break;
+            case SDL_KEYDOWN:
+                if (event.key.keysym.sym == SDLK_ESCAPE) {
+                    m_isRunning = false;
+                }
+                break;
+        }
+    }
+}
+
+void Renderer::getMouseWorldPosition(Sand2D::World& world, int& x, int& y) const {
+    int mouseX, mouseY;
+    SDL_GetMouseState(&mouseX, &mouseY);
+
+    int windowWidth, windowHeight;
+    SDL_GetWindowSize(m_window, &windowWidth, &windowHeight);
+
+    float worldX = (static_cast<float>(mouseX) / windowWidth) * world.getWidth();
+    float worldY = (static_cast<float>(mouseY) / windowHeight) * world.getHeight();
+
+    x = static_cast<int>(worldX);
+    y = static_cast<int>(worldY);
+
+    x = std::max(0, std::min(x, world.getWidth() - 1));
+    y = std::max(0, std::min(y, world.getHeight() - 1));
+}

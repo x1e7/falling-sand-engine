@@ -38,28 +38,27 @@ elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
     )
 endif()
 
-find_package(OpenGL REQUIRED)
-find_package(glfw3 REQUIRED)
-find_package(GLEW REQUIRED)
+find_package(SDL2 CONFIG REQUIRED)
 
 add_executable(FallingSandExample
     examples/sandbox/main.cpp
-    examples/sandbox/Renderer.cpp
+    examples/sandbox/Render/Renderer.cpp
 )
 
 target_link_libraries(FallingSandExample
     Sand2D
-    OpenGL::GL
-    glfw
-    GLEW::GLEW
+    SDL2::SDL2
 )
 
 if(WIN32)
-    add_custom_command(TARGET FallingSandExample POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            $<TARGET_FILE:glfw> $<TARGET_FILE_DIR:FallingSandExample>
-    )
+  add_custom_command(TARGET FallingSandExample POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E copy_if_different
+          $<TARGET_RUNTIME_DLLS:FallingSandExample>
+          $<TARGET_FILE_DIR:FallingSandExample>
+      COMMAND_EXPAND_LISTS
+  )
 endif()
+
 
 install(TARGETS Sand2D DESTINATION lib)
 install(DIRECTORY include/ DESTINATION include)

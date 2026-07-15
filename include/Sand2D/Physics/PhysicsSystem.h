@@ -28,10 +28,6 @@ private:
     std::vector<PendingMove> m_pendingMoves;
     std::vector<bool> m_movedThisFrame;
     std::vector<int> m_particleAge;
-
-    static constexpr float GRAVITY = 9.81f;
-    static constexpr float TERMINAL_VELOCITY = 20.0f;
-    static constexpr float FRICTION_COEFFICIENT = 0.95f;
 };
 
 } // namespace Sand2D

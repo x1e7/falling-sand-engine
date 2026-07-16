@@ -12,48 +12,43 @@ static std::mt19937& getRng() {
 }
 
 void PhysicsSystem::update(World& world, float deltaTime) {
-    int totalCells = world.getWidth() * world.getHeight();
-    m_movedThisFrame.assign(totalCells, false);
-    m_pendingMoves.clear();
+    int worldWidth = world.getWidth();
+    int worldHeight = world.getHeight();
+    int totalCells = worldWidth * worldHeight;
+    m_movedThisFrame.assign(totalCells, 0);
 
-    // Update particle ages
-    m_particleAge.resize(totalCells);
-    for (int i = 0; i < totalCells; i++) {
-        int x = i % world.getWidth();
-        int y = i / world.getWidth();
-        if (world.getParticleId(x, y) != ParticleRegistry::Empty) {
-            m_particleAge[i]++;
-        } else {
-            m_particleAge[i] = 0;
+    for (int y = 0; y < worldHeight; y++) {
+        for (int x = 0; x < worldWidth; x++) {
+            if (world.getParticleId(x, y) != ParticleRegistry::Empty) {
+                world.incrementAge(x, y);
+            } else {
+                world.resetAge(x, y);
+            }
         }
     }
 
-    // Scan from bottom to top
-    #pragma omp parallel for
-    for (int y = world.getHeight() - 1; y >= 0; y--) {
-        for (int x = 0; x < world.getWidth(); x++) {
-            bool leftToRight = (x % 2 == 0);
-            int idx;
-            if (leftToRight) {
-                idx = y * world.getWidth() + x;
-            } else {
-                idx = y * world.getWidth() + (world.getWidth() - 1 - x);
-            }
+    for (int y = worldHeight - 1; y >= 0; --y) {
+        const bool leftToRight = (y % 2 == 0);
+        const int startX = leftToRight ? 0 : worldWidth - 1;
+        const int endX = leftToRight ? worldWidth : -1;
+        const int stepX = leftToRight ? 1 : -1;
 
+        for (int x = startX; x != endX; x += stepX) {
+            const int idx = y * worldWidth + x;
             if (m_movedThisFrame[idx]) continue;
 
-            Math::Vec2i pos(x, y);
-            ParticleId id = world.getParticleId(x, y);
+            const ParticleId id = world.getParticleId(x, y);
             if (id == ParticleRegistry::Empty) continue;
 
-            Math::Vec2i oldPos = pos;
-            updateParticle(world, pos);
+            const Math::Vec2i oldPos(x, y);
+            Math::Vec2i newPos = oldPos;
 
-            // Check if moved
-            if (world.getParticleId(oldPos.x, oldPos.y) == ParticleRegistry::Empty &&
-                world.getParticleId(pos.x, pos.y) != ParticleRegistry::Empty) {
-                int newIdx = pos.y * world.getWidth() + pos.x;
-                m_movedThisFrame[newIdx] = true;
+            updateParticle(world, newPos);
+
+            if (newPos.x != oldPos.x || newPos.y != oldPos.y) {
+                const int newIdx = newPos.y * worldWidth + newPos.x;
+                m_movedThisFrame[newIdx] = 1;
+                m_movedThisFrame[idx] = 1;
             }
         }
     }
@@ -165,7 +160,9 @@ void PhysicsSystem::updateFire(World& world, const Math::Vec2i& pos) {
 
     int idx = pos.y * world.getWidth() + pos.x;
 
-    if (m_particleAge[idx] > 3 + (std::rand() % 3)) {
+    int age = world.getAge(pos.x, pos.y);
+
+    if (age > 3 + (std::rand() % 3)) {
         ParticleId smokeId = world.getRegistry().findId("Smoke");
         if (smokeId != ParticleRegistry::Empty) {
             world.setParticle(pos.x, pos.y, smokeId);
@@ -231,7 +228,7 @@ bool PhysicsSystem::tryMove(World& world, const Math::Vec2i& from, const Math::V
 
     if (toP.id == ParticleRegistry::Empty) {
         std::swap(fromP.id, toP.id);
-        std::swap(fromP.temperature, toP.temperature);
+        std::swap(fromP.temp, toP.temp);
 
         world.markDirty(from.x, from.y);
         world.markDirty(to.x, to.y);
@@ -249,7 +246,7 @@ bool PhysicsSystem::tryMove(World& world, const Math::Vec2i& from, const Math::V
     if ((fromDef.state == PhysicalState::Gas || fromDef.state == PhysicalState::Fire) &&
         (toDef.state == PhysicalState::Liquid || toDef.state == PhysicalState::Powder)) {
         std::swap(fromP.id, toP.id);
-        std::swap(fromP.temperature, toP.temperature);
+        std::swap(fromP.temp, toP.temp);
 
         world.markDirty(from.x, from.y);
         world.markDirty(to.x, to.y);
@@ -262,7 +259,7 @@ bool PhysicsSystem::tryMove(World& world, const Math::Vec2i& from, const Math::V
 
     if (fromDef.state == PhysicalState::Powder && toDef.state == PhysicalState::Liquid) {
         std::swap(fromP.id, toP.id);
-        std::swap(fromP.temperature, toP.temperature);
+        std::swap(fromP.temp, toP.temp);
 
         world.markDirty(from.x, from.y);
         world.markDirty(to.x, to.y);
@@ -280,7 +277,7 @@ bool PhysicsSystem::tryMove(World& world, const Math::Vec2i& from, const Math::V
     if (fromDef.state == PhysicalState::Liquid && toDef.state == PhysicalState::Liquid) {
         if (toDef.density < fromDef.density) {
             std::swap(fromP.id, toP.id);
-            std::swap(fromP.temperature, toP.temperature);
+            std::swap(fromP.temp, toP.temp);
 
             world.markDirty(from.x, from.y);
             world.markDirty(to.x, to.y);
@@ -296,7 +293,7 @@ bool PhysicsSystem::tryMove(World& world, const Math::Vec2i& from, const Math::V
     if (fromDef.state == PhysicalState::Powder && toDef.state == PhysicalState::Powder) {
         if (toDef.density < fromDef.density) {
             std::swap(fromP.id, toP.id);
-            std::swap(fromP.temperature, toP.temperature);
+            std::swap(fromP.temp, toP.temp);
 
             world.markDirty(from.x, from.y);
             world.markDirty(to.x, to.y);
@@ -311,7 +308,7 @@ bool PhysicsSystem::tryMove(World& world, const Math::Vec2i& from, const Math::V
 
     if (toDef.density < fromDef.density) {
         std::swap(fromP.id, toP.id);
-        std::swap(fromP.temperature, toP.temperature);
+        std::swap(fromP.temp, toP.temp);
 
         world.markDirty(from.x, from.y);
         world.markDirty(to.x, to.y);

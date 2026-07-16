@@ -48,9 +48,6 @@ inline void registerSand2DParticles(ParticleRegistry& registry) {
     sand.name = "Sand";
     sand.state = PhysicalState::Powder;
     sand.density = 1600.0f;
-    //sand.viscosity = 0.0f;
-    //sand.restitution = 0.3f;
-    //sand.friction = 0.6f;
     sand.color = 0xFFE8C87A;
     registry.registerParticle(sand);
 
@@ -58,9 +55,6 @@ inline void registerSand2DParticles(ParticleRegistry& registry) {
     water.name = "Water";
     water.state = PhysicalState::Liquid;
     water.density = 1000.0f;
-    //water.viscosity = 0.01f;
-    //water.restitution = 0.1f;
-    //water.friction = 0.3f;
     water.color = 0xFF40C8FF;  // Яркий океанский синий
     registry.registerParticle(water);
 
@@ -74,10 +68,8 @@ inline void registerSand2DParticles(ParticleRegistry& registry) {
     ParticleDefinition fire;
     fire.name = "Fire";
     fire.state = PhysicalState::Fire;
-    //fire.density = 0.2f;           // Light - rises quickly
-    //fire.viscosity = 0.0f;
-    //fire.restitution = 0.0f;
-    //fire.friction = 0.0f;
+    fire.density = 0.2f;           // Light - rises quickly
+
     fire.color = 0xFFFF8C00;        // Bright orange
     registry.registerParticle(fire);
 

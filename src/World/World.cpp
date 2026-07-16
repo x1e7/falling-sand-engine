@@ -11,15 +11,14 @@ World::World(int width, int height, ParticleRegistry& registry)
 {
     for (auto& p : m_grid) {
         p.id = ParticleRegistry::Empty;
-        p.temperature = 20.0f;
     }
 }
 
-void World::setParticle(int x, int y, ParticleId id, float temperature) {
+void World::setParticle(int x, int y, ParticleId id, uint8_t temp) {
     if (!isInside(x, y)) return;
     auto& p = m_grid[y * m_width + x];
     p.id = id;
-    p.temperature = temperature;
+    p.temp = temp;
 
     markDirty(x, y);
 }
@@ -42,6 +41,19 @@ void World::markDirty(int x, int y)
     if (!isInside(x, y)) return;
     size_t idx = y * m_width + x;
     m_dirty[idx] = 1;
+
+    if (x > 0) {
+        m_dirty[idx - 1] = 1;
+        if (y > 0) m_dirty[idx - m_width - 1] = 1;
+        if (y + 1 < m_height) m_dirty[idx + m_width - 1] = 1;
+    }
+    if (x + 1 < m_width) {
+        m_dirty[idx + 1] = 1;
+        if (y > 0) m_dirty[idx - m_width + 1] = 1;
+        if (y + 1 < m_height) m_dirty[idx + m_width + 1] = 1;
+    }
+    if (y > 0) m_dirty[idx - m_width] = 1;
+    if (y + 1 < m_height) m_dirty[idx + m_width] = 1;
 }
 
 bool World::isDirty(int x, int y) const

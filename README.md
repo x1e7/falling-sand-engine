@@ -17,7 +17,7 @@ A real-time 2D particle sandbox simulation with physics-based interactions. Feat
 
 ## TODO
 
-- [ ] Background color (dark parchment theme)
+- [x] Background color
 - [ ] Particle velocity system (inertia, momentum)
 - [ ] Dirty rectangles optimization (render only changed pixels)
 - [x] Variable brush size

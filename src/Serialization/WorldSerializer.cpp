@@ -88,7 +88,7 @@ bool WorldSerializer::loadWorld(World& world, const std::string& fileName)
 std::vector<uint8_t> WorldSerializer::serializeParticles(const World& world) {
     const int width = world.getWidth();
     const int height = world.getHeight();
-    const size_t particleSize = sizeof(ParticleId) + sizeof(float);
+    const size_t particleSize = sizeof(ParticleInstance);
     const size_t totalSize = width * height * particleSize;
 
     std::vector<uint8_t> buffer(totalSize);
@@ -99,8 +99,8 @@ std::vector<uint8_t> WorldSerializer::serializeParticles(const World& world) {
             const auto& particle = world.getParticle(x, y);
             std::memcpy(ptr, &particle.id, sizeof(ParticleId));
             ptr += sizeof(ParticleId);
-            std::memcpy(ptr, &particle.temperature, sizeof(float));
-            ptr += sizeof(float);
+            std::memcpy(ptr, &particle.temp, sizeof(uint8_t));
+            ptr += sizeof(uint8_t);
         }
     }
 
@@ -110,7 +110,7 @@ std::vector<uint8_t> WorldSerializer::serializeParticles(const World& world) {
 bool WorldSerializer::deserializeParticles(World& world, const uint8_t* data, size_t size) {
     const int width = world.getWidth();
     const int height = world.getHeight();
-    const size_t expectedSize = width * height * (sizeof(ParticleId) + sizeof(float));
+    const size_t expectedSize = width * height * sizeof(ParticleInstance);
 
     if (size != expectedSize) {
         std::cerr << "Particle data size mismatch";
@@ -121,12 +121,12 @@ bool WorldSerializer::deserializeParticles(World& world, const uint8_t* data, si
     for (int y = 0; y < height; ++y) {
         for (int x = 0; x < width; ++x) {
             ParticleId id;
-            float temperature;
+            uint8_t temp;
             std::memcpy(&id, ptr, sizeof(ParticleId));
             ptr += sizeof(ParticleId);
-            std::memcpy(&temperature, ptr, sizeof(float));
-            ptr += sizeof(float);
-            world.setParticle(x, y, id, temperature);
+            std::memcpy(&temp, ptr, sizeof(uint8_t));
+            ptr += sizeof(uint8_t);
+            world.setParticle(x, y, id, temp);
         }
     }
 

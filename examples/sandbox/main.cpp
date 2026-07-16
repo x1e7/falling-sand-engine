@@ -24,17 +24,7 @@ int main(int argc, char* argv[]) {
     Sand2D::ParticleId wallId = registry.findId("Wall");
     Sand2D::ParticleId emptyId = Sand2D::ParticleRegistry::Empty;
 
-    if (!Sand2D::WorldSerializer::loadWorld(world, "world.bin")) {
-        for (int x = 95; x < 105; ++x)
-            for (int y = 0; y < 20; ++y)
-                world.setParticle(x, y, sandId);
-
-        for (int y = 0; y < 30; ++y)
-            world.setParticle(30, y, waterId);
-
-        for (int y = 100; y < 150; ++y)
-            world.setParticle(170, y, wallId);
-    }
+    Sand2D::WorldSerializer::loadWorld(world, "world.bin");
 
     Sand2D::ParticleId currentBrush = sandId;
     int brushRadius = 1;
@@ -44,7 +34,7 @@ int main(int argc, char* argv[]) {
     Uint32 lastBrushChange = 0;
     Uint32 lastSaveLoad = 0;
     const Uint32 BRUSH_COOLDOWN = 50; // ms
-    const Uint32 SAVE_COOLDOWN = 500; // ms
+    const Uint32 SAVE_COOLDOWN = 2500; // ms
 
     const Uint8* keyboardState = SDL_GetKeyboardState(nullptr);
     bool ctrlPressed = false;
@@ -64,8 +54,8 @@ int main(int argc, char* argv[]) {
         if (keyboardState[SDL_SCANCODE_3]) currentBrush = registry.findId("Fire");
         if (keyboardState[SDL_SCANCODE_4]) currentBrush = wallId;
 
-        int x, y;
-        renderer.getMouseWorldPosition(world, x, y);
+        int mouseX, mouseY;
+        renderer.getMouseWorldPosition(world, mouseX, mouseY);
 
         Uint32 currentTime = SDL_GetTicks();
         if (currentTime - lastBrushChange > BRUSH_COOLDOWN) {
@@ -92,11 +82,11 @@ int main(int argc, char* argv[]) {
 
         Uint32 mouseState = SDL_GetMouseState(nullptr, nullptr);
 
-        if (mouseState & SDL_BUTTON(SDL_BUTTON_LEFT) && x >= 0 && y >= 0) {
+        if (mouseState & SDL_BUTTON(SDL_BUTTON_LEFT) && mouseX >= 0 && mouseY >= 0) {
             for (int dy = -brushRadius; dy <= brushRadius; dy++) {
                 for (int dx = -brushRadius; dx <= brushRadius; dx++) {
-                    int nx = x + dx;
-                    int ny = y + dy;
+                    int nx = mouseX + dx;
+                    int ny = mouseY + dy;
                     if (dx * dx + dy * dy > brushRadius * brushRadius) continue;
                     if (world.isInside(nx, ny) && world.getParticleId(nx, ny) == emptyId) {
                         world.setParticle(nx, ny, currentBrush);
@@ -105,11 +95,11 @@ int main(int argc, char* argv[]) {
             }
         }
 
-        if (mouseState & SDL_BUTTON(SDL_BUTTON_RIGHT) && x >= 0 && y >= 0) {
+        if (mouseState & SDL_BUTTON(SDL_BUTTON_RIGHT) && mouseX >= 0 && mouseY >= 0) {
             for (int dy = -brushRadius; dy <= brushRadius; dy++) {
                 for (int dx = -brushRadius; dx <= brushRadius; dx++) {
-                    int nx = x + dx;
-                    int ny = y + dy;
+                    int nx = mouseX + dx;
+                    int ny = mouseY + dy;
                     if (dx * dx + dy * dy > brushRadius * brushRadius) continue;
                     if (world.isInside(nx, ny) && world.getParticleId(nx, ny) != emptyId) {
                         world.setParticle(nx, ny, emptyId);

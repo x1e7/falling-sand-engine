@@ -14,7 +14,7 @@ enum class PhysicalState {
     Gas
 };
 
-using ParticleId = uint32_t;
+using ParticleId = uint8_t;
 
 struct ParticleDefinition {
     std::string name;

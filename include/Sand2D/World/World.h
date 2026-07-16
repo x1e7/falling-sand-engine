@@ -9,7 +9,8 @@ namespace Sand2D {
 
 struct ParticleInstance {
     ParticleId id;
-    float temperature = 20.0f;
+    uint8_t temp;
+    uint8_t age;
     //Math::Vec2f velocity {0.0f, 0.0f};
 };
 
@@ -17,12 +18,27 @@ class World {
 public:
     World(int width, int height, ParticleRegistry& registry);
 
-    void setParticle(int x, int y, ParticleId id, float temperature = 20.0f);
+    void setParticle(int x, int y, ParticleId id, uint8_t temp = 20);
 
     ParticleId getParticleId(int x, int y) const;
 
     ParticleInstance& getParticle(int x, int y);
     const ParticleInstance& getParticle(int x, int y) const;
+
+    void incrementAge(int x, int y) {
+        if (!isInside(x, y)) return;
+        m_grid[y * m_width + x].age++;
+    }
+
+    int getAge(int x, int y) const {
+        if (!isInside(x, y)) return 0;
+        return m_grid[y * m_width + x].age;
+    }
+
+    void resetAge(int x, int y) {
+        if (!isInside(x, y)) return;
+        m_grid[y * m_width + x].age = 0;
+    }
 
     void markDirty(int x, int y);
     bool isDirty(int x, int y) const;

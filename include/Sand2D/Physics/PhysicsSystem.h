@@ -20,14 +20,7 @@ private:
 
     bool tryMove(World& world, const Math::Vec2i& from, const Math::Vec2i& to);
 
-    struct PendingMove {
-        Math::Vec2i from;
-        Math::Vec2i to;
-    };
-
-    std::vector<PendingMove> m_pendingMoves;
-    std::vector<bool> m_movedThisFrame;
-    std::vector<int> m_particleAge;
+    std::vector<uint8_t> m_movedThisFrame;
 };
 
 } // namespace Sand2D

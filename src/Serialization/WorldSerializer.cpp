@@ -88,8 +88,7 @@ bool WorldSerializer::loadWorld(World& world, const std::string& fileName)
 std::vector<uint8_t> WorldSerializer::serializeParticles(const World& world) {
     const int width = world.getWidth();
     const int height = world.getHeight();
-    const size_t particleSize = sizeof(ParticleInstance);
-    const size_t totalSize = width * height * particleSize;
+    const size_t totalSize = width * height * 2; // id + temp
 
     std::vector<uint8_t> buffer(totalSize);
     uint8_t* ptr = buffer.data();
@@ -97,8 +96,9 @@ std::vector<uint8_t> WorldSerializer::serializeParticles(const World& world) {
     for (int y = 0; y < height; ++y) {
         for (int x = 0; x < width; ++x) {
             const auto& particle = world.getParticle(x, y);
-            std::memcpy(ptr, &particle, sizeof(ParticleInstance));
-            ptr += sizeof(ParticleInstance);
+            *ptr++ = particle.id;
+            *ptr++ = particle.temp;
+            //*ptr++ = particle.age;
         }
     }
 
@@ -108,7 +108,7 @@ std::vector<uint8_t> WorldSerializer::serializeParticles(const World& world) {
 bool WorldSerializer::deserializeParticles(World& world, const uint8_t* data, size_t size) {
     const int width = world.getWidth();
     const int height = world.getHeight();
-    const size_t expectedSize = width * height * sizeof(ParticleInstance);
+    const size_t expectedSize = width * height * 2;
 
     if (size != expectedSize) {
         std::cerr << "Particle data size mismatch";
@@ -118,12 +118,14 @@ bool WorldSerializer::deserializeParticles(World& world, const uint8_t* data, si
     const uint8_t* ptr = data;
     for (int y = 0; y < height; ++y) {
         for (int x = 0; x < width; ++x) {
-            ParticleInstance particle;
-            std::memcpy(&particle, ptr, sizeof(ParticleInstance));
-            ptr += sizeof(ParticleInstance);
+            ParticleId id = *ptr++;
+            uint8_t temp = *ptr++;
+            //uint8_t age = *ptr++;
 
             auto& p = world.getParticle(x, y);
-            p = particle;
+            p.id = id;
+            p.temp = temp;
+            //p.age = age;
             world.markDirty(x, y);
         }
     }

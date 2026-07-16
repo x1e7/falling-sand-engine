@@ -97,10 +97,8 @@ std::vector<uint8_t> WorldSerializer::serializeParticles(const World& world) {
     for (int y = 0; y < height; ++y) {
         for (int x = 0; x < width; ++x) {
             const auto& particle = world.getParticle(x, y);
-            std::memcpy(ptr, &particle.id, sizeof(ParticleId));
-            ptr += sizeof(ParticleId);
-            std::memcpy(ptr, &particle.temp, sizeof(uint8_t));
-            ptr += sizeof(uint8_t);
+            std::memcpy(ptr, &particle, sizeof(ParticleInstance));
+            ptr += sizeof(ParticleInstance);
         }
     }
 
@@ -120,13 +118,13 @@ bool WorldSerializer::deserializeParticles(World& world, const uint8_t* data, si
     const uint8_t* ptr = data;
     for (int y = 0; y < height; ++y) {
         for (int x = 0; x < width; ++x) {
-            ParticleId id;
-            uint8_t temp;
-            std::memcpy(&id, ptr, sizeof(ParticleId));
-            ptr += sizeof(ParticleId);
-            std::memcpy(&temp, ptr, sizeof(uint8_t));
-            ptr += sizeof(uint8_t);
-            world.setParticle(x, y, id, temp);
+            ParticleInstance particle;
+            std::memcpy(&particle, ptr, sizeof(ParticleInstance));
+            ptr += sizeof(ParticleInstance);
+
+            auto& p = world.getParticle(x, y);
+            p = particle;
+            world.markDirty(x, y);
         }
     }
 

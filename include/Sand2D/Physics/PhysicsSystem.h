@@ -19,6 +19,7 @@ private:
     void updateFire(World& world, const Math::Vec2i& pos);
 
     bool tryMove(World& world, const Math::Vec2i& from, const Math::Vec2i& to);
+    bool performSwap(World& world, const Math::Vec2i& from, const Math::Vec2i& to);
 
     std::vector<uint8_t> m_movedThisFrame;
 };

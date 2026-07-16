@@ -22,6 +22,7 @@ int main(int argc, char* argv[]) {
     Sand2D::ParticleId sandId = registry.findId("Sand");
     Sand2D::ParticleId waterId = registry.findId("Water");
     Sand2D::ParticleId wallId = registry.findId("Wall");
+    Sand2D::ParticleId smokeId = registry.findId("Smoke");
     Sand2D::ParticleId emptyId = Sand2D::ParticleRegistry::Empty;
 
     Sand2D::WorldSerializer::loadWorld(world, "world.bin");
@@ -88,7 +89,9 @@ int main(int argc, char* argv[]) {
                     int nx = mouseX + dx;
                     int ny = mouseY + dy;
                     if (dx * dx + dy * dy > brushRadius * brushRadius) continue;
-                    if (world.isInside(nx, ny) && world.getParticleId(nx, ny) == emptyId) {
+                    if (world.isInside(nx, ny)
+                        && (world.getParticleId(nx, ny) == emptyId
+                        || world.getParticleId(nx, ny) == smokeId)) {
                         world.setParticle(nx, ny, currentBrush);
                     }
                 }
@@ -101,7 +104,7 @@ int main(int argc, char* argv[]) {
                     int nx = mouseX + dx;
                     int ny = mouseY + dy;
                     if (dx * dx + dy * dy > brushRadius * brushRadius) continue;
-                    if (world.isInside(nx, ny) && world.getParticleId(nx, ny) != emptyId) {
+                    if (world.isInside(nx, ny)) {
                         world.setParticle(nx, ny, emptyId);
                     }
                 }

@@ -1,4 +1,5 @@
 #include "Renderer.h"
+#include "UIRenderer.h"
 #include <iostream>
 #include <algorithm>
 
@@ -91,11 +92,9 @@ void Renderer::updateTexture(Sand2D::World& world) {
                 color = registry.get(id).color;
             } else {
                 uint32_t rawColor = registry.get(id).color;
-
-                uint8_t r = (rawColor >> 16) & 0xFF;  // RR
-                uint8_t g = (rawColor >> 8) & 0xFF;   // GG
-                uint8_t b = rawColor & 0xFF;           // BB
-
+                uint8_t r = (rawColor >> 16) & 0xFF;
+                uint8_t g = (rawColor >> 8) & 0xFF;
+                uint8_t b = rawColor & 0xFF;
                 color = (r << 16) | (g << 8) | b;
             }
 
@@ -106,12 +105,21 @@ void Renderer::updateTexture(Sand2D::World& world) {
     world.clearDirty();
 }
 
-void Renderer::render(Sand2D::World& world) {
+void Renderer::render(Sand2D::World& world, UIRenderer* ui) {
     updateTexture(world);
 
     SDL_UpdateTexture(m_texture, nullptr, m_pixelBuffer.data(), m_textureWidth * sizeof(uint32_t));
     SDL_RenderClear(m_renderer);
     SDL_RenderCopy(m_renderer, m_texture, nullptr, nullptr);
+
+    if (ui) {
+        ui->setScreenSize(m_windowWidth, m_windowHeight);
+        ui->renderToTexture();
+
+        SDL_SetTextureBlendMode(ui->getTexture(), SDL_BLENDMODE_BLEND);
+        SDL_RenderCopy(m_renderer, ui->getTexture(), nullptr, nullptr);
+    }
+
     SDL_RenderPresent(m_renderer);
 }
 

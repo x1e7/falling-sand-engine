@@ -58,6 +58,7 @@ find_package(SDL2 CONFIG REQUIRED)
 add_executable(FallingSandExample
     examples/sandbox/main.cpp
     examples/sandbox/Render/Renderer.cpp
+    examples/sandbox/Render/UIRenderer.cpp
 )
 
 target_link_libraries(FallingSandExample

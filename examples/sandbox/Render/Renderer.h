@@ -6,13 +6,15 @@
 #include <string>
 #include <vector>
 
+class UIRenderer;
+
 class Renderer {
 public:
     Renderer(int worldWidth, int worldHeight, int windowWidth, int windowHeight,
-                 const std::string& title, Sand2D::ParticleRegistry& registry);
+             const std::string& title, Sand2D::ParticleRegistry& registry);
     ~Renderer();
 
-    void render(Sand2D::World& world);
+    void render(Sand2D::World& world, UIRenderer* ui);
     void handleEvents();
 
     bool isOpen() const { return m_isRunning; }

@@ -29,6 +29,7 @@ void PhysicsSystem::update(World& world, float deltaTime) {
     }
 
     // Scan from bottom to top
+    #pragma omp parallel for
     for (int y = world.getHeight() - 1; y >= 0; y--) {
         for (int x = 0; x < world.getWidth(); x++) {
             bool leftToRight = (x % 2 == 0);

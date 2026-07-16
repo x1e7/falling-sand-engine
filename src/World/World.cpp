@@ -6,7 +6,7 @@ namespace Sand2D {
 World::World(int width, int height, ParticleRegistry& registry)
     : m_width(width), m_height(height)
     , m_grid(width * height)
-    , m_dirty(width * height, 0)
+    , m_dirty(width * height, 1)
     , m_registry(registry)
 {
     for (auto& p : m_grid) {

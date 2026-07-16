@@ -21,9 +21,12 @@ public:
 
     ParticleId getParticleId(int x, int y) const;
 
-
     ParticleInstance& getParticle(int x, int y);
     const ParticleInstance& getParticle(int x, int y) const;
+
+    void markDirty(int x, int y);
+    bool isDirty(int x, int y) const;
+    void clearDirty();
 
     bool isInside(int x, int y) const;
 
@@ -36,6 +39,7 @@ private:
     int m_width;
     int m_height;
     std::vector<ParticleInstance> m_grid;
+    std::vector<uint8_t> m_dirty;
     ParticleRegistry& m_registry;
 };
 

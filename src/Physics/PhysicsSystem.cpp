@@ -232,6 +232,9 @@ bool PhysicsSystem::tryMove(World& world, const Math::Vec2i& from, const Math::V
         std::swap(fromP.id, toP.id);
         std::swap(fromP.temperature, toP.temperature);
 
+        world.markDirty(from.x, from.y);
+        world.markDirty(to.x, to.y);
+
         int fromIdx = from.y * world.getWidth() + from.x;
         m_movedThisFrame[toIdx] = true;
         m_movedThisFrame[fromIdx] = true;
@@ -247,6 +250,9 @@ bool PhysicsSystem::tryMove(World& world, const Math::Vec2i& from, const Math::V
         std::swap(fromP.id, toP.id);
         std::swap(fromP.temperature, toP.temperature);
 
+        world.markDirty(from.x, from.y);
+        world.markDirty(to.x, to.y);
+
         int fromIdx = from.y * world.getWidth() + from.x;
         m_movedThisFrame[toIdx] = true;
         m_movedThisFrame[fromIdx] = true;
@@ -256,6 +262,9 @@ bool PhysicsSystem::tryMove(World& world, const Math::Vec2i& from, const Math::V
     if (fromDef.state == PhysicalState::Powder && toDef.state == PhysicalState::Liquid) {
         std::swap(fromP.id, toP.id);
         std::swap(fromP.temperature, toP.temperature);
+
+        world.markDirty(from.x, from.y);
+        world.markDirty(to.x, to.y);
 
         int fromIdx = from.y * world.getWidth() + from.x;
         m_movedThisFrame[toIdx] = true;
@@ -272,6 +281,9 @@ bool PhysicsSystem::tryMove(World& world, const Math::Vec2i& from, const Math::V
             std::swap(fromP.id, toP.id);
             std::swap(fromP.temperature, toP.temperature);
 
+            world.markDirty(from.x, from.y);
+            world.markDirty(to.x, to.y);
+
             int fromIdx = from.y * world.getWidth() + from.x;
             m_movedThisFrame[toIdx] = true;
             m_movedThisFrame[fromIdx] = true;
@@ -285,6 +297,9 @@ bool PhysicsSystem::tryMove(World& world, const Math::Vec2i& from, const Math::V
             std::swap(fromP.id, toP.id);
             std::swap(fromP.temperature, toP.temperature);
 
+            world.markDirty(from.x, from.y);
+            world.markDirty(to.x, to.y);
+
             int fromIdx = from.y * world.getWidth() + from.x;
             m_movedThisFrame[toIdx] = true;
             m_movedThisFrame[fromIdx] = true;
@@ -296,6 +311,9 @@ bool PhysicsSystem::tryMove(World& world, const Math::Vec2i& from, const Math::V
     if (toDef.density < fromDef.density) {
         std::swap(fromP.id, toP.id);
         std::swap(fromP.temperature, toP.temperature);
+
+        world.markDirty(from.x, from.y);
+        world.markDirty(to.x, to.y);
 
         int fromIdx = from.y * world.getWidth() + from.x;
         m_movedThisFrame[toIdx] = true;

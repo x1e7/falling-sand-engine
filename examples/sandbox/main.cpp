@@ -3,6 +3,7 @@
 
 int main(int argc, char* argv[]) {
     Sand2D::ParticleRegistry registry;
+    registry.setBackgroundColor(0xFF2A2A2A);
     Sand2D::registerSand2DParticles(registry);
 
     // World size matches window size for perfect pixel mapping

@@ -82,17 +82,19 @@ void Renderer::updateTexture(Sand2D::World& world) {
 
     for (int y = 0; y < height; ++y) {
         for (int x = 0; x < width; ++x) {
+            if (!world.isDirty(x, y)) continue;
+
             Sand2D::ParticleId id = world.getParticleId(x, y);
             uint32_t color;
 
             if (id == Sand2D::ParticleRegistry::Empty) {
-                color = 0x00000000;
+                color = registry.get(id).color;
             } else {
                 uint32_t rawColor = registry.get(id).color;
 
-                uint8_t r = (rawColor >> 24) & 0xFF;
-                uint8_t g = (rawColor >> 16) & 0xFF;
-                uint8_t b = (rawColor >> 8) & 0xFF;
+                uint8_t r = (rawColor >> 16) & 0xFF;  // RR
+                uint8_t g = (rawColor >> 8) & 0xFF;   // GG
+                uint8_t b = rawColor & 0xFF;           // BB
 
                 color = (r << 16) | (g << 8) | b;
             }
@@ -100,6 +102,8 @@ void Renderer::updateTexture(Sand2D::World& world) {
             m_pixelBuffer[static_cast<size_t>(y) * width + x] = color;
         }
     }
+
+    world.clearDirty();
 }
 
 void Renderer::render(Sand2D::World& world) {

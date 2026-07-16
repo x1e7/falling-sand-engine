@@ -30,6 +30,10 @@ public:
         return m_definitions;
     }
 
+    void setBackgroundColor(uint32_t color) {
+        m_definitions[0].color = color;
+    }
+
     static constexpr ParticleId Empty = 0;
 
 private:
@@ -44,44 +48,44 @@ inline void registerSand2DParticles(ParticleRegistry& registry) {
     sand.name = "Sand";
     sand.state = PhysicalState::Powder;
     sand.density = 1600.0f;
-    sand.viscosity = 0.0f;
-    sand.restitution = 0.3f;
-    sand.friction = 0.6f;
-    sand.color = 0xC4B280FF;
+    //sand.viscosity = 0.0f;
+    //sand.restitution = 0.3f;
+    //sand.friction = 0.6f;
+    sand.color = 0xFFE8C87A;
     registry.registerParticle(sand);
 
     ParticleDefinition water;
     water.name = "Water";
     water.state = PhysicalState::Liquid;
     water.density = 1000.0f;
-    water.viscosity = 0.01f;
-    water.restitution = 0.1f;
-    water.friction = 0.3f;
-    water.color = 0x40A4DFFF;
+    //water.viscosity = 0.01f;
+    //water.restitution = 0.1f;
+    //water.friction = 0.3f;
+    water.color = 0xFF40C8FF;  // Яркий океанский синий
     registry.registerParticle(water);
 
     ParticleDefinition smoke;
     smoke.name = "Smoke";
     smoke.state = PhysicalState::Gas;
     smoke.density = 0.6f;
-    smoke.color = 0x88888888;
+    smoke.color = 0xCCCCCCCC;
     registry.registerParticle(smoke);
 
     ParticleDefinition fire;
     fire.name = "Fire";
     fire.state = PhysicalState::Fire;
-    fire.density = 0.2f;           // Light - rises quickly
-    fire.viscosity = 0.0f;
-    fire.restitution = 0.0f;
-    fire.friction = 0.0f;
-    fire.color = 0xFF6600FF;        // Bright orange
+    //fire.density = 0.2f;           // Light - rises quickly
+    //fire.viscosity = 0.0f;
+    //fire.restitution = 0.0f;
+    //fire.friction = 0.0f;
+    fire.color = 0xFFFF8C00;        // Bright orange
     registry.registerParticle(fire);
 
     ParticleDefinition wall;
     wall.name = "Wall";
     wall.state = PhysicalState::Solid;
     wall.density = 999999.0f;
-    wall.color = 0x646464FF;
+    wall.color = 0xFF8899AA;
     registry.registerParticle(wall);
 }
 

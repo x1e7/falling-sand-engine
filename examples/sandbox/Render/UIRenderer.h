@@ -35,6 +35,7 @@ private:
     int m_textScale = 2;
 
     int m_fps = 0;
-    std::string m_brushName = "Sand";
     int m_brushSize = 1;
+
+    std::string m_brushName = "Sand";
 };

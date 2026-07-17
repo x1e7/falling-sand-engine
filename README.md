@@ -23,7 +23,7 @@ A real-time 2D particle sandbox simulation with physics-based interactions. Feat
 - [x] Variable brush size
 - [ ] Pause simulation (Spacebar)
 - [ ] Particle counter (total particles on screen)
-- [ ] FPS counter overlay
+- [x] FPS counter overlay
 
 ### Core Physics
 - [ ] Liquid pressure system (water spreads faster under pressure)

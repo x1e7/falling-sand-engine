@@ -15,7 +15,7 @@ public:
     void setScreenSize(int width, int height);
     SDL_Texture* getTexture() const { return m_uiTexture; }
 
-    void setFPS(int fps) { m_fps = fps; }
+    void setFPS(int fps);
     void setBrushInfo(const std::string& name, int size) {
         m_brushName = name;
         m_brushSize = size;
@@ -29,6 +29,8 @@ private:
     SDL_Renderer* m_renderer = nullptr;
     SDL_Texture* m_fontTexture = nullptr;
     SDL_Texture* m_uiTexture = nullptr;
+
+    std::string m_fpsText;
 
     int m_screenWidth = 0;
     int m_screenHeight = 0;

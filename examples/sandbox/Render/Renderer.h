@@ -29,7 +29,6 @@ private:
     SDL_Window* m_window = nullptr;
     SDL_Renderer* m_renderer = nullptr;
     SDL_Texture* m_texture = nullptr;
-    SDL_GLContext m_glContext = nullptr;
 
     int m_windowWidth, m_windowHeight;
     int m_textureWidth, m_textureHeight;

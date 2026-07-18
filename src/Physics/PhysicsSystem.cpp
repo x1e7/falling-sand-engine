@@ -1,6 +1,5 @@
 #include <Sand2D/Physics/PhysicsSystem.h>
 #include <Sand2D/Core/ParticleRegistry.h>
-#include <cstdlib>
 #include <random>
 #include <chrono>
 
@@ -15,16 +14,11 @@ void PhysicsSystem::update(World& world, float deltaTime) {
     int worldWidth = world.getWidth();
     int worldHeight = world.getHeight();
     int totalCells = worldWidth * worldHeight;
-    m_movedThisFrame.assign(totalCells, 0);
 
-    for (int y = 0; y < worldHeight; y++) {
-        for (int x = 0; x < worldWidth; x++) {
-            if (world.getParticleId(x, y) != ParticleRegistry::Empty) {
-                world.incrementAge(x, y);
-            } else {
-                world.resetAge(x, y);
-            }
-        }
+    if (m_movedThisFrame.size() != totalCells) {
+        m_movedThisFrame.resize(totalCells, 0);
+    } else {
+        std::fill(m_movedThisFrame.begin(), m_movedThisFrame.end(), 0);
     }
 
     for (int y = worldHeight - 1; y >= 0; --y) {
@@ -38,7 +32,12 @@ void PhysicsSystem::update(World& world, float deltaTime) {
             if (m_movedThisFrame[idx]) continue;
 
             const ParticleId id = world.getParticleId(x, y);
-            if (id == ParticleRegistry::Empty) continue;
+            if (id == ParticleRegistry::Empty) {
+                world.resetAge(x, y);
+                continue;
+            }
+
+            world.incrementAge(x, y);
 
             const Math::Vec2i oldPos(x, y);
             Math::Vec2i newPos = oldPos;
@@ -56,7 +55,8 @@ void PhysicsSystem::update(World& world, float deltaTime) {
 
 void PhysicsSystem::updateParticle(World& world, const Math::Vec2i& pos) {
     ParticleInstance& p = world.getParticle(pos.x, pos.y);
-    const auto& def = world.getRegistry().get(p.id);
+    const auto& registry = world.getRegistry();
+    const auto& def = registry.get(p.id);
 
     switch (def.state) {
         case PhysicalState::Powder:
@@ -100,8 +100,7 @@ void PhysicsSystem::updatePowder(World& world, const Math::Vec2i& pos) {
 
 void PhysicsSystem::updateLiquid(World& world, const Math::Vec2i& pos) {
     auto& rng = getRng();
-    std::uniform_int_distribution<int> dist(-1, 1);
-    int dx = dist(rng);
+    int dx = std::uniform_int_distribution<>(-1, 1)(rng);
 
     Math::Vec2i down(pos.x, pos.y + 1);
     if (tryMove(world, pos, down)) return;
@@ -116,14 +115,18 @@ void PhysicsSystem::updateLiquid(World& world, const Math::Vec2i& pos) {
     Math::Vec2i right(pos.x + dx, pos.y);
     if (tryMove(world, pos, right)) return;
 
-    Math::Vec2i left(pos.x - dx, pos.y);
-    if (tryMove(world, pos, left)) return;
+    if (dx != 0) {
+        Math::Vec2i left(pos.x - dx, pos.y);
+        if (tryMove(world, pos, left)) return;
+    }
 
     Math::Vec2i downRight(pos.x + dx, pos.y + 1);
     if (tryMove(world, pos, downRight)) return;
 
-    Math::Vec2i downLeft(pos.x - dx, pos.y + 1);
-    if (tryMove(world, pos, downLeft)) return;
+    if (dx != 0) {
+        Math::Vec2i downLeft(pos.x - dx, pos.y + 1);
+        if (tryMove(world, pos, downLeft)) return;
+    }
 }
 
 void PhysicsSystem::updateGas(World& world, const Math::Vec2i& pos) {
@@ -155,62 +158,40 @@ void PhysicsSystem::updateGas(World& world, const Math::Vec2i& pos) {
 
 void PhysicsSystem::updateFire(World& world, const Math::Vec2i& pos) {
     auto& rng = getRng();
-    std::uniform_int_distribution<int> dist(-1, 1);
-    int dx = dist(rng);
-
     int age = world.getAge(pos.x, pos.y);
 
-    std::uniform_int_distribution<int> lifetimeDist(30, 120);
-    if (age > lifetimeDist(rng)) {
+    if (age > 20 && std::uniform_int_distribution<>(0, 99)(rng) < 10) {
         ParticleId smokeId = world.getRegistry().findId("Smoke");
-        if (smokeId != ParticleRegistry::Empty) {
-            world.setParticle(pos.x, pos.y, smokeId);
-        } else {
-            world.setParticle(pos.x, pos.y, ParticleRegistry::Empty);
-        }
+        world.setParticle(pos.x, pos.y, smokeId != ParticleRegistry::Empty ? smokeId : ParticleRegistry::Empty);
         return;
     }
 
-    std::uniform_int_distribution<int> chanceDist(0, 99);
+    static const Math::Vec2i directions[] = {
+        {0, -1}, {-1, 0}, {1, 0}, {-1, -1}, {1, -1}, {0, 1}
+    };
 
-    if (chanceDist(rng) < 60) {
-        Math::Vec2i up(pos.x, pos.y - 1);
-        if (tryMove(world, pos, up)) return;
+    int indices[] = {0, 1, 2, 3, 4, 5};
+    for (int i = 5; i > 0; --i) {
+        int j = std::uniform_int_distribution<>(0, i)(rng);
+        std::swap(indices[i], indices[j]);
     }
 
-    if (chanceDist(rng) < 40) {
-        Math::Vec2i right(pos.x + dx, pos.y);
-        if (tryMove(world, pos, right)) return;
-
-        Math::Vec2i left(pos.x - dx, pos.y);
-        if (tryMove(world, pos, left)) return;
+    for (int i = 0; i < 5; ++i) {
+        const auto& dir = directions[indices[i]];
+        Math::Vec2i newPos(pos.x + dir.x, pos.y + dir.y);
+        if (tryMove(world, pos, newPos)) return;
     }
 
-    if (chanceDist(rng) < 30) {
-        Math::Vec2i upRight(pos.x + dx, pos.y - 1);
-        if (tryMove(world, pos, upRight)) return;
-
-        Math::Vec2i upLeft(pos.x - dx, pos.y - 1);
-        if (tryMove(world, pos, upLeft)) return;
-    }
-
-    if (chanceDist(rng) < 30) {
-        for (int dy = -1; dy <= 1; dy++) {
-            for (int dx2 = -1; dx2 <= 1; dx2++) {
-                if (dx2 == 0 && dy == 0) continue;
-
-                Math::Vec2i neighbor(pos.x + dx2, pos.y + dy);
-                if (!world.isInside(neighbor.x, neighbor.y)) continue;
-
-                ParticleId neighborId = world.getParticleId(neighbor.x, neighbor.y);
-                if (neighborId == ParticleRegistry::Empty) continue;
-
-                const auto& neighborDef = world.getRegistry().get(neighborId);
-                if (neighborDef.name == "Oil") {
+    ParticleId oilId = world.getRegistry().findId("Oil");
+    if (oilId != ParticleRegistry::Empty && std::uniform_int_distribution<>(0, 99)(rng) < 15) {
+        for (int dy = -2; dy <= 2; ++dy) {
+            for (int dx = -2; dx <= 2; ++dx) {
+                if (dx == 0 && dy == 0) continue;
+                Math::Vec2i neighbor(pos.x + dx, pos.y + dy);
+                if (world.isInside(neighbor.x, neighbor.y) &&
+                    world.getParticleId(neighbor.x, neighbor.y) == oilId) {
                     ParticleId fireId = world.getRegistry().findId("Fire");
-                    if (fireId != ParticleRegistry::Empty) {
-                        world.setParticle(neighbor.x, neighbor.y, fireId);
-                    }
+                    world.setParticle(neighbor.x, neighbor.y, fireId);
                 }
             }
         }
@@ -220,53 +201,23 @@ void PhysicsSystem::updateFire(World& world, const Math::Vec2i& pos) {
 bool PhysicsSystem::tryMove(World& world, const Math::Vec2i& from, const Math::Vec2i& to) {
     if (!world.isInside(to.x, to.y)) return false;
 
-    int toIdx = to.y * world.getWidth() + to.x;
+    const int toIdx = to.y * world.getWidth() + to.x;
     if (m_movedThisFrame[toIdx]) return false;
 
-    ParticleInstance& fromP = world.getParticle(from.x, from.y);
-    ParticleInstance& toP = world.getParticle(to.x, to.y);
-    const auto& fromDef = world.getRegistry().get(fromP.id);
+    const auto& registry = world.getRegistry();
+    const auto& fromP = world.getParticle(from.x, from.y);
+    const auto& toP = world.getParticle(to.x, to.y);
 
     if (toP.id == ParticleRegistry::Empty) {
         return performSwap(world, from, to);
     }
 
-    const auto& toDef = world.getRegistry().get(toP.id);
+    const auto& fromDef = registry.get(fromP.id);
+    const auto& toDef = registry.get(toP.id);
 
     if (toDef.state == PhysicalState::Solid) return false;
 
-    if ((fromDef.state == PhysicalState::Gas || fromDef.state == PhysicalState::Fire) &&
-        (toDef.state == PhysicalState::Liquid || toDef.state == PhysicalState::Powder)) {
-            return performSwap(world, from, to);
-    }
-
-    if (fromDef.state == PhysicalState::Fire && toDef.state == PhysicalState::Gas) {
-        return performSwap(world, from, to);
-    }
-
-    if (fromDef.state == PhysicalState::Powder && toDef.state == PhysicalState::Liquid) {
-        return performSwap(world, from, to);
-    }
-
-    if (fromDef.state == PhysicalState::Liquid && toDef.state == PhysicalState::Powder) {
-        return false;
-    }
-
-    if (fromDef.state == PhysicalState::Liquid && toDef.state == PhysicalState::Liquid) {
-        if (toDef.density < fromDef.density) {
-            return performSwap(world, from, to);
-        }
-        return false;
-    }
-
-    if (fromDef.state == PhysicalState::Powder && toDef.state == PhysicalState::Powder) {
-        if (toDef.density < fromDef.density) {
-            return performSwap(world, from, to);
-        }
-        return false;
-    }
-
-    if (toDef.density < fromDef.density) {
+    if (fromDef.density > toDef.density) {
         return performSwap(world, from, to);
     }
 

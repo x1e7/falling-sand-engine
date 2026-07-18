@@ -51,6 +51,17 @@ public:
     ParticleRegistry& getRegistry() { return m_registry; }
     const ParticleRegistry& getRegistry() const { return m_registry; }
 
+    template<typename Func>
+    void forEachDirtyCell(Func&& func) const {
+        for (int y = 0; y < m_height; ++y) {
+            size_t rowOffset = y * m_width;
+            for (int x = 0; x < m_width; ++x) {
+                if (m_dirty[rowOffset + x]) {
+                    func(x, y);
+                }
+            }
+        }
+    }
 private:
     int m_width;
     int m_height;

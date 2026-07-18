@@ -19,11 +19,13 @@ int main(int argc, char* argv[]) {
                      "Sandbox - Physics Demo", registry);
     UIRenderer ui(renderer.getRenderer(), WINDOW_WIDTH, WINDOW_HEIGHT);
 
+    Sand2D::ParticleId emptyId = Sand2D::ParticleRegistry::Empty;
     Sand2D::ParticleId sandId = registry.findId("Sand");
     Sand2D::ParticleId waterId = registry.findId("Water");
+    Sand2D::ParticleId fireId = registry.findId("Fire");
     Sand2D::ParticleId wallId = registry.findId("Wall");
     Sand2D::ParticleId smokeId = registry.findId("Smoke");
-    Sand2D::ParticleId emptyId = Sand2D::ParticleRegistry::Empty;
+    Sand2D::ParticleId oilId = registry.findId("Oil");
 
     Sand2D::WorldSerializer::loadWorld(world, "world.bin");
 
@@ -52,8 +54,9 @@ int main(int argc, char* argv[]) {
 
         if (keyboardState[SDL_SCANCODE_1]) currentBrush = sandId;
         if (keyboardState[SDL_SCANCODE_2]) currentBrush = waterId;
-        if (keyboardState[SDL_SCANCODE_3]) currentBrush = registry.findId("Fire");
+        if (keyboardState[SDL_SCANCODE_3]) currentBrush = fireId;
         if (keyboardState[SDL_SCANCODE_4]) currentBrush = wallId;
+        if (keyboardState[SDL_SCANCODE_5]) currentBrush = oilId;
 
         int mouseX, mouseY;
         renderer.getMouseWorldPosition(world, mouseX, mouseY);
@@ -129,6 +132,7 @@ int main(int argc, char* argv[]) {
         else if (currentBrush == waterId) brushName = "Water";
         else if (currentBrush == registry.findId("Fire")) brushName = "Fire";
         else if (currentBrush == wallId) brushName = "Wall";
+        else if (currentBrush == oilId) brushName = "Oil";
         ui.setBrushInfo(brushName, brushRadius);
 
         renderer.render(world, &ui);

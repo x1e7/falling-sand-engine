@@ -37,6 +37,13 @@ void UIRenderer::setScreenSize(int width, int height) {
     }
 }
 
+void UIRenderer::setFPS(int fps) {
+    if (m_fps != fps) {
+        m_fps = fps;
+        m_fpsText = "FPS: " + std::to_string(fps);
+    }
+}
+
 void UIRenderer::createFontTexture() {
     const int textureWidth = FontData::FONT_CHAR_WIDTH * FontData::FONT_CHARS_COUNT;
     const int textureHeight = FontData::FONT_CHAR_HEIGHT;
@@ -97,8 +104,10 @@ void UIRenderer::drawChar(char c, int x, int y, uint32_t color) {
 
 void UIRenderer::drawText(const std::string& text, int x, int y, uint32_t color) {
     int charWidth = FontData::FONT_CHAR_WIDTH * m_textScale;
+    int xPos = x;
     for (size_t i = 0; i < text.length(); ++i) {
-        drawChar(text[i], x + static_cast<int>(i) * charWidth, y, color);
+        drawChar(text[i], xPos, y, color);
+        xPos += charWidth;
     }
 }
 
@@ -111,9 +120,7 @@ void UIRenderer::renderToTexture() {
     SDL_RenderClear(m_renderer);
 
     // FPS
-    std::string fpsText = "FPS: " + std::to_string(m_fps);
-    uint32_t fpsColor = (m_fps >= 60) ? 0x00FF00 : (m_fps >= 30) ? 0xFFFF00 : 0xFF0000;
-    drawText(fpsText, 10, 10, fpsColor);
+    drawText(m_fpsText, 10, 10, 0xFFCCCCCC);
 
     // Brush info
     std::string info = "Brush: " + m_brushName + " (" + std::to_string(m_brushSize) + ")";

@@ -16,8 +16,6 @@ Renderer::Renderer(int worldWidth, int worldHeight, int windowWidth, int windowH
         exit(1);
     }
 
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
     SDL_GL_SetAttribute(SDL_GL_ACCELERATED_VISUAL, 1);
 
@@ -31,15 +29,11 @@ Renderer::Renderer(int worldWidth, int worldHeight, int windowWidth, int windowH
         exit(1);
     }
 
-    m_glContext = SDL_GL_CreateContext(m_window);
-    if (!m_glContext) {
-        std::cerr << "SDL_GL_CreateContext Error: " << SDL_GetError() << std::endl;
-        exit(1);
-    }
-
     SDL_GL_SetSwapInterval(1);
 
     m_renderer = SDL_CreateRenderer(m_window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+
+
     if (!m_renderer) {
         std::cerr << "SDL_CreateRenderer Error: " << SDL_GetError() << std::endl;
         exit(1);
@@ -60,7 +54,6 @@ Renderer::Renderer(int worldWidth, int worldHeight, int windowWidth, int windowH
 Renderer::~Renderer() {
     if (m_texture) SDL_DestroyTexture(m_texture);
     if (m_renderer) SDL_DestroyRenderer(m_renderer);
-    if (m_glContext) SDL_GL_DeleteContext(m_glContext);
     if (m_window) SDL_DestroyWindow(m_window);
     SDL_Quit();
 }
@@ -81,27 +74,11 @@ void Renderer::updateTexture(Sand2D::World& world) {
         m_textureHeight = height;
     }
 
-    for (int y = 0; y < height; ++y) {
-        for (int x = 0; x < width; ++x) {
-            if (!world.isDirty(x, y)) continue;
-
-            Sand2D::ParticleId id = world.getParticleId(x, y);
-            uint32_t color;
-
-            if (id == Sand2D::ParticleRegistry::Empty) {
-                color = registry.get(id).color;
-            } else {
-                uint32_t rawColor = registry.get(id).color;
-                uint8_t r = (rawColor >> 16) & 0xFF;
-                uint8_t g = (rawColor >> 8) & 0xFF;
-                uint8_t b = rawColor & 0xFF;
-                color = (r << 16) | (g << 8) | b;
-            }
-
-            m_pixelBuffer[static_cast<size_t>(y) * width + x] = color;
-        }
-    }
-
+    world.forEachDirtyCell([&](int x, int y) {
+        const auto& particle = world.getParticle(x, y);
+        uint32_t color = registry.get(particle.id).color;
+        m_pixelBuffer[y * width + x] = color & 0x00FFFFFF;
+    });
     world.clearDirty();
 }
 

@@ -79,6 +79,13 @@ inline void registerSand2DParticles(ParticleRegistry& registry) {
     wall.density = 999999.0f;
     wall.color = 0xFF8899AA;
     registry.registerParticle(wall);
+
+    ParticleDefinition oil;
+    oil.name = "Oil";
+    oil.state = PhysicalState::Liquid;
+    oil.density = 800.0f;
+    oil.color = 0xFF8B4513;
+    registry.registerParticle(oil);
 }
 
 }

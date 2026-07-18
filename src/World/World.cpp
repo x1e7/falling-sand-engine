@@ -19,6 +19,7 @@ void World::setParticle(int x, int y, ParticleId id, uint8_t temp) {
     auto& p = m_grid[y * m_width + x];
     p.id = id;
     p.temp = temp;
+    p.age = 0;
 
     markDirty(x, y);
 }
@@ -39,21 +40,7 @@ const ParticleInstance& World::getParticle(int x, int y) const {
 void World::markDirty(int x, int y)
 {
     if (!isInside(x, y)) return;
-    size_t idx = y * m_width + x;
-    m_dirty[idx] = 1;
-
-    if (x > 0) {
-        m_dirty[idx - 1] = 1;
-        if (y > 0) m_dirty[idx - m_width - 1] = 1;
-        if (y + 1 < m_height) m_dirty[idx + m_width - 1] = 1;
-    }
-    if (x + 1 < m_width) {
-        m_dirty[idx + 1] = 1;
-        if (y > 0) m_dirty[idx - m_width + 1] = 1;
-        if (y + 1 < m_height) m_dirty[idx + m_width + 1] = 1;
-    }
-    if (y > 0) m_dirty[idx - m_width] = 1;
-    if (y + 1 < m_height) m_dirty[idx + m_width] = 1;
+    m_dirty[y * m_width + x] = 1;
 }
 
 bool World::isDirty(int x, int y) const

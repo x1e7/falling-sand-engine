@@ -54,15 +54,50 @@ constexpr std::array<std::array<uint8_t, 8>, 41> FONT_8x8 = {{
 }};
 
 inline int charToIndex(char c) {
-    if (c >= '0' && c <= '9') return c - '0';         // 0-9
-    if (c >= 'A' && c <= 'Z') return 10 + (c - 'A');  // A-Z
-    if (c >= 'a' && c <= 'z') return 10 + (c - 'a');  // a-z
-    if (c == ' ') return 36;                           // SPACE
-    if (c == '!') return 37;                           // !
-    if (c == ':') return 38;                           // :
-    if (c == '(') return 39;                           // (
-    if (c == ')') return 40;                           // )
-    return -1;
+    switch(c) {
+        case '0': return 0;
+        case '1': return 1;
+        case '2': return 2;
+        case '3': return 3;
+        case '4': return 4;
+        case '5': return 5;
+        case '6': return 6;
+        case '7': return 7;
+        case '8': return 8;
+        case '9': return 9;
+        case 'A': case 'a': return 10;
+        case 'B': case 'b': return 11;
+        case 'C': case 'c': return 12;
+        case 'D': case 'd': return 13;
+        case 'E': case 'e': return 14;
+        case 'F': case 'f': return 15;
+        case 'G': case 'g': return 16;
+        case 'H': case 'h': return 17;
+        case 'I': case 'i': return 18;
+        case 'J': case 'j': return 19;
+        case 'K': case 'k': return 20;
+        case 'L': case 'l': return 21;
+        case 'M': case 'm': return 22;
+        case 'N': case 'n': return 23;
+        case 'O': case 'o': return 24;
+        case 'P': case 'p': return 25;
+        case 'Q': case 'q': return 26;
+        case 'R': case 'r': return 27;
+        case 'S': case 's': return 28;
+        case 'T': case 't': return 29;
+        case 'U': case 'u': return 30;
+        case 'V': case 'v': return 31;
+        case 'W': case 'w': return 32;
+        case 'X': case 'x': return 33;
+        case 'Y': case 'y': return 34;
+        case 'Z': case 'z': return 35;
+        case ' ': return 36;
+        case '!': return 37;
+        case ':': return 38;
+        case '(': return 39;
+        case ')': return 40;
+        default: return -1;
+    }
 }
 
 inline bool isCharSupported(char c) {

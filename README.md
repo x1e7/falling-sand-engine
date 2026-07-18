@@ -36,7 +36,7 @@ A real-time 2D particle sandbox simulation with physics-based interactions. Feat
 ### New Content
 - [ ] Lava (melts walls, ignites wood)
 - [ ] Wood (burns, creates ash)
-- [ ] Oil (floats on water, ignites)
+- [x] Oil (floats on water, ignites)
 - [ ] Acid (dissolves most materials)
 - [ ] Plant/Seed (grows on soil)
 - [x] New particles
@@ -81,6 +81,7 @@ A real-time 2D particle sandbox simulation with physics-based interactions. Feat
 | `2` | Select Water |
 | `3` | Select Fire |
 | `4` | Select Wall |
+| `5` | Select Oil |
 | `CTRL + S` | Save World |
 | `CTRL + L` | Load World |
 | `LMB` | Place particle |

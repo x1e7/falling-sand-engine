@@ -113,8 +113,26 @@ void Renderer::handleEvents() {
                 }
                 break;
             case SDL_KEYDOWN:
-                if (event.key.keysym.sym == SDLK_ESCAPE) {
-                    m_isRunning = false;
+                switch (event.key.keysym.sym) {
+                    case SDLK_ESCAPE:
+                        m_isRunning = false;
+                        break;
+                    case SDLK_PLUS:
+                    case SDLK_KP_PLUS:
+                        m_wheelCallback(1);
+                        break;
+                    case SDLK_MINUS:
+                    case SDLK_KP_MINUS:
+                        m_wheelCallback(-1);
+                        break;
+                    case SDLK_EQUALS:
+                        m_wheelCallback(1);
+                        break;
+                }
+                break;
+            case SDL_MOUSEWHEEL:
+                if (m_wheelCallback) {
+                    m_wheelCallback(event.wheel.y);
                 }
                 break;
         }

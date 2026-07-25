@@ -46,6 +46,14 @@ int main(int argc, char* argv[]) {
     int frameCount = 0;
     Uint32 lastTime = SDL_GetTicks();
 
+    renderer.setWheelCallback([&](int direction) {
+        if (direction > 0) {
+            brushRadius = std::min(brushRadius + 1, MAX_BRUSH_RADIUS);
+        } else if (direction < 0) {
+            brushRadius = std::max(brushRadius - 1, MIN_BRUSH_RADIUS);
+        }
+    });
+
     while (renderer.isOpen()) {
         renderer.handleEvents();
 
@@ -62,16 +70,6 @@ int main(int argc, char* argv[]) {
         renderer.getMouseWorldPosition(world, mouseX, mouseY);
 
         Uint32 currentTime = SDL_GetTicks();
-        if (currentTime - lastBrushChange > BRUSH_COOLDOWN) {
-            if (keyboardState[SDL_SCANCODE_EQUALS] || keyboardState[SDL_SCANCODE_KP_PLUS]) {
-                brushRadius = std::min(brushRadius + 1, MAX_BRUSH_RADIUS);
-                lastBrushChange = currentTime;
-            }
-            if (keyboardState[SDL_SCANCODE_MINUS] || keyboardState[SDL_SCANCODE_KP_MINUS]) {
-                brushRadius = std::max(brushRadius - 1, MIN_BRUSH_RADIUS);
-                lastBrushChange = currentTime;
-            }
-        }
 
         if (ctrlPressed && currentTime - lastSaveLoad > SAVE_COOLDOWN) {
             if (keyboardState[SDL_SCANCODE_S]) {

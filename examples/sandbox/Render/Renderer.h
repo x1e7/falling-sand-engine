@@ -5,6 +5,7 @@
 #include <Sand2D/World/World.h>
 #include <string>
 #include <vector>
+#include <functional>
 
 class UIRenderer;
 
@@ -15,16 +16,24 @@ public:
     ~Renderer();
 
     void render(Sand2D::World& world, UIRenderer* ui);
-    void handleEvents();
 
     bool isOpen() const { return m_isRunning; }
     SDL_Window* getWindow() { return m_window; }
     SDL_Renderer* getRenderer() const { return m_renderer; }
+
+    void handleEvents();
+
+    void setWheelCallback(std::function<void(int)> callback) {
+        m_wheelCallback = callback;
+    }
+
     void getMouseWorldPosition(Sand2D::World& world, int& x, int& y) const;
 
 private:
     void updateTexture(Sand2D::World& world);
     void updateViewport(int width, int height);
+
+    std::function<void(int)> m_wheelCallback;
 
     SDL_Window* m_window = nullptr;
     SDL_Renderer* m_renderer = nullptr;

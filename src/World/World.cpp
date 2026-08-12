@@ -1,7 +1,5 @@
-#include <Sand2D/World/World.h>
+#include <World/World.h>
 #include <cstring>
-
-namespace Sand2D {
 
 World::World(int width, int height, ParticleRegistry& registry)
     : m_width(width), m_height(height)
@@ -11,6 +9,8 @@ World::World(int width, int height, ParticleRegistry& registry)
 {
     for (auto& p : m_grid) {
         p.id = ParticleRegistry::Empty;
+        p.temp = static_cast<uint8_t>(DEFAULT_TEMP);
+        p.age = 0;
     }
 }
 
@@ -56,6 +56,4 @@ void World::clearDirty()
 
 bool World::isInside(int x, int y) const {
     return x >= 0 && x < m_width && y >= 0 && y < m_height;
-}
-
 }

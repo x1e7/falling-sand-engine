@@ -2,35 +2,40 @@
 
 #define SDL_MAIN_HANDLED
 #include <SDL2/SDL.h>
-#include <Sand2D/World/World.h>
+#include <World/World.h>
 #include <string>
 #include <vector>
 #include <functional>
 
 class UIRenderer;
 
+enum class RenderMode {
+    Color,
+    Thermal
+};
+
 class Renderer {
 public:
     Renderer(int worldWidth, int worldHeight, int windowWidth, int windowHeight,
-             const std::string& title, Sand2D::ParticleRegistry& registry);
+             const std::string& title, ParticleRegistry& registry);
     ~Renderer();
 
-    void render(Sand2D::World& world, UIRenderer* ui);
+    void render(World& world, UIRenderer* ui);
 
     bool isOpen() const { return m_isRunning; }
     SDL_Window* getWindow() { return m_window; }
     SDL_Renderer* getRenderer() const { return m_renderer; }
 
-    void handleEvents();
+    void handleEvents(World* world = nullptr);
 
     void setWheelCallback(std::function<void(int)> callback) {
         m_wheelCallback = callback;
     }
 
-    void getMouseWorldPosition(Sand2D::World& world, int& x, int& y) const;
+    void getMouseWorldPosition(World& world, int& x, int& y) const;
 
 private:
-    void updateTexture(Sand2D::World& world);
+    void updateTexture(World& world);
     void updateViewport(int width, int height);
 
     std::function<void(int)> m_wheelCallback;
@@ -43,7 +48,8 @@ private:
     int m_textureWidth, m_textureHeight;
 
     std::vector<uint32_t> m_pixelBuffer;
-    Sand2D::ParticleRegistry& m_registry;
+    ParticleRegistry& m_registry;
 
+    RenderMode m_renderMode = RenderMode::Color;
     bool m_isRunning = true;
 };

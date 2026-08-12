@@ -1,7 +1,5 @@
-#include <Sand2D/Serialization/WorldSerializer.h>
+#include <Serialization/WorldSerializer.h>
 #include <iostream>
-
-namespace Sand2D {
 
 static const uint32_t MAGIC = 0x53414E44; // "SAND"
 static const uint32_t VERSION = 1;
@@ -131,6 +129,4 @@ bool WorldSerializer::deserializeParticles(World& world, const uint8_t* data, si
     }
 
     return true;
-}
-
 }

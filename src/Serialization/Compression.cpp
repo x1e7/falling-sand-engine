@@ -1,8 +1,6 @@
-#include <Sand2D/Serialization/Compression.h>
+#include <Serialization/Compression.h>
 #include <cstring>
 #include <stdexcept>
-
-namespace Sand2D {
 
 static size_t fastlz_max_compressed_size(size_t size) {
     return size + (size / 255) + 16 + 2;
@@ -69,6 +67,4 @@ std::vector<uint8_t> Compression::decompress(const uint8_t* data, size_t size) {
 
     output.resize(static_cast<size_t>(result));
     return output;
-}
-
 }

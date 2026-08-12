@@ -1,10 +1,8 @@
 #pragma once
 
-#include <Sand2D/Core/ParticleTypes.h>
+#include <Core/ParticleTypes.h>
 #include <unordered_map>
 #include <vector>
-
-namespace Sand2D {
 
 class ParticleRegistry {
 public:
@@ -110,6 +108,4 @@ inline void registerSand2DParticles(ParticleRegistry& registry) {
     oil.ignitionTemp = 180.0f;         // Ignites at 180°C
     oil.emissivity = 0.05f;
     registry.registerParticle(oil);
-}
-
 }

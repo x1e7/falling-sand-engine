@@ -1,35 +1,37 @@
-#include <Sand2D/Sand2D.h>
+#include <Sand2D.h>
 #include "Render/Renderer.h"
 #include "Render/UIRenderer.h"
 
 int main(int argc, char* argv[]) {
-    Sand2D::ParticleRegistry registry;
+    ParticleRegistry registry;
     registry.setBackgroundColor(0xFF2A2A2A);
-    Sand2D::registerSand2DParticles(registry);
+    registerSand2DParticles(registry);
 
     const int WORLD_WIDTH = 800;
     const int WORLD_HEIGHT = 600;
     const int WINDOW_WIDTH = 1280;
     const int WINDOW_HEIGHT = 720;
 
-    Sand2D::World world(WORLD_WIDTH, WORLD_HEIGHT, registry);
-    Sand2D::PhysicsSystem physics;
+    World world(WORLD_WIDTH, WORLD_HEIGHT, registry);
+    PhysicsSystem physics;
+
+    physics.setTemperatureUpdateRate(20.0f);
 
     Renderer renderer(WORLD_WIDTH, WORLD_HEIGHT, WINDOW_WIDTH, WINDOW_HEIGHT,
                      "Sandbox - Physics Demo", registry);
     UIRenderer ui(renderer.getRenderer(), WINDOW_WIDTH, WINDOW_HEIGHT);
 
-    Sand2D::ParticleId emptyId = Sand2D::ParticleRegistry::Empty;
-    Sand2D::ParticleId sandId = registry.findId("Sand");
-    Sand2D::ParticleId waterId = registry.findId("Water");
-    Sand2D::ParticleId fireId = registry.findId("Fire");
-    Sand2D::ParticleId wallId = registry.findId("Wall");
-    Sand2D::ParticleId smokeId = registry.findId("Smoke");
-    Sand2D::ParticleId oilId = registry.findId("Oil");
+    ParticleId emptyId = ParticleRegistry::Empty;
+    ParticleId sandId = registry.findId("Sand");
+    ParticleId waterId = registry.findId("Water");
+    ParticleId fireId = registry.findId("Fire");
+    ParticleId wallId = registry.findId("Wall");
+    ParticleId smokeId = registry.findId("Smoke");
+    ParticleId oilId = registry.findId("Oil");
 
-    Sand2D::WorldSerializer::loadWorld(world, "world.bin");
+    WorldSerializer::loadWorld(world, "world.bin");
 
-    Sand2D::ParticleId currentBrush = sandId;
+    ParticleId currentBrush = sandId;
     int brushRadius = 1;
     const int MAX_BRUSH_RADIUS = 128;
     const int MIN_BRUSH_RADIUS = 1;
@@ -44,7 +46,8 @@ int main(int argc, char* argv[]) {
 
     int fps = 0;
     int frameCount = 0;
-    Uint32 lastTime = SDL_GetTicks();
+    Uint32 lastFrameTime = SDL_GetTicks();
+    Uint32 lastFpsUpdate = SDL_GetTicks();
 
     renderer.setWheelCallback([&](int direction) {
         if (direction > 0) {
@@ -55,7 +58,7 @@ int main(int argc, char* argv[]) {
     });
 
     while (renderer.isOpen()) {
-        renderer.handleEvents();
+        renderer.handleEvents(&world);
 
         keyboardState = SDL_GetKeyboardState(nullptr);
         ctrlPressed = keyboardState[SDL_SCANCODE_LCTRL] || keyboardState[SDL_SCANCODE_RCTRL];
@@ -71,13 +74,18 @@ int main(int argc, char* argv[]) {
 
         Uint32 currentTime = SDL_GetTicks();
 
+        float deltaTime = (currentTime - lastFrameTime) / 1000.0f;
+        lastFrameTime = currentTime;
+
+        deltaTime = std::min(deltaTime, 0.05f);
+
         if (ctrlPressed && currentTime - lastSaveLoad > SAVE_COOLDOWN) {
             if (keyboardState[SDL_SCANCODE_S]) {
-                Sand2D::WorldSerializer::saveWorld(world, "world.bin");
+                WorldSerializer::saveWorld(world, "world.bin");
                 lastSaveLoad = currentTime;
             }
             if (keyboardState[SDL_SCANCODE_L]) {
-                Sand2D::WorldSerializer::loadWorld(world, "world.bin");
+                WorldSerializer::loadWorld(world, "world.bin");
                 lastSaveLoad = currentTime;
             }
         }
@@ -106,20 +114,20 @@ int main(int argc, char* argv[]) {
                     int ny = mouseY + dy;
                     if (dx * dx + dy * dy > brushRadius * brushRadius) continue;
                     if (world.isInside(nx, ny)) {
-                        world.setParticle(nx, ny, emptyId);
+                        world.setParticle(nx, ny, emptyId, 0);
                     }
                 }
             }
         }
 
-        physics.update(world);
+        physics.update(world, deltaTime);
 
         // === FPS ===
         frameCount++;
-        if (SDL_GetTicks() - lastTime >= 1000) {
+        if (SDL_GetTicks() - lastFpsUpdate >= 1000) {
             fps = frameCount;
             frameCount = 0;
-            lastTime = SDL_GetTicks();
+            lastFpsUpdate = SDL_GetTicks();
         }
 
         // === UI ===

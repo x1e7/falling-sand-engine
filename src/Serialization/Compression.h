@@ -3,11 +3,7 @@
 #include <vector>
 #include <cstdint>
 
-extern "C" {
-#include "Sand2D/third_party/fastlz/fastlz.h"
-}
-
-namespace Sand2D {
+#include "fastlz.h"
 
 class Compression
 {
@@ -17,5 +13,3 @@ public:
 private:
     static constexpr float COMPRESSION_THRESHOLD = 0.9f;
 };
-
-}

@@ -1,14 +1,12 @@
 #pragma once
 
-#include <Sand2D/World/World.h>
-#include <Sand2D/Serialization/Compression.h>
+#include <World/World.h>
+#include <Serialization/Compression.h>
 #include <fstream>
 #include <string>
 #include <vector>
 #include <cstdint>
 #include <cstring>
-
-namespace Sand2D {
 
 /*struct WorldMetadata {
     TODO
@@ -34,5 +32,3 @@ private:
     static std::vector<uint8_t> serializeParticles(const World& world);
     static bool deserializeParticles(World& world, const uint8_t* data, size_t size);
 };
-
-}

@@ -2,9 +2,6 @@
 
 #include <cmath>
 
-namespace Sand2D {
-namespace Math {
-
 template<typename T>
 struct Vector2 {
     T x, y;
@@ -56,6 +53,3 @@ struct Vector2 {
 
 using Vec2f = Vector2<float>;
 using Vec2i = Vector2<int>;
-
-} // namespace Math
-} // namespace Sand2D

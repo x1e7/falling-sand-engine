@@ -3,8 +3,22 @@
 #include <iostream>
 #include <algorithm>
 
+static uint32_t temperatureToColor(uint8_t temp) {
+    if (temp < 64) {
+        uint8_t g = temp * 4;
+        return (0xFF << 24) | (0 << 16) | (g << 8) | 255;
+    } else if (temp < 128) {
+        uint8_t r = (temp - 64) * 4;
+        uint8_t b = 255 - (temp - 64) * 4;
+        return (0xFF << 24) | (r << 16) | (255 << 8) | b;
+    } else {
+        uint8_t g = 255 - (temp - 128) * 4;
+        return (0xFF << 24) | (255 << 16) | (g << 8) | 0;
+    }
+}
+
 Renderer::Renderer(int worldWidth, int worldHeight, int windowWidth, int windowHeight,
-                   const std::string& title, Sand2D::ParticleRegistry& registry)
+                   const std::string& title, ParticleRegistry& registry)
     : m_windowWidth(windowWidth)
     , m_windowHeight(windowHeight)
     , m_textureWidth(worldWidth)
@@ -63,7 +77,7 @@ void Renderer::updateViewport(int width, int height) {
     m_windowHeight = height;
 }
 
-void Renderer::updateTexture(Sand2D::World& world) {
+void Renderer::updateTexture(World& world) {
     const int width = world.getWidth();
     const int height = world.getHeight();
     const auto& registry = world.getRegistry();
@@ -74,15 +88,23 @@ void Renderer::updateTexture(Sand2D::World& world) {
         m_textureHeight = height;
     }
 
-    world.forEachDirtyCell([&](int x, int y) {
-        const auto& particle = world.getParticle(x, y);
-        uint32_t color = registry.get(particle.id).color;
-        m_pixelBuffer[y * width + x] = color & 0x00FFFFFF;
-    });
+    if (m_renderMode == RenderMode::Color) {
+        world.forEachDirtyCell([&](int x, int y) {
+            const auto& particle = world.getParticle(x, y);
+            uint32_t color = registry.get(particle.id).color;
+            m_pixelBuffer[y * width + x] = color & 0x00FFFFFF;
+        });
+    } else {
+        world.forEachDirtyCell([&](int x, int y) {
+            const auto& particle = world.getParticle(x, y);
+            uint32_t color = temperatureToColor(particle.temp);
+            m_pixelBuffer[y * width + x] = color & 0x00FFFFFF;
+        });
+    }
     world.clearDirty();
 }
 
-void Renderer::render(Sand2D::World& world, UIRenderer* ui) {
+void Renderer::render(World& world, UIRenderer* ui) {
     updateTexture(world);
 
     SDL_UpdateTexture(m_texture, nullptr, m_pixelBuffer.data(), m_textureWidth * sizeof(uint32_t));
@@ -100,7 +122,7 @@ void Renderer::render(Sand2D::World& world, UIRenderer* ui) {
     SDL_RenderPresent(m_renderer);
 }
 
-void Renderer::handleEvents() {
+void Renderer::handleEvents(World* world) {
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
         switch (event.type) {
@@ -114,19 +136,27 @@ void Renderer::handleEvents() {
                 break;
             case SDL_KEYDOWN:
                 switch (event.key.keysym.sym) {
-                    case SDLK_ESCAPE:
+                    case SDLK_SPACE:
                         m_isRunning = false;
                         break;
                     case SDLK_PLUS:
                     case SDLK_KP_PLUS:
-                        m_wheelCallback(1);
+                        if (m_wheelCallback) m_wheelCallback(1);
                         break;
                     case SDLK_MINUS:
                     case SDLK_KP_MINUS:
-                        m_wheelCallback(-1);
+                        if (m_wheelCallback) m_wheelCallback(-1);
                         break;
                     case SDLK_EQUALS:
-                        m_wheelCallback(1);
+                        if (m_wheelCallback) m_wheelCallback(1);
+                        break;
+                    case SDLK_t:
+                        m_renderMode = (m_renderMode == RenderMode::Color)
+                                     ? RenderMode::Thermal
+                                     : RenderMode::Color;
+                        if (world) {
+                            world->markAllDirty();
+                        }
                         break;
                 }
                 break;
@@ -139,7 +169,7 @@ void Renderer::handleEvents() {
     }
 }
 
-void Renderer::getMouseWorldPosition(Sand2D::World& world, int& x, int& y) const {
+void Renderer::getMouseWorldPosition(World& world, int& x, int& y) const {
     int mouseX, mouseY;
     SDL_GetMouseState(&mouseX, &mouseY);
 

@@ -3,7 +3,7 @@
 #include <string>
 #include <cstdint>
 
-namespace Sand2D {
+constexpr uint8_t DEFAULT_TEMP = 0;
 
 enum class PhysicalState {
     Empty,
@@ -34,5 +34,3 @@ struct ParticleDefinition {
     ParticleDefinition(const std::string& n, PhysicalState s, float d)
         : name(n), state(s), density(d) {}
 };
-
-}

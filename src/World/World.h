@@ -1,11 +1,9 @@
 #pragma once
 
-#include <Sand2D/Core/ParticleTypes.h>
-#include <Sand2D/Core/ParticleRegistry.h>
-#include <Sand2D/Core/Math/Vector2.h>
+#include <Core/ParticleTypes.h>
+#include <Core/ParticleRegistry.h>
+#include <Core/Math/Vector2.h>
 #include <vector>
-
-namespace Sand2D {
 
 struct ParticleInstance {
     ParticleId id;
@@ -18,7 +16,7 @@ class World {
 public:
     World(int width, int height, ParticleRegistry& registry);
 
-    void setParticle(int x, int y, ParticleId id, uint8_t temp = 20);
+    void setParticle(int x, int y, ParticleId id, uint8_t temp = 55);
 
     ParticleId getParticleId(int x, int y) const;
 
@@ -41,6 +39,9 @@ public:
     }
 
     void markDirty(int x, int y);
+    void markAllDirty() {
+        std::fill(m_dirty.begin(), m_dirty.end(), 1);
+    }
     bool isDirty(int x, int y) const;
     void clearDirty();
 
@@ -69,5 +70,3 @@ private:
     std::vector<uint8_t> m_dirty;
     ParticleRegistry& m_registry;
 };
-
-}

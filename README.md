@@ -26,12 +26,9 @@ A real-time 2D particle sandbox simulation with physics-based interactions. Feat
 - [x] FPS counter overlay
 
 ### Core Physics
-- [ ] Liquid pressure system (water spreads faster under pressure)
 - [ ] Surface tension for water
-- [ ] Temperature system (heat transfer between particles)
 - [ ] State changes: Water → Steam, Sand → Glass
 - [x] Density-based layering (oil floats on water)
-- [ ] Gas pressure system (smoke rises, expands)
 
 ### New Content
 - [ ] Lava (melts walls, ignites wood)
@@ -44,9 +41,6 @@ A real-time 2D particle sandbox simulation with physics-based interactions. Feat
 ### Advanced Physics
 - [ ] Explosion physics (shockwave, debris)
 - [ ] Wind simulation (directional airflow)
-- [ ] Fluid simulation (SPH for liquids)
-- [ ] Soft bodies (gelatin, slime)
-- [ ] Temperature system (hot/cold particles)
 
 ### Visual & UI
 - [ ] Zoom (scroll wheel)

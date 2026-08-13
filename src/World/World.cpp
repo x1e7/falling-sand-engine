@@ -9,7 +9,6 @@ World::World(int width, int height, ParticleRegistry& registry)
 {
     for (auto& p : m_grid) {
         p.id = ParticleRegistry::Empty;
-        p.temp = static_cast<uint8_t>(DEFAULT_TEMP);
         p.age = 0;
     }
 }
@@ -18,7 +17,6 @@ void World::setParticle(int x, int y, ParticleId id, uint8_t temp) {
     if (!isInside(x, y)) return;
     auto& p = m_grid[y * m_width + x];
     p.id = id;
-    p.temp = temp;
     p.age = 0;
 
     markDirty(x, y);

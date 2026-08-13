@@ -88,19 +88,12 @@ void Renderer::updateTexture(World& world) {
         m_textureHeight = height;
     }
 
-    if (m_renderMode == RenderMode::Color) {
-        world.forEachDirtyCell([&](int x, int y) {
-            const auto& particle = world.getParticle(x, y);
-            uint32_t color = registry.get(particle.id).color;
-            m_pixelBuffer[y * width + x] = color & 0x00FFFFFF;
-        });
-    } else {
-        world.forEachDirtyCell([&](int x, int y) {
-            const auto& particle = world.getParticle(x, y);
-            uint32_t color = temperatureToColor(particle.temp);
-            m_pixelBuffer[y * width + x] = color & 0x00FFFFFF;
-        });
-    }
+    world.forEachDirtyCell([&](int x, int y) {
+        const auto& particle = world.getParticle(x, y);
+        uint32_t color = registry.get(particle.id).color;
+        m_pixelBuffer[y * width + x] = color & 0x00FFFFFF;
+    });
+
     world.clearDirty();
 }
 
@@ -149,14 +142,6 @@ void Renderer::handleEvents(World* world) {
                         break;
                     case SDLK_EQUALS:
                         if (m_wheelCallback) m_wheelCallback(1);
-                        break;
-                    case SDLK_t:
-                        m_renderMode = (m_renderMode == RenderMode::Color)
-                                     ? RenderMode::Thermal
-                                     : RenderMode::Color;
-                        if (world) {
-                            world->markAllDirty();
-                        }
                         break;
                 }
                 break;

@@ -7,15 +7,13 @@ int main(int argc, char* argv[]) {
     registry.setBackgroundColor(0xFF2A2A2A);
     registerSand2DParticles(registry);
 
-    const int WORLD_WIDTH = 800;
-    const int WORLD_HEIGHT = 600;
+    const int WORLD_WIDTH = 600;
+    const int WORLD_HEIGHT = 450;
     const int WINDOW_WIDTH = 1280;
     const int WINDOW_HEIGHT = 720;
 
     World world(WORLD_WIDTH, WORLD_HEIGHT, registry);
     PhysicsSystem physics;
-
-    physics.setTemperatureUpdateRate(20.0f);
 
     Renderer renderer(WORLD_WIDTH, WORLD_HEIGHT, WINDOW_WIDTH, WINDOW_HEIGHT,
                      "Sandbox - Physics Demo", registry);

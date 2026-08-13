@@ -7,9 +7,8 @@
 
 struct ParticleInstance {
     ParticleId id;
-    uint8_t temp;
     uint8_t age;
-    //Math::Vec2f velocity {0.0f, 0.0f};
+    Vec2f velocity {0.0f, 0.0f};
 };
 
 class World {

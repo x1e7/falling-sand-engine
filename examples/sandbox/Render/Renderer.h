@@ -9,11 +9,6 @@
 
 class UIRenderer;
 
-enum class RenderMode {
-    Color,
-    Thermal
-};
-
 class Renderer {
 public:
     Renderer(int worldWidth, int worldHeight, int windowWidth, int windowHeight,
@@ -50,6 +45,5 @@ private:
     std::vector<uint32_t> m_pixelBuffer;
     ParticleRegistry& m_registry;
 
-    RenderMode m_renderMode = RenderMode::Color;
     bool m_isRunning = true;
 };

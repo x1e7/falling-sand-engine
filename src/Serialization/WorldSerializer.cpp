@@ -86,7 +86,7 @@ bool WorldSerializer::loadWorld(World& world, const std::string& fileName)
 std::vector<uint8_t> WorldSerializer::serializeParticles(const World& world) {
     const int width = world.getWidth();
     const int height = world.getHeight();
-    const size_t totalSize = width * height * 2; // id + temp
+    const size_t totalSize = width * height * 2; // id + age
 
     std::vector<uint8_t> buffer(totalSize);
     uint8_t* ptr = buffer.data();
@@ -95,8 +95,7 @@ std::vector<uint8_t> WorldSerializer::serializeParticles(const World& world) {
         for (int x = 0; x < width; ++x) {
             const auto& particle = world.getParticle(x, y);
             *ptr++ = particle.id;
-            *ptr++ = particle.temp;
-            //*ptr++ = particle.age;
+            *ptr++ = particle.age;
         }
     }
 
@@ -106,7 +105,7 @@ std::vector<uint8_t> WorldSerializer::serializeParticles(const World& world) {
 bool WorldSerializer::deserializeParticles(World& world, const uint8_t* data, size_t size) {
     const int width = world.getWidth();
     const int height = world.getHeight();
-    const size_t expectedSize = width * height * 2;
+    const size_t expectedSize = width * height * 2; // id + age
 
     if (size != expectedSize) {
         std::cerr << "Particle data size mismatch";
@@ -117,13 +116,11 @@ bool WorldSerializer::deserializeParticles(World& world, const uint8_t* data, si
     for (int y = 0; y < height; ++y) {
         for (int x = 0; x < width; ++x) {
             ParticleId id = *ptr++;
-            uint8_t temp = *ptr++;
-            //uint8_t age = *ptr++;
+            uint8_t age = *ptr++;
 
             auto& p = world.getParticle(x, y);
             p.id = id;
-            p.temp = temp;
-            //p.age = age;
+            p.age = age;
             world.markDirty(x, y);
         }
     }

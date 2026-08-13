@@ -47,10 +47,7 @@ inline void registerSand2DParticles(ParticleRegistry& registry) {
     sand.state = PhysicalState::Powder;
     sand.density = 1600.0f;
     sand.color = 0xFFE8C87A;
-    sand.thermalConductivity = 0.15f;
-    sand.heatCapacity = 0.3f;
-    sand.ignitionTemp = 0.0f;  // Doesn't burn
-    sand.emissivity = 0.02f;
+    sand.canIgnite = false;
     registry.registerParticle(sand);
 
     ParticleDefinition water;
@@ -58,10 +55,7 @@ inline void registerSand2DParticles(ParticleRegistry& registry) {
     water.state = PhysicalState::Liquid;
     water.density = 1000.0f;
     water.color = 0xFF40C8FF;
-    water.thermalConductivity = 0.6f;
-    water.heatCapacity = 0.8f;   // Water heats up slowly
-    water.ignitionTemp = 0.0f;
-    water.emissivity = 0.01f;
+    water.canIgnite = false;
     registry.registerParticle(water);
 
     ParticleDefinition smoke;
@@ -69,10 +63,7 @@ inline void registerSand2DParticles(ParticleRegistry& registry) {
     smoke.state = PhysicalState::Gas;
     smoke.density = 0.6f;
     smoke.color = 0xCCCCCCCC;
-    smoke.thermalConductivity = 0.05f;
-    smoke.heatCapacity = 0.1f;
-    smoke.ignitionTemp = 0.0f;
-    smoke.emissivity = 0.5f;     // Cools quickly
+    smoke.canIgnite = false;
     registry.registerParticle(smoke);
 
     ParticleDefinition fire;
@@ -80,11 +71,7 @@ inline void registerSand2DParticles(ParticleRegistry& registry) {
     fire.state = PhysicalState::Fire;
     fire.density = 0.2f;
     fire.color = 0xFFFF8C00;
-    fire.thermalConductivity = 0.9f;   // Fire transfers heat very well
-    fire.heatCapacity = 0.0f;          // Fire doesn't store heat
-    fire.ignitionTemp = 0.0f;
-    fire.flameTemp = 230.0f;           // Very hot
-    fire.emissivity = 0.0f;            // Doesn't cool down (self-heating)
+    fire.canIgnite = false;
     registry.registerParticle(fire);
 
     ParticleDefinition wall;
@@ -92,10 +79,7 @@ inline void registerSand2DParticles(ParticleRegistry& registry) {
     wall.state = PhysicalState::Solid;
     wall.density = 999999.0f;
     wall.color = 0xFF8899AA;
-    wall.thermalConductivity = 0.1f;   // Poor conductor
-    wall.heatCapacity = 0.9f;          // Very slow to heat
-    wall.ignitionTemp = 0.0f;
-    wall.emissivity = 0.01f;
+    wall.canIgnite = false;
     registry.registerParticle(wall);
 
     ParticleDefinition oil;
@@ -103,9 +87,6 @@ inline void registerSand2DParticles(ParticleRegistry& registry) {
     oil.state = PhysicalState::Liquid;
     oil.density = 800.0f;
     oil.color = 0xFF8B4513;
-    oil.thermalConductivity = 0.3f;
-    oil.heatCapacity = 0.4f;
-    oil.ignitionTemp = 180.0f;         // Ignites at 180°C
-    oil.emissivity = 0.05f;
+    oil.canIgnite = true;
     registry.registerParticle(oil);
 }

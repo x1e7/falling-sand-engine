@@ -88,20 +88,32 @@ void PhysicsSystem::updatePowder(World& world, const Vec2i& pos) {
     int dx = dist(rng);
 
     Vec2i down(pos.x, pos.y + 1);
-    if (tryMove(world, pos, down)) return;
+    if (canMove(world, pos, down)) {
+        performSwap(world, pos, down);
+        return;
+    }
 
     if (pos.y + 2 < world.getHeight()) {
         Vec2i fastDown(pos.x, pos.y + 2);
         if (world.getParticleId(fastDown.x, fastDown.y) == ParticleRegistry::Empty) {
-            if (tryMove(world, pos, fastDown)) return;
+            if (canMove(world, pos, fastDown)) {
+                performSwap(world, pos, fastDown);
+                return;
+            }
         }
     }
 
     Vec2i downRight(pos.x + dx, pos.y + 1);
-    if (tryMove(world, pos, downRight)) return;
+    if (canMove(world, pos, downRight)) {
+        performSwap(world, pos, downRight);
+        return;
+    }
 
     Vec2i downLeft(pos.x - dx, pos.y + 1);
-    if (tryMove(world, pos, downLeft)) return;
+    if (canMove(world, pos, downLeft)) {
+        performSwap(world, pos, downLeft);
+        return;
+    }
 }
 
 void PhysicsSystem::updateLiquid(World& world, const Vec2i& pos) {
@@ -109,29 +121,47 @@ void PhysicsSystem::updateLiquid(World& world, const Vec2i& pos) {
     int dx = std::uniform_int_distribution<>(-1, 1)(rng);
 
     Vec2i down(pos.x, pos.y + 1);
-    if (tryMove(world, pos, down)) return;
+    if (canMove(world, pos, down)) {
+        performSwap(world, pos, down);
+        return;
+    }
 
     if (pos.y + 2 < world.getHeight()) {
         Vec2i fastDown(pos.x, pos.y + 2);
         if (world.getParticleId(fastDown.x, fastDown.y) == ParticleRegistry::Empty) {
-            if (tryMove(world, pos, fastDown)) return;
+            if (canMove(world, pos, fastDown)) {
+                performSwap(world, pos, fastDown);
+                return;
+            }
         }
     }
 
     Vec2i right(pos.x + dx, pos.y);
-    if (tryMove(world, pos, right)) return;
+    if (canMove(world, pos, right)) {
+        performSwap(world, pos, right);
+        return;
+    }
 
     if (dx != 0) {
         Vec2i left(pos.x - dx, pos.y);
-        if (tryMove(world, pos, left)) return;
+        if (canMove(world, pos, left)) {
+            performSwap(world, pos, left);
+            return;
+        }
     }
 
     Vec2i downRight(pos.x + dx, pos.y + 1);
-    if (tryMove(world, pos, downRight)) return;
+    if (canMove(world, pos, downRight)) {
+        performSwap(world, pos, downRight);
+        return;
+    }
 
     if (dx != 0) {
         Vec2i downLeft(pos.x - dx, pos.y + 1);
-        if (tryMove(world, pos, downLeft)) return;
+        if (canMove(world, pos, downLeft)) {
+            performSwap(world, pos, downLeft);
+            return;
+        }
     }
 }
 
@@ -147,19 +177,34 @@ void PhysicsSystem::updateGas(World& world, const Vec2i& pos) {
     }
 
     Vec2i up(pos.x, pos.y - 1);
-    if (tryMove(world, pos, up)) return;
+    if (canMove(world, pos, up)) {
+        performSwap(world, pos, up);
+        return;
+    }
 
     Vec2i right(pos.x + dx, pos.y);
-    if (tryMove(world, pos, right)) return;
+    if (canMove(world, pos, right)) {
+        performSwap(world, pos, right);
+        return;
+    }
 
     Vec2i left(pos.x - dx, pos.y);
-    if (tryMove(world, pos, left)) return;
+    if (canMove(world, pos, left)) {
+        performSwap(world, pos, left);
+        return;
+    }
 
     Vec2i upRight(pos.x + dx, pos.y - 1);
-    if (tryMove(world, pos, upRight)) return;
+    if (canMove(world, pos, upRight)) {
+        performSwap(world, pos, upRight);
+        return;
+    }
 
     Vec2i upLeft(pos.x - dx, pos.y - 1);
-    if (tryMove(world, pos, upLeft)) return;
+    if (canMove(world, pos, upLeft)) {
+        performSwap(world, pos, upLeft);
+        return;
+    }
 }
 
 void PhysicsSystem::updateFire(World& world, const Vec2i& pos) {
@@ -167,7 +212,7 @@ void PhysicsSystem::updateFire(World& world, const Vec2i& pos) {
     int age = world.getAge(pos.x, pos.y);
 
     // Fire turns to smoke based on age
-    float smokeChance = 5.0f + (125.0f - age) * 0.1f; // Cooler fire = more smoke
+    float smokeChance = 5.0f + age;
 
     if (age > 20 && std::uniform_int_distribution<>(0, 99)(rng) < static_cast<int>(smokeChance)) {
         ParticleId smokeId = world.getRegistry().findId("Smoke");
@@ -188,7 +233,10 @@ void PhysicsSystem::updateFire(World& world, const Vec2i& pos) {
     for (int i = 0; i < 6; ++i) {
         const auto& dir = directions[indices[i]];
         Vec2i newPos(pos.x + dir.x, pos.y + dir.y);
-        if (tryMove(world, pos, newPos)) return;
+        if (canMove(world, pos, newPos)) {
+            performSwap(world, pos, newPos);
+            return;
+        }
     }
 
     // Ignite oil and other flammable materials nearby
@@ -214,7 +262,7 @@ void PhysicsSystem::updateFire(World& world, const Vec2i& pos) {
     }
 }
 
-bool PhysicsSystem::tryMove(World& world, const Vec2i& from, const Vec2i& to) {
+bool PhysicsSystem::canMove(World& world, const Vec2i& from, const Vec2i& to) {
     if (!world.isInside(to.x, to.y)) return false;
 
     const int toIdx = to.y * world.getWidth() + to.x;
@@ -225,7 +273,7 @@ bool PhysicsSystem::tryMove(World& world, const Vec2i& from, const Vec2i& to) {
     const auto& toP = world.getParticle(to.x, to.y);
 
     if (toP.id == ParticleRegistry::Empty) {
-        return performSwap(world, from, to);
+        return true;
     }
 
     const auto& fromDef = registry.get(fromP.id);
@@ -234,13 +282,13 @@ bool PhysicsSystem::tryMove(World& world, const Vec2i& from, const Vec2i& to) {
     if (toDef.state == PhysicalState::Solid) return false;
 
     if (fromDef.density > toDef.density) {
-        return performSwap(world, from, to);
+        return true;
     }
 
     return false;
 }
 
-bool PhysicsSystem::performSwap(World& world, const Vec2i& from, const Vec2i& to) {
+void PhysicsSystem::performSwap(World& world, const Vec2i& from, const Vec2i& to) {
     ParticleInstance& fromP = world.getParticle(from.x, from.y);
     ParticleInstance& toP = world.getParticle(to.x, to.y);
 
@@ -254,6 +302,4 @@ bool PhysicsSystem::performSwap(World& world, const Vec2i& from, const Vec2i& to
 
     m_movedThisFrame[toIdx] = true;
     m_movedThisFrame[fromIdx] = true;
-
-    return true;
 }

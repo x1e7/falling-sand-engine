@@ -1,8 +1,8 @@
 #pragma once
 
-#include <Core/ParticleTypes.h>
-#include <Core/ParticleRegistry.h>
-#include <Core/Math/Vector2.h>
+#include "Core/ParticleTypes.h"
+#include "Core/ParticleRegistry.h"
+#include "Core/Math/Vector2.h"
 #include <vector>
 
 struct ParticleInstance {

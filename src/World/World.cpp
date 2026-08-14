@@ -1,4 +1,4 @@
-#include <World/World.h>
+#include "World/World.h"
 #include <cstring>
 
 World::World(int width, int height, ParticleRegistry& registry)

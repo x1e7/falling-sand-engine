@@ -1,7 +1,7 @@
 #pragma once
 
-#include <World/World.h>
-#include <Serialization/Compression.h>
+#include "World/World.h"
+#include "Serialization/Compression.h"
 #include <fstream>
 #include <string>
 #include <vector>

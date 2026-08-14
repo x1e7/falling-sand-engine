@@ -35,7 +35,7 @@ target_include_directories(Sand2D
 add_executable(FallingSandExample
     src/main.cpp
     src/Render/Renderer.cpp
-    src/Render/UIRenderer.cpp
+    src/Render/Text.cpp
     src/Render/Camera.cpp
     src/Game/GameLoop.cpp
 )

@@ -5,7 +5,7 @@
 #include "Physics/PhysicsSystem.h"
 #include "Render/Renderer.h"
 #include "Render/Camera.h"
-#include "Render/UIRenderer.h"
+#include "Render/Text.h"
 
 class GameLoop {
 public:
@@ -24,12 +24,13 @@ private:
     std::unique_ptr<PhysicsSystem> m_physics;
     std::unique_ptr<Renderer> m_renderer;
     std::unique_ptr<Camera> m_camera;
-    std::unique_ptr<UIRenderer> m_ui;
+
+    Text m_fpsText;
+    Text m_brushText;
+    Text m_pauseText;
 
     bool m_running = true;
     bool m_paused = false;
-    bool m_panning = false;
-    Vec2f m_lastMousePos;
 
     ParticleId m_currentBrush;
     int m_brushRadius = 1;
@@ -39,8 +40,8 @@ private:
     float m_fpsTimer = 0.0f;
     Uint32 m_lastTime = 0;
 
-    static constexpr int WORLD_WIDTH = 400;
-    static constexpr int WORLD_HEIGHT = 300;
+    static constexpr int WORLD_WIDTH = 800;
+    static constexpr int WORLD_HEIGHT = 600;
     static constexpr int WINDOW_WIDTH = 1280;
     static constexpr int WINDOW_HEIGHT = 720;
 };

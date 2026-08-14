@@ -21,10 +21,25 @@ GameLoop::GameLoop() {
                                             "Sandbox - Physics Demo", m_registry);
 
     m_camera = std::make_unique<Camera>(WINDOW_WIDTH, WINDOW_HEIGHT);
-    m_camera->setPosition(Vec2f(WORLD_WIDTH / 2, WORLD_HEIGHT / 2));
+    m_camera->setWorldBounds(WORLD_WIDTH, WORLD_HEIGHT);
+    m_camera->setLogicalSize(WINDOW_WIDTH / 3, WINDOW_HEIGHT / 3);
+    m_camera->setPosition(Vec2f(WORLD_WIDTH / 2.0f, WORLD_HEIGHT - (m_camera->getLogicalHeight() / 2)));
 
-    m_ui = std::make_unique<UIRenderer>(m_renderer->getRenderer(),
-                                        WINDOW_WIDTH, WINDOW_HEIGHT);
+    m_fpsText.setPosition(10, 10);
+    m_fpsText.setColor(Color::White);
+    m_fpsText.setCharacterSize(24);
+    m_fpsText.setString("FPS: 0");
+
+    m_brushText.setPosition(10, WINDOW_HEIGHT - 30);
+    m_brushText.setColor(Color::Yellow);
+    m_brushText.setCharacterSize(16);
+    m_brushText.setString("Brush: Sand (1)");
+
+    m_pauseText.setPosition(WINDOW_WIDTH / 2 - 50, WINDOW_HEIGHT / 2 - 20);
+    m_pauseText.setColor(Color::Red);
+    m_pauseText.setCharacterSize(32);
+    m_pauseText.setString("PAUSED");
+    m_pauseText.setVisible(false);
 
     m_currentBrush = m_registry.findId("Sand");
 
@@ -76,7 +91,8 @@ void GameLoop::handleInput() {
                     int newHeight = event.window.data2;
                     m_camera->setViewportSize(newWidth, newHeight);
                     m_renderer->updateViewport(newWidth, newHeight);
-                    m_ui->setScreenSize(newWidth, newHeight);
+                    m_brushText.setPosition(10, newHeight - 30);
+                    m_pauseText.setPosition(newWidth / 2 - 50, newHeight / 2 - 20);
                 }
                 break;
 
@@ -88,7 +104,10 @@ void GameLoop::handleInput() {
                     case SDLK_4: m_currentBrush = m_registry.findId("Wall"); break;
                     case SDLK_5: m_currentBrush = m_registry.findId("Oil"); break;
 
-                    case SDLK_SPACE: m_paused = !m_paused; break;
+                    case SDLK_SPACE:
+                        m_paused = !m_paused;
+                        m_pauseText.setVisible(m_paused);
+                        break;
                     case SDLK_ESCAPE: m_running = false; break;
                 }
                 break;
@@ -105,7 +124,7 @@ void GameLoop::handleInput() {
 
     const Uint8* keys = SDL_GetKeyboardState(nullptr);
     Vec2f moveDelta{0.0f, 0.0f};
-    float moveSpeed = 200.0f;
+    float moveSpeed = 200.0f / m_camera->getZoom();
 
     if (keys[SDL_SCANCODE_W] || keys[SDL_SCANCODE_UP]) {
         moveDelta.y -= moveSpeed;
@@ -127,9 +146,6 @@ void GameLoop::handleInput() {
 
     int mouseX, mouseY;
     SDL_GetMouseState(&mouseX, &mouseY);
-
-    int windowWidth, windowHeight;
-    SDL_GetWindowSize(m_renderer->getWindow(), &windowWidth, &windowHeight);
 
     Vec2f worldPos = m_camera->screenToWorld(Vec2f(
             static_cast<float>(mouseX),
@@ -177,7 +193,7 @@ void GameLoop::update(float deltaTime) {
 }
 
 void GameLoop::render() {
-    m_ui->setFPS(m_fps);
+    m_fpsText.setString("FPS: " + std::to_string(m_fps));
 
     std::string brushName = "Unknown";
     if (m_currentBrush == m_registry.findId("Sand")) brushName = "Sand";
@@ -185,7 +201,14 @@ void GameLoop::render() {
     else if (m_currentBrush == m_registry.findId("Fire")) brushName = "Fire";
     else if (m_currentBrush == m_registry.findId("Wall")) brushName = "Wall";
     else if (m_currentBrush == m_registry.findId("Oil")) brushName = "Oil";
-    m_ui->setBrushInfo(brushName, m_brushRadius);
+    m_brushText.setString("Brush: " + brushName + " (" + std::to_string(m_brushRadius) + ")");
 
-    m_renderer->render(*m_world, *m_camera, m_ui.get());
+    m_renderer->render(*m_world, *m_camera, nullptr);
+
+    SDL_Renderer* renderer = m_renderer->getRenderer();
+    m_fpsText.render(renderer);
+    m_brushText.render(renderer);
+    m_pauseText.render(renderer);
+
+    SDL_RenderPresent(renderer);
 }

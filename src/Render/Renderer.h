@@ -8,8 +8,6 @@
 #include <vector>
 #include <functional>
 
-class UIRenderer;
-
 class Renderer {
 public:
     Renderer(int worldWidth, int worldHeight, int windowWidth, int windowHeight,
@@ -18,7 +16,10 @@ public:
 
     void updateViewport(int width, int height);
 
-    void render(World& world, Camera& camera, UIRenderer* ui);
+    void render(World& world, Camera& camera, void* ui = nullptr);
+
+    void setPreserveAspectRatio(bool preserve) { m_preserveAspectRatio = preserve; }
+    bool getPreserveAspectRatio() const { return m_preserveAspectRatio; }
 
     bool isOpen() const { return m_isRunning; }
     SDL_Window* getWindow() { return m_window; }
@@ -42,4 +43,5 @@ private:
     ParticleRegistry& m_registry;
 
     bool m_isRunning = true;
+    bool m_preserveAspectRatio = false;
 };

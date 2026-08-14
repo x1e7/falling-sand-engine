@@ -1,21 +1,6 @@
 #include "Renderer.h"
-#include "UIRenderer.h"
 #include <iostream>
 #include <algorithm>
-
-static uint32_t temperatureToColor(uint8_t temp) {
-    if (temp < 64) {
-        uint8_t g = temp * 4;
-        return (0xFF << 24) | (0 << 16) | (g << 8) | 255;
-    } else if (temp < 128) {
-        uint8_t r = (temp - 64) * 4;
-        uint8_t b = 255 - (temp - 64) * 4;
-        return (0xFF << 24) | (r << 16) | (255 << 8) | b;
-    } else {
-        uint8_t g = 255 - (temp - 128) * 4;
-        return (0xFF << 24) | (255 << 16) | (g << 8) | 0;
-    }
-}
 
 Renderer::Renderer(int worldWidth, int worldHeight, int windowWidth, int windowHeight,
                    const std::string& title, ParticleRegistry& registry)
@@ -47,7 +32,6 @@ Renderer::Renderer(int worldWidth, int worldHeight, int windowWidth, int windowH
 
     m_renderer = SDL_CreateRenderer(m_window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 
-
     if (!m_renderer) {
         std::cerr << "SDL_CreateRenderer Error: " << SDL_GetError() << std::endl;
         exit(1);
@@ -77,10 +61,9 @@ void Renderer::updateViewport(int width, int height) {
     m_windowHeight = height;
 }
 
-void Renderer::render(World& world, Camera& camera, UIRenderer* ui) {
+void Renderer::render(World& world, Camera& camera, void* ui) {
     int minX, minY, maxX, maxY;
-    camera.getViewBounds(minX, minY, maxX, maxY,
-                         world.getWidth(), world.getHeight());
+    camera.getViewBounds(minX, minY, maxX, maxY);
 
     uint32_t bgColor = m_registry.get(ParticleRegistry::Empty).color & 0x00FFFFFF;
     std::fill(m_pixelBuffer.begin(), m_pixelBuffer.end(), bgColor);
@@ -100,24 +83,19 @@ void Renderer::render(World& world, Camera& camera, UIRenderer* ui) {
                       m_textureWidth * sizeof(uint32_t));
     SDL_RenderClear(m_renderer);
 
+    int srcW = maxX - minX;
+    int srcH = maxY - minY;
+
     SDL_Rect srcRect = {
         minX, minY,
-        maxX - minX,
-        maxY - minY
+        srcW, srcH
     };
+
     SDL_Rect dstRect = {
         0, 0,
         m_windowWidth,
         m_windowHeight
     };
+
     SDL_RenderCopy(m_renderer, m_texture, &srcRect, &dstRect);
-
-    if (ui) {
-        ui->setScreenSize(m_windowWidth, m_windowHeight);
-        ui->renderToTexture();
-        SDL_SetTextureBlendMode(ui->getTexture(), SDL_BLENDMODE_BLEND);
-        SDL_RenderCopy(m_renderer, ui->getTexture(), nullptr, nullptr);
-    }
-
-    SDL_RenderPresent(m_renderer);
 }

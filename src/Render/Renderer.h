@@ -3,6 +3,7 @@
 #define SDL_MAIN_HANDLED
 #include <SDL2/SDL.h>
 #include "World/World.h"
+#include "Render/Camera.h"
 #include <string>
 #include <vector>
 #include <functional>
@@ -15,24 +16,19 @@ public:
              const std::string& title, ParticleRegistry& registry);
     ~Renderer();
 
-    void render(World& world, UIRenderer* ui);
+    void updateViewport(int width, int height);
+
+    void render(World& world, Camera& camera, UIRenderer* ui);
 
     bool isOpen() const { return m_isRunning; }
     SDL_Window* getWindow() { return m_window; }
     SDL_Renderer* getRenderer() const { return m_renderer; }
 
-    void handleEvents(World* world = nullptr);
-
     void setWheelCallback(std::function<void(int)> callback) {
         m_wheelCallback = callback;
     }
 
-    void getMouseWorldPosition(World& world, int& x, int& y) const;
-
 private:
-    void updateTexture(World& world);
-    void updateViewport(int width, int height);
-
     std::function<void(int)> m_wheelCallback;
 
     SDL_Window* m_window = nullptr;

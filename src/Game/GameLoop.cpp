@@ -1,6 +1,7 @@
 #include "Game/GameLoop.h"
 #include <SDL2/SDL.h>
 #include <iostream>
+#include <algorithm>
 #include <Serialization/WorldSerializer.h>
 
 GameLoop::GameLoop() {
@@ -18,6 +19,9 @@ GameLoop::GameLoop() {
     m_renderer = std::make_unique<Renderer>(WORLD_WIDTH, WORLD_HEIGHT,
                                             WINDOW_WIDTH, WINDOW_HEIGHT,
                                             "Sandbox - Physics Demo", m_registry);
+
+    m_camera = std::make_unique<Camera>(WINDOW_WIDTH, WINDOW_HEIGHT);
+    m_camera->setPosition(Vec2f(WORLD_WIDTH / 2, WORLD_HEIGHT / 2));
 
     m_ui = std::make_unique<UIRenderer>(m_renderer->getRenderer(),
                                         WINDOW_WIDTH, WINDOW_HEIGHT);
@@ -66,6 +70,16 @@ void GameLoop::handleInput() {
                 m_running = false;
                 break;
 
+            case SDL_WINDOWEVENT:
+                if (event.window.event == SDL_WINDOWEVENT_RESIZED) {
+                    int newWidth = event.window.data1;
+                    int newHeight = event.window.data2;
+                    m_camera->setViewportSize(newWidth, newHeight);
+                    m_renderer->updateViewport(newWidth, newHeight);
+                    m_ui->setScreenSize(newWidth, newHeight);
+                }
+                break;
+
             case SDL_KEYDOWN:
                 switch (event.key.keysym.sym) {
                     case SDLK_1: m_currentBrush = m_registry.findId("Sand"); break;
@@ -89,17 +103,40 @@ void GameLoop::handleInput() {
         }
     }
 
+    const Uint8* keys = SDL_GetKeyboardState(nullptr);
+    Vec2f moveDelta{0.0f, 0.0f};
+    float moveSpeed = 200.0f;
+
+    if (keys[SDL_SCANCODE_W] || keys[SDL_SCANCODE_UP]) {
+        moveDelta.y -= moveSpeed;
+    }
+    if (keys[SDL_SCANCODE_S] || keys[SDL_SCANCODE_DOWN]) {
+        moveDelta.y += moveSpeed;
+    }
+    if (keys[SDL_SCANCODE_A] || keys[SDL_SCANCODE_LEFT]) {
+        moveDelta.x -= moveSpeed;
+    }
+    if (keys[SDL_SCANCODE_D] || keys[SDL_SCANCODE_RIGHT]) {
+        moveDelta.x += moveSpeed;
+    }
+    if (keys[SDL_SCANCODE_LSHIFT] || keys[SDL_SCANCODE_RSHIFT]) {
+        moveDelta = moveDelta * 2.0f;
+    }
+
+    m_camera->move(moveDelta * 0.016f);
+
     int mouseX, mouseY;
     SDL_GetMouseState(&mouseX, &mouseY);
 
     int windowWidth, windowHeight;
     SDL_GetWindowSize(m_renderer->getWindow(), &windowWidth, &windowHeight);
 
-    int wx = static_cast<int>((static_cast<float>(mouseX) / windowWidth) * m_world->getWidth());
-    int wy = static_cast<int>((static_cast<float>(mouseY) / windowHeight) * m_world->getHeight());
-
-    wx = std::max(0, std::min(wx, m_world->getWidth() - 1));
-    wy = std::max(0, std::min(wy, m_world->getHeight() - 1));
+    Vec2f worldPos = m_camera->screenToWorld(Vec2f(
+            static_cast<float>(mouseX),
+            static_cast<float>(mouseY)
+        ));
+    int wx = static_cast<int>(worldPos.x);
+    int wy = static_cast<int>(worldPos.y);
 
     Uint32 mouseState = SDL_GetMouseState(nullptr, nullptr);
 
@@ -135,6 +172,7 @@ void GameLoop::handleInput() {
 }
 
 void GameLoop::update(float deltaTime) {
+    m_camera->update(deltaTime);
     m_physics->update(*m_world, deltaTime);
 }
 
@@ -149,5 +187,5 @@ void GameLoop::render() {
     else if (m_currentBrush == m_registry.findId("Oil")) brushName = "Oil";
     m_ui->setBrushInfo(brushName, m_brushRadius);
 
-    m_renderer->render(*m_world, m_ui.get());
+    m_renderer->render(*m_world, *m_camera, m_ui.get());
 }

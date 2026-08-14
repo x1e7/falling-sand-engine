@@ -4,6 +4,7 @@
 #include "World/World.h"
 #include "Physics/PhysicsSystem.h"
 #include "Render/Renderer.h"
+#include "Render/Camera.h"
 #include "Render/UIRenderer.h"
 
 class GameLoop {
@@ -22,6 +23,7 @@ private:
     std::unique_ptr<World> m_world;
     std::unique_ptr<PhysicsSystem> m_physics;
     std::unique_ptr<Renderer> m_renderer;
+    std::unique_ptr<Camera> m_camera;
     std::unique_ptr<UIRenderer> m_ui;
 
     bool m_running = true;

@@ -36,6 +36,7 @@ add_executable(FallingSandExample
     src/main.cpp
     src/Render/Renderer.cpp
     src/Render/UIRenderer.cpp
+    src/Render/Camera.cpp
     src/Game/GameLoop.cpp
 )
 

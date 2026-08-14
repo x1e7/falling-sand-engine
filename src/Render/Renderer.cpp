@@ -77,96 +77,47 @@ void Renderer::updateViewport(int width, int height) {
     m_windowHeight = height;
 }
 
-void Renderer::updateTexture(World& world) {
-    const int width = world.getWidth();
-    const int height = world.getHeight();
-    const auto& registry = world.getRegistry();
+void Renderer::render(World& world, Camera& camera, UIRenderer* ui) {
+    int minX, minY, maxX, maxY;
+    camera.getViewBounds(minX, minY, maxX, maxY,
+                         world.getWidth(), world.getHeight());
 
-    if (m_pixelBuffer.size() != static_cast<size_t>(width * height)) {
-        m_pixelBuffer.resize(width * height, 0);
-        m_textureWidth = width;
-        m_textureHeight = height;
+    uint32_t bgColor = m_registry.get(ParticleRegistry::Empty).color & 0x00FFFFFF;
+    std::fill(m_pixelBuffer.begin(), m_pixelBuffer.end(), bgColor);
+
+    const auto& registry = world.getRegistry();
+    for (int y = minY; y < maxY; ++y) {
+        for (int x = minX; x < maxX; ++x) {
+            const auto& particle = world.getParticle(x, y);
+            if (particle.id != ParticleRegistry::Empty) {
+                uint32_t color = registry.get(particle.id).color;
+                m_pixelBuffer[y * m_textureWidth + x] = color & 0x00FFFFFF;
+            }
+        }
     }
 
-    world.forEachDirtyCell([&](int x, int y) {
-        const auto& particle = world.getParticle(x, y);
-        uint32_t color = registry.get(particle.id).color;
-        m_pixelBuffer[y * width + x] = color & 0x00FFFFFF;
-    });
-
-    world.clearDirty();
-}
-
-void Renderer::render(World& world, UIRenderer* ui) {
-    updateTexture(world);
-
-    SDL_UpdateTexture(m_texture, nullptr, m_pixelBuffer.data(), m_textureWidth * sizeof(uint32_t));
+    SDL_UpdateTexture(m_texture, nullptr, m_pixelBuffer.data(),
+                      m_textureWidth * sizeof(uint32_t));
     SDL_RenderClear(m_renderer);
-    SDL_RenderCopy(m_renderer, m_texture, nullptr, nullptr);
+
+    SDL_Rect srcRect = {
+        minX, minY,
+        maxX - minX,
+        maxY - minY
+    };
+    SDL_Rect dstRect = {
+        0, 0,
+        m_windowWidth,
+        m_windowHeight
+    };
+    SDL_RenderCopy(m_renderer, m_texture, &srcRect, &dstRect);
 
     if (ui) {
         ui->setScreenSize(m_windowWidth, m_windowHeight);
         ui->renderToTexture();
-
         SDL_SetTextureBlendMode(ui->getTexture(), SDL_BLENDMODE_BLEND);
         SDL_RenderCopy(m_renderer, ui->getTexture(), nullptr, nullptr);
     }
 
     SDL_RenderPresent(m_renderer);
-}
-
-void Renderer::handleEvents(World* world) {
-    SDL_Event event;
-    while (SDL_PollEvent(&event)) {
-        switch (event.type) {
-            case SDL_QUIT:
-                m_isRunning = false;
-                break;
-            case SDL_WINDOWEVENT:
-                if (event.window.event == SDL_WINDOWEVENT_RESIZED) {
-                    updateViewport(event.window.data1, event.window.data2);
-                }
-                break;
-            case SDL_KEYDOWN:
-                switch (event.key.keysym.sym) {
-                    case SDLK_SPACE:
-                        m_isRunning = false;
-                        break;
-                    case SDLK_PLUS:
-                    case SDLK_KP_PLUS:
-                        if (m_wheelCallback) m_wheelCallback(1);
-                        break;
-                    case SDLK_MINUS:
-                    case SDLK_KP_MINUS:
-                        if (m_wheelCallback) m_wheelCallback(-1);
-                        break;
-                    case SDLK_EQUALS:
-                        if (m_wheelCallback) m_wheelCallback(1);
-                        break;
-                }
-                break;
-            case SDL_MOUSEWHEEL:
-                if (m_wheelCallback) {
-                    m_wheelCallback(event.wheel.y);
-                }
-                break;
-        }
-    }
-}
-
-void Renderer::getMouseWorldPosition(World& world, int& x, int& y) const {
-    int mouseX, mouseY;
-    SDL_GetMouseState(&mouseX, &mouseY);
-
-    int windowWidth, windowHeight;
-    SDL_GetWindowSize(m_window, &windowWidth, &windowHeight);
-
-    float worldX = (static_cast<float>(mouseX) / windowWidth) * world.getWidth();
-    float worldY = (static_cast<float>(mouseY) / windowHeight) * world.getHeight();
-
-    x = static_cast<int>(worldX);
-    y = static_cast<int>(worldY);
-
-    x = std::max(0, std::min(x, world.getWidth() - 1));
-    y = std::max(0, std::min(y, world.getHeight() - 1));
 }

@@ -8,7 +8,6 @@ struct Vector2 {
 
     Vector2(T x = 0, T y = 0) : x(x), y(y) {}
 
-    // OPERATORS
     Vector2 operator+(const Vector2& other) const {
         return Vector2(x + other.x, y + other.y);
     }
@@ -25,7 +24,14 @@ struct Vector2 {
         return Vector2(x / scalar, y / scalar);
     }
 
-    // METHODS
+    bool operator==(const Vector2& other) const {
+        return x == other.x && y == other.y;
+    }
+
+    bool operator!=(const Vector2& other) const {
+        return !(*this == other);
+    }
+
     T length() const {
         return std::sqrt(x * x + y * y);
     }

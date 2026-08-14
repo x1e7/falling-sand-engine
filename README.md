@@ -76,8 +76,8 @@ A real-time 2D particle sandbox simulation with physics-based interactions. Feat
 | `3` | Select Fire |
 | `4` | Select Wall |
 | `5` | Select Oil |
-| `CTRL + S` | Save World |
-| `CTRL + L` | Load World |
-| `LMB` | Place particle |
+| `LMB` | Place selected particle |
 | `RMB` | Delete particle |
+| `Mouse Wheel` | Adjust brush size |
+| `Space` | Pause/Resume simulation |
 | `ESC` | Exit |

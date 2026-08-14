@@ -32,6 +32,23 @@ target_include_directories(Sand2D
         ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
+add_executable(FallingSandExample
+    src/main.cpp
+    src/Render/Renderer.cpp
+    src/Render/UIRenderer.cpp
+    src/Game/GameLoop.cpp
+)
+
+target_link_libraries(FallingSandExample
+    Sand2D
+    SDL2::SDL2
+)
+
+target_include_directories(FallingSandExample
+    PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/src
+)
+
 if(MSVC)
     set_source_files_properties(
         libs/third_party/fastlz/fastlz.c
@@ -55,17 +72,6 @@ elseif(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
 endif()
 
 find_package(SDL2 CONFIG REQUIRED)
-
-add_executable(FallingSandExample
-    examples/sandbox/main.cpp
-    examples/sandbox/Render/Renderer.cpp
-    examples/sandbox/Render/UIRenderer.cpp
-)
-
-target_link_libraries(FallingSandExample
-    Sand2D
-    SDL2::SDL2
-)
 
 if(WIN32)
     add_custom_command(TARGET FallingSandExample POST_BUILD

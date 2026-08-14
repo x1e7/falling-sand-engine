@@ -31,7 +31,7 @@ GameLoop::GameLoop() {
     m_fpsText.setString("FPS: 0");
 
     m_brushText.setPosition(10, WINDOW_HEIGHT - 30);
-    m_brushText.setColor(Color::Yellow);
+    m_brushText.setColor(Color::White);
     m_brushText.setCharacterSize(16);
     m_brushText.setString("Brush: Sand (1)");
 
@@ -93,6 +93,10 @@ void GameLoop::handleInput() {
                     m_renderer->updateViewport(newWidth, newHeight);
                     m_brushText.setPosition(10, newHeight - 30);
                     m_pauseText.setPosition(newWidth / 2 - 50, newHeight / 2 - 20);
+
+                    m_fpsText.forceUpdate();
+                    m_brushText.forceUpdate();
+                    m_pauseText.forceUpdate();
                 }
                 break;
 

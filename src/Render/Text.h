@@ -22,7 +22,7 @@ struct Color {
 class Text {
 public:
     Text();
-    Text(const std::string& text);
+    explicit Text(const std::string& text);
     ~Text();
 
     void setString(const std::string& text);
@@ -41,12 +41,16 @@ public:
     void setVisible(bool visible) { m_visible = visible; }
     bool isVisible() const { return m_visible; }
 
+    void forceUpdate() { m_needsUpdate = true; }
+
     void render(SDL_Renderer* renderer);
 
 private:
     void createFontTexture(SDL_Renderer* renderer);
-    void renderChar(SDL_Renderer* renderer, char c, int x, int y);
+    void updateTextTexture(SDL_Renderer* renderer);
+    void renderCharToTexture(SDL_Renderer* renderer, char c, int x, int y);
     int charToIndex(char c) const;
+    Vec2f calculateTextSize() const;
 
     std::string m_text;
     Vec2f m_position{0.0f, 0.0f};
@@ -56,7 +60,7 @@ private:
 
     SDL_Texture* m_fontTexture = nullptr;
     SDL_Texture* m_textTexture = nullptr;
-    Vec2f m_size{0.0f, 0.0f};
+    Vec2f m_textSize{0.0f, 0.0f};
+    bool m_fontCreated = false;
     bool m_needsUpdate = true;
-    SDL_Renderer* m_renderer = nullptr;
 };

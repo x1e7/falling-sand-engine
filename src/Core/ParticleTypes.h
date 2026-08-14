@@ -22,7 +22,7 @@ struct ParticleDefinition {
     float density = 0.0f;
     uint32_t color = 0xFFFFFFFF;
 
-    bool canIgnite = 0.0f;
+    bool canIgnite = false;
 
     ParticleDefinition() = default;
 

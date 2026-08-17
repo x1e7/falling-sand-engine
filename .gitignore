@@ -35,3 +35,4 @@ __cmake_systeminformation/
 *.exe
 *.out
 *.app
+/.cache

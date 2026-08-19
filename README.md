@@ -9,9 +9,6 @@ A real-time 2D particle sandbox simulation with physics-based interactions. Feat
 
 ## Features
 
-- **Sand** - Falls downward, rolls down slopes
-- **Water** - Flows downward and sideways, can be displaced by sand
-- **Walls** - Static obstacles that block particle movement
 - Real-time world editing (LMB/RMB)
 - 60 FPS rendering
 

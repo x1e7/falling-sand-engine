@@ -69,18 +69,25 @@ void Renderer::render(World& world, Camera& camera, void* ui) {
     std::fill(m_pixelBuffer.begin(), m_pixelBuffer.end(), bgColor);
 
     const auto& registry = world.getRegistry();
+
     for (int y = minY; y < maxY; ++y) {
+        size_t rowOffset = static_cast<size_t>(y) * m_textureWidth;
+
         for (int x = minX; x < maxX; ++x) {
             const auto& particle = world.getParticle(x, y);
+
             if (particle.id != ParticleRegistry::Empty) {
                 uint32_t color = registry.get(particle.id).color;
-                m_pixelBuffer[y * m_textureWidth + x] = color & 0x00FFFFFF;
+                m_pixelBuffer[rowOffset + x] = color & 0x00FFFFFF;
+            } else {
+                m_pixelBuffer[rowOffset + x] = bgColor;
             }
         }
     }
 
     SDL_UpdateTexture(m_texture, nullptr, m_pixelBuffer.data(),
                       m_textureWidth * sizeof(uint32_t));
+
     SDL_RenderClear(m_renderer);
 
     int srcW = maxX - minX;

@@ -121,7 +121,6 @@ bool WorldSerializer::deserializeParticles(World& world, const uint8_t* data, si
             auto& p = world.getParticle(x, y);
             p.id = id;
             p.age = age;
-            world.markDirty(x, y);
         }
     }
 

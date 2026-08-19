@@ -14,7 +14,6 @@ GameLoop::GameLoop() {
     m_registry.setBackgroundColor(0xFF1A1A2E);
 
     m_world = std::make_unique<World>(WORLD_WIDTH, WORLD_HEIGHT, m_registry);
-    m_physics = std::make_unique<PhysicsSystem>();
 
     m_renderer = std::make_unique<Renderer>(WORLD_WIDTH, WORLD_HEIGHT,
                                             WINDOW_WIDTH, WINDOW_HEIGHT,
@@ -193,7 +192,7 @@ void GameLoop::handleInput() {
 
 void GameLoop::update(float deltaTime) {
     m_camera->update(deltaTime);
-    m_physics->update(*m_world, deltaTime);
+    m_world->tick(deltaTime);
 }
 
 void GameLoop::render() {

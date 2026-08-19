@@ -13,7 +13,6 @@ enable_language(C)
 
 add_library(Sand2D STATIC
     src/World/World.cpp
-    src/Physics/PhysicsSystem.cpp
     src/Serialization/WorldSerializer.cpp
     src/Serialization/Compression.cpp
     libs/third_party/fastlz/fastlz.c

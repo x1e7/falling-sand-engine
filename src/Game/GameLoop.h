@@ -2,7 +2,6 @@
 
 #include <memory>
 #include "World/World.h"
-#include "Physics/PhysicsSystem.h"
 #include "Render/Renderer.h"
 #include "Render/Camera.h"
 #include "Render/Text.h"
@@ -21,7 +20,6 @@ private:
 
     ParticleRegistry m_registry;
     std::unique_ptr<World> m_world;
-    std::unique_ptr<PhysicsSystem> m_physics;
     std::unique_ptr<Renderer> m_renderer;
     std::unique_ptr<Camera> m_camera;
 

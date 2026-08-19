@@ -43,15 +43,13 @@ A real-time 2D particle sandbox simulation with physics-based interactions. Feat
 - [ ] Wind simulation (directional airflow)
 
 ### Visual & UI
-- [ ] Zoom (scroll wheel)
-- [ ] Pan (middle mouse drag)
+- [x] Camera
 - [ ] Particle picker UI (click to select material)
 - [ ] Particle info tooltip (hover for details)
 - [ ] Grid overlay toggle
 - [x] Save/load worlds
 
 ### Gameplay
-- [ ] Campaign/Level system (firefighting, escape)
 - [ ] Sandbox tools (fill, clear, copy/paste)
 - [ ] Undo/Redo system
 - [ ] Recording/Replay of simulations

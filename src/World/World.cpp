@@ -10,14 +10,21 @@ static std::mt19937& getRng() {
 }
 
 World::World(int width, int height, ParticleRegistry& registry)
-    : m_width(width), m_height(height)
-    , m_grid(width * height)
-    , m_registry(registry)
-{
-    for (auto& p : m_grid) {
-        p.id = ParticleRegistry::Empty;
-        p.age = 0;
+    : m_width(width), m_height(height), m_registry(registry) {
+    m_grid = new ParticleInstance[width * height];
+    m_movedThisFrame = new bool[width * height];
+
+    for (int i = 0; i < width * height; ++i) {
+        m_grid[i].id = ParticleRegistry::Empty;
+        m_grid[i].age = 0;
+        m_grid[i].velocity = Vec2f(0.0f, 0.0f);
+        m_movedThisFrame[i] = false;
     }
+}
+
+World::~World() {
+    delete[] m_grid;
+    delete[] m_movedThisFrame;
 }
 
 void World::setParticle(int x, int y, ParticleId id) {
@@ -52,11 +59,7 @@ void World::tick(float deltaTime) {
         int w = getWidth(), h = getHeight();
         int total = w * h;
 
-        if (m_movedThisFrame.size() != total) {
-            m_movedThisFrame.resize(total, 0);
-        } else {
-            std::fill(m_movedThisFrame.begin(), m_movedThisFrame.end(), 0);
-        }
+        std::memset(m_movedThisFrame, 0, m_width * m_height * sizeof(bool));
 
         for (int y = h - 1; y >= 0; --y) {
             int startX = (y % 2 == 0) ? 0 : w - 1;

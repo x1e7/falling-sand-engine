@@ -14,6 +14,7 @@ struct ParticleInstance {
 class World {
 public:
     World(int width, int height, ParticleRegistry& registry);
+    ~World();
 
     void tick(float deltaTime);
 
@@ -45,8 +46,8 @@ public:
 private:
     int m_width;
     int m_height;
-    std::vector<ParticleInstance> m_grid;
-    std::vector<uint8_t> m_movedThisFrame;
+    ParticleInstance* m_grid;
+    bool* m_movedThisFrame;
     ParticleRegistry& m_registry;
 
     void updatePowder(const Vec2i& pos);

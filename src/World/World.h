@@ -8,7 +8,6 @@
 struct ParticleInstance {
     ParticleId id;
     uint8_t age;
-    Vec2f velocity {0.0f, 0.0f};
 };
 
 class World {
@@ -24,19 +23,9 @@ public:
     const ParticleInstance& getParticle(int x, int y) const;
     bool isInside(int x, int y) const;
 
-    void incrementAge(int x, int y) {
-        if (!isInside(x, y)) return;
-        m_grid[y * m_width + x].age++;
-    }
-
     int getAge(int x, int y) const {
         if (!isInside(x, y)) return 0;
         return m_grid[y * m_width + x].age;
-    }
-
-    void resetAge(int x, int y) {
-        if (!isInside(x, y)) return;
-        m_grid[y * m_width + x].age = 0;
     }
 
     int getWidth() const { return m_width; }
@@ -57,9 +46,6 @@ private:
 
     bool canMove(const Vec2i& from, const Vec2i& to);
     void performSwap(const Vec2i& from, const Vec2i& to);
-
-    void applyVelocity(ParticleInstance& p, const Vec2i& pos);
-    void updateVelocity(ParticleInstance& p, const Vec2i& direction);
 
     float m_accumulator = 0.0f;
     static constexpr float FIXED_DT = 1.0f / 120.0f;

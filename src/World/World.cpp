@@ -17,7 +17,6 @@ World::World(int width, int height, ParticleRegistry& registry)
     for (int i = 0; i < width * height; ++i) {
         m_grid[i].id = ParticleRegistry::Empty;
         m_grid[i].age = 0;
-        m_grid[i].velocity = Vec2f(0.0f, 0.0f);
         m_movedThisFrame[i] = false;
     }
 }
@@ -56,10 +55,10 @@ void World::tick(float deltaTime) {
     m_accumulator = std::min(m_accumulator, 0.1f);
 
     while (m_accumulator >= FIXED_DT) {
-        int w = getWidth(), h = getHeight();
+        int w = m_width, h = m_height;
         int total = w * h;
 
-        std::memset(m_movedThisFrame, 0, m_width * m_height * sizeof(bool));
+        std::memset(m_movedThisFrame, 0, total * sizeof(bool));
 
         for (int y = h - 1; y >= 0; --y) {
             int startX = (y % 2 == 0) ? 0 : w - 1;
@@ -70,20 +69,20 @@ void World::tick(float deltaTime) {
                 int idx = y * w + x;
                 if (m_movedThisFrame[idx]) continue;
 
-                ParticleId id = getParticleId(x, y);
-                if (id == ParticleRegistry::Empty) {
-                    resetAge(x, y);
+                ParticleInstance& p = m_grid[idx];
+                if (p.id == ParticleRegistry::Empty) {
+                    p.age = 0;
                     continue;
                 }
 
-                incrementAge(x, y);
+                p.age++;
 
-                const auto& def = getRegistry().get(getParticleId(x, y));
+                const auto& def = m_registry.get(p.id);
                 switch (def.state) {
-                    case PhysicalState::Powder: updatePowder({x, y}); break;
-                    case PhysicalState::Liquid: updateLiquid({x, y}); break;
-                    case PhysicalState::Gas: updateGas({x, y}); break;
-                    case PhysicalState::Fire: updateFire({x, y}); break;
+                    case PhysicalState::Powder: updatePowder({x,y}); break;
+                    case PhysicalState::Liquid:  updateLiquid({x,y}); break;
+                    case PhysicalState::Gas:    updateGas({x,y}); break;
+                    case PhysicalState::Fire:   updateFire({x,y}); break;
                     default: break;
                 }
             }
@@ -92,55 +91,22 @@ void World::tick(float deltaTime) {
     }
 }
 
-void World::applyVelocity(ParticleInstance& p, const Vec2i& pos) {
-    p.velocity.x *= VELOCITY_DAMPING;
-    p.velocity.y *= VELOCITY_DAMPING;
-
-    const auto& def = getRegistry().get(p.id);
-    if (def.state != PhysicalState::Gas) {
-        p.velocity.y += GRAVITY * (def.density / 1000.0f);
-    } else {
-        p.velocity.y -= GRAVITY * 0.5f;
-    }
-
-    if (p.velocity.x > 1.0f) {
-        p.velocity.x = 1.0f;
-    } else if (p.velocity.x < -1.0f) {
-        p.velocity.x = -1.0f;
-    }
-
-    if (p.velocity.y > 1.0f) {
-        p.velocity.y = 1.0f;
-    } else if (p.velocity.y < -1.0f) {
-        p.velocity.y = -1.0f;
-    }
-}
-
-void World::updateVelocity(ParticleInstance& p, const Vec2i& direction) {
-    p.velocity.x += direction.x * 0.05f;
-    p.velocity.y += direction.y * 0.05f;
-}
-
 void World::updatePowder(const Vec2i& pos) {
     auto& rng = getRng();
     ParticleInstance& p = getParticle(pos.x, pos.y);
-    applyVelocity(p, pos);
 
     int dx = std::uniform_int_distribution<>(-1, 1)(rng);
-    int biasX = (p.velocity.x > 0.5f) ? 1 : (p.velocity.x < -0.5f) ? -1 : 0;
 
     Vec2i dirs[] = {
         {0, 1},
-        {dx + biasX, 1},
-        {-dx - biasX, 1},
-        {biasX, 0}
+        {dx, 1},
+        {-dx, 1},
     };
 
     for (auto& dir : dirs) {
         Vec2i target(pos.x + dir.x, pos.y + dir.y);
         if (canMove(pos, target)) {
             performSwap(pos, target);
-            updateVelocity(p, dir);
             return;
         }
     }
@@ -149,16 +115,12 @@ void World::updatePowder(const Vec2i& pos) {
 void World::updateLiquid(const Vec2i& pos) {
     auto& rng = getRng();
     ParticleInstance& p = getParticle(pos.x, pos.y);
-    applyVelocity(p, pos);
 
-    int biasX = (p.velocity.x > 0.3f) ? 1 : (p.velocity.x < -0.3f) ? -1 : 0;
     int dx = std::uniform_int_distribution<>(-1, 1)(rng);
 
     // Build direction list with priority
     Vec2i dirs[] = {
         {0, 1},
-        {biasX, 0},
-        {biasX, 1},
         {dx, 1},
         {-dx, 1},
         {dx, 0}
@@ -168,35 +130,26 @@ void World::updateLiquid(const Vec2i& pos) {
         Vec2i target(pos.x + dir.x, pos.y + dir.y);
         if (canMove(pos, target)) {
             performSwap(pos, target);
-            updateVelocity(p, dir);
             return;
         }
-    }
-
-    // Random diffusion
-    if (std::uniform_int_distribution<>(0, 99)(rng) < 10) {
-        p.velocity.x += (std::uniform_int_distribution<>(-1, 1)(rng)) * 0.01f;
     }
 }
 
 void World::updateGas(const Vec2i& pos) {
     auto& rng = getRng();
     ParticleInstance& p = getParticle(pos.x, pos.y);
-    applyVelocity(p, pos);
 
     if (std::uniform_int_distribution<>(0, 99)(rng) < 5) {
         setParticle(pos.x, pos.y, ParticleRegistry::Empty);
         return;
     }
 
-    int biasX = (p.velocity.x > 0.3f) ? 1 : (p.velocity.x < -0.3f) ? -1 : 0;
     int dx = std::uniform_int_distribution<>(-1, 1)(rng);
 
     Vec2i dirs[] = {
         {0, -1},
         {dx, -1},
         {-dx, -1},
-        {biasX, 0},
         {dx, 0},
         {-dx, 0}
     };
@@ -205,7 +158,6 @@ void World::updateGas(const Vec2i& pos) {
         Vec2i target(pos.x + dir.x, pos.y + dir.y);
         if (canMove(pos, target)) {
             performSwap(pos, target);
-            updateVelocity(p, dir);
             return;
         }
     }

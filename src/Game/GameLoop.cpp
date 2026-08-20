@@ -165,12 +165,15 @@ void GameLoop::handleInput() {
                 if (dx*dx + dy*dy > m_brushRadius*m_brushRadius) continue;
                 int nx = wx + dx;
                 int ny = wy + dy;
-                if (m_world->isInside(nx, ny)) {
-                    ParticleId current = m_world->getParticleId(nx, ny);
-                    if (current == ParticleRegistry::Empty ||
-                        current == m_registry.findId("Smoke")) {
-                        m_world->setParticle(nx, ny, m_currentBrush);
-                    }
+
+                if (!m_world->isInside(nx, ny)) continue;
+
+                ParticleInstance* grid = m_world->getGrid();
+                int idx = ny * m_world->getWidth() + nx;
+                ParticleId current = grid[idx].id;
+
+                if (current == ParticleRegistry::Empty || current == m_registry.findId("Smoke")) {
+                    m_world->setParticle(nx, ny, m_currentBrush);
                 }
             }
         }

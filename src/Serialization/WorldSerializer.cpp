@@ -93,7 +93,7 @@ std::vector<uint8_t> WorldSerializer::serializeParticles(const World& world) {
 
     for (int y = 0; y < height; ++y) {
         for (int x = 0; x < width; ++x) {
-            const auto& particle = world.getParticle(x, y);
+            const auto& particle = world.getGrid()[y * world.getWidth() + x];
             *ptr++ = particle.id;
             *ptr++ = particle.age;
         }
@@ -118,7 +118,7 @@ bool WorldSerializer::deserializeParticles(World& world, const uint8_t* data, si
             ParticleId id = *ptr++;
             uint8_t age = *ptr++;
 
-            auto& p = world.getParticle(x, y);
+            auto& p = world.getGrid()[y * world.getWidth() + x];
             p.id = id;
             p.age = age;
         }

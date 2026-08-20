@@ -33,19 +33,6 @@ void World::setParticle(int x, int y, ParticleId id) {
     p.age = 0;
 }
 
-ParticleId World::getParticleId(int x, int y) const {
-    if (!isInside(x, y)) return ParticleRegistry::Empty;
-    return m_grid[y * m_width + x].id;
-}
-
-ParticleInstance& World::getParticle(int x, int y) {
-    return m_grid[y * m_width + x];
-}
-
-const ParticleInstance& World::getParticle(int x, int y) const {
-    return m_grid[y * m_width + x];
-}
-
 bool World::isInside(int x, int y) const {
     return x >= 0 && x < m_width && y >= 0 && y < m_height;
 }
@@ -93,7 +80,7 @@ void World::tick(float deltaTime) {
 
 void World::updatePowder(const Vec2i& pos) {
     auto& rng = getRng();
-    ParticleInstance& p = getParticle(pos.x, pos.y);
+    ParticleInstance& p = m_grid[pos.y * m_width + pos.x];
 
     int dx = std::uniform_int_distribution<>(-1, 1)(rng);
 
@@ -114,7 +101,7 @@ void World::updatePowder(const Vec2i& pos) {
 
 void World::updateLiquid(const Vec2i& pos) {
     auto& rng = getRng();
-    ParticleInstance& p = getParticle(pos.x, pos.y);
+    ParticleInstance& p = m_grid[pos.y * m_width + pos.x];
 
     int dx = std::uniform_int_distribution<>(-1, 1)(rng);
 
@@ -137,7 +124,7 @@ void World::updateLiquid(const Vec2i& pos) {
 
 void World::updateGas(const Vec2i& pos) {
     auto& rng = getRng();
-    ParticleInstance& p = getParticle(pos.x, pos.y);
+    ParticleInstance& p = m_grid[pos.y * m_width + pos.x];
 
     if (std::uniform_int_distribution<>(0, 99)(rng) < 5) {
         setParticle(pos.x, pos.y, ParticleRegistry::Empty);
@@ -165,7 +152,7 @@ void World::updateGas(const Vec2i& pos) {
 
 void World::updateFire(const Vec2i& pos) {
     auto& rng = getRng();
-    int age = getAge(pos.x, pos.y);
+    int age = m_grid[pos.y * m_width + pos.x].age;
 
     if (age > 20 && std::uniform_int_distribution<>(0, 99)(rng) < 5 + age) {
         ParticleId smokeId = getRegistry().findId("Smoke");
@@ -193,7 +180,7 @@ void World::updateFire(const Vec2i& pos) {
                 if (dx == 0 && dy == 0) continue;
                 Vec2i n(pos.x + dx, pos.y + dy);
                 if (isInside(n.x, n.y)) {
-                    ParticleId pid = getParticleId(n.x, n.y);
+                    ParticleId pid = m_grid[pos.y * m_width + pos.x].id;
                     if (pid != ParticleRegistry::Empty && getRegistry().get(pid).canIgnite) {
                         ParticleId fireId = getRegistry().findId("Fire");
                         setParticle(n.x, n.y, fireId);
@@ -210,8 +197,8 @@ bool World::canMove(const Vec2i& from, const Vec2i& to) {
     int toIdx = to.y * getWidth() + to.x;
     if (m_movedThisFrame[toIdx]) return false;
 
-    ParticleId fromId = getParticleId(from.x, from.y);
-    ParticleId toId = getParticleId(to.x, to.y);
+    ParticleId fromId = m_grid[from.y * m_width + from.x].id;
+    ParticleId toId = m_grid[to.y * m_width + to.x].id;
 
     if (toId == ParticleRegistry::Empty) return true;
 
@@ -222,8 +209,8 @@ bool World::canMove(const Vec2i& from, const Vec2i& to) {
 }
 
 void World::performSwap(const Vec2i& from, const Vec2i& to) {
-    ParticleInstance& fromP = getParticle(from.x, from.y);
-    ParticleInstance& toP = getParticle(to.x, to.y);
+    ParticleInstance& fromP = m_grid[from.y * m_width + from.x];
+    ParticleInstance& toP = m_grid[to.y * m_width + to.x];
     std::swap(fromP, toP);
 
     int fromIdx = from.y * getWidth() + from.x;

@@ -18,20 +18,16 @@ public:
     void tick(float deltaTime);
 
     void setParticle(int x, int y, ParticleId id);
-    ParticleId getParticleId(int x, int y) const;
-    ParticleInstance& getParticle(int x, int y);
-    const ParticleInstance& getParticle(int x, int y) const;
-    bool isInside(int x, int y) const;
 
-    int getAge(int x, int y) const {
-        if (!isInside(x, y)) return 0;
-        return m_grid[y * m_width + x].age;
-    }
+    bool isInside(int x, int y) const;
 
     int getWidth() const { return m_width; }
     int getHeight() const { return m_height; }
     ParticleRegistry& getRegistry() { return m_registry; }
     const ParticleRegistry& getRegistry() const { return m_registry; }
+
+    ParticleInstance* getGrid() { return m_grid; }
+    const ParticleInstance* getGrid() const { return m_grid; }
 private:
     int m_width;
     int m_height;

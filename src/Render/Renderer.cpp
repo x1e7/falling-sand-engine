@@ -74,7 +74,7 @@ void Renderer::render(World& world, Camera& camera, void* ui) {
         size_t rowOffset = static_cast<size_t>(y) * m_textureWidth;
 
         for (int x = minX; x < maxX; ++x) {
-            const auto& particle = world.getParticle(x, y);
+            const auto& particle = world.getGrid()[y * world.getWidth() + x];
 
             if (particle.id != ParticleRegistry::Empty) {
                 uint32_t color = registry.get(particle.id).color;

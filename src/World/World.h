@@ -1,14 +1,9 @@
 #pragma once
 
-#include "Core/ParticleTypes.h"
 #include "Core/ParticleRegistry.h"
 #include "Core/Math/Vector2.h"
+#include "World/Chunk.h"
 #include <vector>
-
-struct ParticleInstance {
-    ParticleId id;
-    uint8_t age;
-};
 
 class World {
 public:
@@ -26,14 +21,48 @@ public:
     ParticleRegistry& getRegistry() { return m_registry; }
     const ParticleRegistry& getRegistry() const { return m_registry; }
 
-    ParticleInstance* getGrid() { return m_grid; }
-    const ParticleInstance* getGrid() const { return m_grid; }
+    inline ParticleInstance* getParticlePtr(int x, int y) {
+        int cx = x >> 4;
+        int cy = y >> 4;
+        int lx = x & 15;
+        int ly = y & 15;
+        return &m_chunks[cy * m_chunksX + cx].cells[ly * CHUNK_SIZE + lx];
+    }
+
+    inline const ParticleInstance* getParticlePtr(int x, int y) const {
+        int cx = x >> 4;
+        int cy = y >> 4;
+        int lx = x & 15;
+        int ly = y & 15;
+        return &m_chunks[cy * m_chunksX + cx].cells[ly * CHUNK_SIZE + lx];
+    }
 private:
     int m_width;
     int m_height;
-    ParticleInstance* m_grid;
+
+    Chunk* m_chunks;
+    int m_chunksX, m_chunksY;
+
     bool* m_movedThisFrame;
     ParticleRegistry& m_registry;
+
+    inline ParticleInstance& at(int x, int y) {
+        int cx = x >> 4;
+        int cy = y >> 4;
+        int lx = x & 15;
+        int ly = y & 15;
+        return m_chunks[cy * m_chunksX + cx].cells[ly * CHUNK_SIZE + lx];
+    }
+
+    inline const ParticleInstance& at(int x, int y) const {
+        int cx = x >> 4;
+        int cy = y >> 4;
+        int lx = x & 15;
+        int ly = y & 15;
+        return m_chunks[cy * m_chunksX + cx].cells[ly * CHUNK_SIZE + lx];
+    }
+
+    void wakeChunk(int x, int y);
 
     void updatePowder(const Vec2i& pos);
     void updateLiquid(const Vec2i& pos);

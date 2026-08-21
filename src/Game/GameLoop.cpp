@@ -168,9 +168,7 @@ void GameLoop::handleInput() {
 
                 if (!m_world->isInside(nx, ny)) continue;
 
-                ParticleInstance* grid = m_world->getGrid();
-                int idx = ny * m_world->getWidth() + nx;
-                ParticleId current = grid[idx].id;
+                ParticleId current = m_world->getParticlePtr(nx, ny)->id;
 
                 if (current == ParticleRegistry::Empty || current == m_registry.findId("Smoke")) {
                     m_world->setParticle(nx, ny, m_currentBrush);

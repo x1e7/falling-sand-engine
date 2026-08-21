@@ -30,7 +30,7 @@ Renderer::Renderer(int worldWidth, int worldHeight, int windowWidth, int windowH
 
     SDL_GL_SetSwapInterval(1);
 
-    m_renderer = SDL_CreateRenderer(m_window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+    m_renderer = SDL_CreateRenderer(m_window, -1, SDL_RENDERER_ACCELERATED);
 
     if (!m_renderer) {
         std::cerr << "SDL_CreateRenderer Error: " << SDL_GetError() << std::endl;
@@ -74,10 +74,10 @@ void Renderer::render(World& world, Camera& camera, void* ui) {
         size_t rowOffset = static_cast<size_t>(y) * m_textureWidth;
 
         for (int x = minX; x < maxX; ++x) {
-            const auto& particle = world.getGrid()[y * world.getWidth() + x];
+            const ParticleInstance* p = world.getParticlePtr(x, y);
 
-            if (particle.id != ParticleRegistry::Empty) {
-                uint32_t color = registry.get(particle.id).color;
+            if (p->id != ParticleRegistry::Empty) {
+                uint32_t color = registry.get(p->id).color;
                 m_pixelBuffer[rowOffset + x] = color & 0x00FFFFFF;
             } else {
                 m_pixelBuffer[rowOffset + x] = bgColor;

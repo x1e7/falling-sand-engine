@@ -58,7 +58,7 @@ void GameLoop::run() {
         float deltaTime = std::min((currentTime - m_lastTime) / 1000.0f, 0.05f);
         m_lastTime = currentTime;
 
-        handleInput();
+        handleInput(deltaTime);
 
         if (!m_paused) {
             update(deltaTime);
@@ -76,7 +76,7 @@ void GameLoop::run() {
     }
 }
 
-void GameLoop::handleInput() {
+void GameLoop::handleInput(float deltaTime) {
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
         switch (event.type) {
@@ -127,7 +127,7 @@ void GameLoop::handleInput() {
 
     const Uint8* keys = SDL_GetKeyboardState(nullptr);
     Vec2f moveDelta{0.0f, 0.0f};
-    float moveSpeed = 200.0f / m_camera->getZoom();
+    float moveSpeed = 800.0f / m_camera->getZoom();
 
     if (keys[SDL_SCANCODE_W] || keys[SDL_SCANCODE_UP]) {
         moveDelta.y -= moveSpeed;
@@ -145,7 +145,7 @@ void GameLoop::handleInput() {
         moveDelta = moveDelta * 2.0f;
     }
 
-    m_camera->move(moveDelta * 0.016f);
+    m_camera->move(moveDelta * deltaTime);
 
     int mouseX, mouseY;
     SDL_GetMouseState(&mouseX, &mouseY);

@@ -14,7 +14,7 @@ public:
     void run();
 
 private:
-    void handleInput();
+    void handleInput(float deltaTime);
     void update(float deltaTime);
     void render();
 

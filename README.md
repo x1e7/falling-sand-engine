@@ -17,9 +17,8 @@ This project uses [FastLZ](https://github.com/ariya/FastLZ) compression library,
 
 - [x] Background color
 - [ ] Particle velocity system (inertia, momentum)
-- [x] Dirty rectangles optimization (render only changed pixels)
 - [x] Variable brush size
-- [ ] Pause simulation (Spacebar)
+- [x] Pause simulation (Spacebar)
 - [ ] Particle counter (total particles on screen)
 - [x] FPS counter overlay
 

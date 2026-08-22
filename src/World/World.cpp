@@ -190,9 +190,9 @@ void World::updateFire(const Vec2i& pos) {
     auto& rng = getRng();
 
     int dx = std::uniform_int_distribution<>(-1, 1)(rng);
-    int age = at(pos.y, pos.x).age;
+    int age = at(pos.x, pos.y).age;
 
-    if (age > 1 && std::uniform_int_distribution<>(0, 99)(rng) < 65 + age) {
+    if (age > 20 && std::uniform_int_distribution<>(0, 99)(rng) < 65 + age) {
         ParticleId smokeId = getRegistry().findId("Smoke");
         setParticle(pos.x, pos.y, smokeId != ParticleRegistry::Empty ? smokeId : ParticleRegistry::Empty);
         return;

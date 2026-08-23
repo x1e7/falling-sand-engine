@@ -1,0 +1,19 @@
+[submodule "libs/SDL2"]
+    path = libs/SDL2
+    url = https://github.com/libsdl-org/SDL.git
+    branch = release-2.30.0
+
+[submodule "libs/glm"]
+    path = libs/glm
+    url = https://github.com/g-truc/glm.git
+    branch = 0.9.9.8
+
+[submodule "libs/glad"]
+    path = libs/glad
+    url = https://github.com/Dav1dde/glad.git
+    branch = v2.0.4
+
+[submodule "libs/fastlz"]
+    path = libs/fastlz
+    url = https://github.com/ariya/FastLZ.git
+    branch = master

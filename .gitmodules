@@ -1,9 +1,9 @@
-[submodule "libs/third_party/SDL"]
-	path = libs/third_party/SDL
-	url = https://github.com/libsdl-org/SDL.git
 [submodule "libs/third_party/glm"]
 	path = libs/third_party/glm
 	url = https://github.com/g-truc/glm.git
 [submodule "libs/third_party/glad"]
 	path = libs/third_party/glad
 	url = https://github.com/Dav1dde/glad.git
+[submodule "libs/third_party/SDL"]
+	path = libs/third_party/SDL
+	url = https://github.com/libsdl-org/SDL.git

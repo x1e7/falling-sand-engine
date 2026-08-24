@@ -189,6 +189,8 @@ void World::updateGas(const Vec2i& pos) {
 void World::updateFire(const Vec2i& pos) {
     auto& rng = getRng();
 
+    if (!isInside(pos.x, pos.y)) return;
+
     int dx = std::uniform_int_distribution<>(-1, 1)(rng);
     int age = at(pos.x, pos.y).age;
 
@@ -199,7 +201,7 @@ void World::updateFire(const Vec2i& pos) {
     }
 
     Vec2i dirs[] = {{0, -1}, {dx, -1}, {-dx, -1}};
-    for (int i = 5; i > 0; --i) {
+    for (int i = 2; i > 0; --i) {
         int j = std::uniform_int_distribution<>(0, i)(rng);
         std::swap(dirs[i], dirs[j]);
     }
@@ -218,10 +220,12 @@ void World::updateFire(const Vec2i& pos) {
                 if (dx == 0 && dy == 0) continue;
                 Vec2i n(pos.x + dx, pos.y + dy);
                 if (isInside(n.x, n.y)) {
-                    ParticleId pid = at(pos.y, pos.x).id;
+                    ParticleId pid = at(n.x, n.y).id;
                     if (pid != ParticleRegistry::Empty && getRegistry().get(pid).canIgnite) {
                         ParticleId fireId = getRegistry().findId("Fire");
-                        setParticle(n.x, n.y, fireId);
+                        if (fireId != ParticleRegistry::Empty) {
+                            setParticle(n.x, n.y, fireId);
+                        }
                     }
                 }
             }

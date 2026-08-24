@@ -13,6 +13,15 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 This project uses [FastLZ](https://github.com/ariya/FastLZ) compression library, also under the MIT License.
 
+## Build
+
+### Prepare build files
+cmake -B build -G "Visual Studio 18 2026"
+
+### Run build
+cd build/
+cmake --build . --config Release
+
 ## TODO
 
 - [x] Background color

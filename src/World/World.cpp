@@ -15,15 +15,10 @@ World::World(int width, int height, ParticleRegistry& registry)
     m_chunksX = (width + CHUNK_SIZE - 1) / CHUNK_SIZE;
     m_chunksY = (height + CHUNK_SIZE - 1) / CHUNK_SIZE;
 
-    m_chunks = new Chunk[m_chunksX * m_chunksY];
+    m_chunks = std::make_unique<Chunk[]>(m_chunksX * m_chunksY);
 
-    m_movedThisFrame = new bool[width * height];
-    std::memset(m_movedThisFrame, 0, width * height * sizeof(bool));
-}
-
-World::~World() {
-    delete[] m_chunks;
-    delete[] m_movedThisFrame;
+    m_movedThisFrame = std::make_unique<bool[]>(width * height);
+    std::fill(m_movedThisFrame.get(), m_movedThisFrame.get() + width * height, false);
 }
 
 void World::setParticle(int x, int y, ParticleId id) {
@@ -47,7 +42,7 @@ void World::tick(float deltaTime) {
         int w = m_width, h = m_height;
         int total = w * h;
 
-        std::memset(m_movedThisFrame, 0, total * sizeof(bool));
+        std::fill(m_movedThisFrame.get(), m_movedThisFrame.get() + total, false);
 
         for (int cy = 0; cy < m_chunksY; ++cy) {
             for (int cx = 0; cx < m_chunksX; ++cx) {

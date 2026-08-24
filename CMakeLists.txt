@@ -46,6 +46,41 @@ target_include_directories(Sand2D PRIVATE
     ${GLAD_DIR}/include
 )
 
+if(MSVC)
+    target_compile_options(Sand2D PRIVATE
+        /O2
+        /arch:AVX2
+        /fp:fast
+        /GL
+        /Oi
+        /Ot
+        /Oy-
+    )
+
+    target_link_options(Sand2D PRIVATE
+        /LTCG
+    )
+endif()
+
+if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+    target_compile_options(Sand2D PRIVATE
+        -O3
+        -march=native
+        -mtune=native
+        -ffast-math
+        -funroll-loops
+        -finline-functions
+        -fomit-frame-pointer
+    )
+
+    target_link_options(Sand2D PRIVATE
+        -flto                    # Link-Time Optimization
+    )
+endif()
+
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -DNDEBUG")
+set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -DNDEBUG")
+
 if(WIN32 AND (MINGW OR MSVC))
     add_custom_command(TARGET Sand2D POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_if_different

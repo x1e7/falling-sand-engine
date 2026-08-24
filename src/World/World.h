@@ -3,12 +3,12 @@
 #include "Core/ParticleRegistry.h"
 #include "Core/Math/Vector2.h"
 #include "World/Chunk.h"
+#include <memory>
 #include <vector>
 
 class World {
 public:
     World(int width, int height, ParticleRegistry& registry);
-    ~World();
 
     void tick(float deltaTime);
 
@@ -40,10 +40,10 @@ private:
     int m_width;
     int m_height;
 
-    Chunk* m_chunks;
+    std::unique_ptr<Chunk[]> m_chunks;
     int m_chunksX, m_chunksY;
 
-    bool* m_movedThisFrame;
+    std::unique_ptr<bool[]> m_movedThisFrame;
     ParticleRegistry& m_registry;
 
     inline ParticleInstance& at(int x, int y) {

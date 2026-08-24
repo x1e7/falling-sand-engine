@@ -23,6 +23,7 @@ private:
     std::unique_ptr<Renderer> m_renderer;
     std::unique_ptr<Camera> m_camera;
 
+    Text m_worldInfo;
     Text m_fpsText;
     Text m_brushText;
     Text m_pauseText;
@@ -38,8 +39,8 @@ private:
     float m_fpsTimer = 0.0f;
     Uint32 m_lastTime = 0;
 
-    static constexpr int WORLD_WIDTH = 800;
-    static constexpr int WORLD_HEIGHT = 600;
+    static constexpr int WORLD_WIDTH = 4000;
+    static constexpr int WORLD_HEIGHT = 2000;
     static constexpr int WINDOW_WIDTH = 1280;
     static constexpr int WINDOW_HEIGHT = 720;
 };

@@ -1,6 +1,6 @@
 #include "Game/GameLoop.h"
 #include "Serialization/WorldSerializer.h"
-#include <SDL2/SDL.h>
+#include <SDL3/SDL.h>
 #include <iostream>
 #include <algorithm>
 
@@ -33,9 +33,9 @@ void GameLoop::run() {
     m_lastTime = SDL_GetTicks();
 
     while (m_running) {
-        Uint32 currentTime = SDL_GetTicks();
-        float deltaTime = std::min((currentTime - m_lastTime) / 1000.0f, 0.05f);
-        m_lastTime = currentTime;
+        Uint64 currentTime = SDL_GetTicks();
+        float deltaTime = std::min(static_cast<float>(currentTime - m_lastTime) / 1000.0f, 0.05f);
+        m_lastTime = static_cast<Uint32>(currentTime);
 
         handleInput(deltaTime);
 
@@ -59,12 +59,12 @@ void GameLoop::handleInput(float deltaTime) {
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
         switch (event.type) {
-            case SDL_QUIT:
+            case SDL_EVENT_QUIT:
                 m_running = false;
                 break;
 
-            case SDL_WINDOWEVENT:
-                if (event.window.event == SDL_WINDOWEVENT_RESIZED) {
+            case SDL_EVENT_WINDOW_RESIZED:
+                {
                     int newWidth = event.window.data1;
                     int newHeight = event.window.data2;
                     m_camera->setViewportSize(newWidth, newHeight);
@@ -72,8 +72,8 @@ void GameLoop::handleInput(float deltaTime) {
                 }
                 break;
 
-            case SDL_KEYDOWN:
-                switch (event.key.keysym.sym) {
+            case SDL_EVENT_KEY_DOWN:
+                switch (event.key.key) {
                     case SDLK_1: m_currentBrush = m_registry.findId("Sand"); break;
                     case SDLK_2: m_currentBrush = m_registry.findId("Water"); break;
                     case SDLK_3: m_currentBrush = m_registry.findId("Fire"); break;
@@ -87,17 +87,20 @@ void GameLoop::handleInput(float deltaTime) {
                 }
                 break;
 
-            case SDL_MOUSEWHEEL:
+            case SDL_EVENT_MOUSE_WHEEL:
                 if (event.wheel.y > 0) {
                     m_brushRadius = std::min(m_brushRadius + 1, 128);
                 } else if (event.wheel.y < 0) {
                     m_brushRadius = std::max(m_brushRadius - 1, 1);
                 }
                 break;
+
+            default:
+                break;
         }
     }
 
-    const Uint8* keys = SDL_GetKeyboardState(nullptr);
+    const bool* keys = SDL_GetKeyboardState(nullptr);
     Vec2f moveDelta{0.0f, 0.0f};
     float moveSpeed = 800.0f / m_camera->getZoom();
 
@@ -119,19 +122,16 @@ void GameLoop::handleInput(float deltaTime) {
 
     m_camera->move(moveDelta * deltaTime);
 
-    int mouseX, mouseY;
+    float mouseX, mouseY;
     SDL_GetMouseState(&mouseX, &mouseY);
 
-    Vec2f worldPos = m_camera->screenToWorld(Vec2f(
-            static_cast<float>(mouseX),
-            static_cast<float>(mouseY)
-        ));
+    Vec2f worldPos = m_camera->screenToWorld(Vec2f(mouseX, mouseY));
     int wx = static_cast<int>(worldPos.x);
     int wy = static_cast<int>(worldPos.y);
 
-    Uint32 mouseState = SDL_GetMouseState(nullptr, nullptr);
+    SDL_MouseButtonFlags mouseState = SDL_GetMouseState(nullptr, nullptr);
 
-    if (mouseState & SDL_BUTTON(SDL_BUTTON_LEFT)) {
+    if (mouseState & SDL_BUTTON_LMASK) {
         for (int dy = -m_brushRadius; dy <= m_brushRadius; ++dy) {
             for (int dx = -m_brushRadius; dx <= m_brushRadius; ++dx) {
                 if (dx*dx + dy*dy > m_brushRadius*m_brushRadius) continue;
@@ -149,7 +149,7 @@ void GameLoop::handleInput(float deltaTime) {
         }
     }
 
-    if (mouseState & SDL_BUTTON(SDL_BUTTON_RIGHT)) {
+    if (mouseState & SDL_BUTTON_RMASK) {
         for (int dy = -m_brushRadius; dy <= m_brushRadius; ++dy) {
             for (int dx = -m_brushRadius; dx <= m_brushRadius; ++dx) {
                 if (dx*dx + dy*dy > m_brushRadius*m_brushRadius) continue;
@@ -173,18 +173,6 @@ void GameLoop::render() {
 
     SDL_RenderClear(renderer);
     m_renderer->render(*m_world, *m_camera);
-
-    // UI
-    /*
-    const Vec2f& camPos = m_camera->getPosition();
-
-    std::string brushName = "Unknown";
-    if (m_currentBrush == m_registry.findId("Sand")) brushName = "Sand";
-    else if (m_currentBrush == m_registry.findId("Water")) brushName = "Water";
-    else if (m_currentBrush == m_registry.findId("Fire")) brushName = "Fire";
-    else if (m_currentBrush == m_registry.findId("Wall")) brushName = "Wall";
-    else if (m_currentBrush == m_registry.findId("Oil")) brushName = "Oil";
-    */
 
     SDL_RenderPresent(renderer);
 }

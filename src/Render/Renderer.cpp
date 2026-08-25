@@ -8,13 +8,9 @@ Renderer::Renderer(int windowWidth, int windowHeight,
     , m_windowHeight(windowHeight)
     , m_registry(registry) {
 
-    if (SDL_Init(SDL_INIT_VIDEO) < 0) {
-        std::cerr << "SDL_Init Error: " << SDL_GetError() << std::endl;
-        exit(1);
-    }
+    SDL_Init(SDL_INIT_VIDEO);
 
     m_window = SDL_CreateWindow(title.c_str(),
-                                SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
                                 m_windowWidth, m_windowHeight,
                                 SDL_WINDOW_RESIZABLE);
 
@@ -23,8 +19,7 @@ Renderer::Renderer(int windowWidth, int windowHeight,
         exit(1);
     }
 
-    m_renderer = SDL_CreateRenderer(m_window, -1,
-                                    SDL_RENDERER_ACCELERATED); //SDL_RENDERER_PRESENTVSYNC
+    m_renderer = SDL_CreateRenderer(m_window, nullptr);
 
     if (!m_renderer) {
         std::cerr << "SDL_CreateRenderer Error: " << SDL_GetError() << std::endl;
@@ -46,12 +41,14 @@ void Renderer::createTexture(int width, int height) {
 
     m_texWidth = width;
     m_texHeight = height;
-    m_pixels.resize(width * height);
+    m_pixels.resize(static_cast<size_t>(width) * height);
 
     m_texture = SDL_CreateTexture(m_renderer,
-                                  SDL_PIXELFORMAT_RGB888,
+                                  SDL_PIXELFORMAT_XRGB8888,
                                   SDL_TEXTUREACCESS_STREAMING,
                                   width, height);
+
+    SDL_SetTextureScaleMode(m_texture, SDL_SCALEMODE_NEAREST);
 }
 
 void Renderer::updateViewport(int width, int height) {
@@ -84,6 +81,6 @@ void Renderer::render(World& world, Camera& camera) {
 
     SDL_UpdateTexture(m_texture, nullptr, m_pixels.data(), viewW * sizeof(uint32_t));
 
-    SDL_Rect dst = {0, 0, m_windowWidth, m_windowHeight};
-    SDL_RenderCopy(m_renderer, m_texture, nullptr, &dst);
+    SDL_FRect dst = {0.0f, 0.0f, static_cast<float>(m_windowWidth), static_cast<float>(m_windowHeight)};
+    SDL_RenderTexture(m_renderer, m_texture, nullptr, &dst);
 }

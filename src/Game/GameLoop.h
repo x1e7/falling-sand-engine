@@ -4,6 +4,7 @@
 #include "World/World.h"
 #include "Render/Renderer.h"
 #include "Render/Camera.h"
+#include <SDL3/SDL.h>
 
 class GameLoop {
 public:

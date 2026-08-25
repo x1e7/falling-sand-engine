@@ -16,6 +16,8 @@ public:
 
     SDL_Renderer* getRenderer() const { return m_renderer; }
 
+    SDL_Window* getWindow() const { return m_window; }
+
 private:
     void createTexture(int width, int height);
 

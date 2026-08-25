@@ -6,6 +6,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(SDL3_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third_party/SDL3-3.4.14)
 set(FASTLZ_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third_party/fastlz)
+set(IMGUI_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third_party/imgui)
 
 find_package(OpenGL REQUIRED)
 
@@ -13,15 +14,27 @@ if(EXISTS ${SDL3_DIR}/CMakeLists.txt)
     add_subdirectory(${SDL3_DIR})
 endif()
 
+set(IMGUI_SOURCES
+    ${IMGUI_DIR}/imgui.cpp
+    ${IMGUI_DIR}/imgui_demo.cpp
+    ${IMGUI_DIR}/imgui_draw.cpp
+    ${IMGUI_DIR}/imgui_widgets.cpp
+    ${IMGUI_DIR}/imgui_tables.cpp
+    ${IMGUI_DIR}/backends/imgui_impl_sdl3.cpp
+    ${IMGUI_DIR}/backends/imgui_impl_sdlrenderer3.cpp
+)
+
 add_executable(Sand2D
     src/main.cpp
     src/World/World.cpp
     src/Render/Renderer.cpp
     src/Render/Camera.cpp
+    src/Render/UI.cpp
     src/Serialization/WorldSerializer.cpp
     src/Serialization/Compression.cpp
     src/Game/GameLoop.cpp
     ${FASTLZ_DIR}/fastlz.c
+    ${IMGUI_SOURCES}
 )
 
 set_source_files_properties(${FASTLZ_DIR}/fastlz.c PROPERTIES LANGUAGE C)
@@ -30,6 +43,8 @@ target_include_directories(Sand2D PRIVATE
     src
     ${FASTLZ_DIR}
     ${SDL3_DIR}/include
+    ${IMGUI_DIR}
+    ${IMGUI_DIR}/backends
 )
 
 target_link_libraries(Sand2D

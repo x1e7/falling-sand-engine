@@ -22,6 +22,8 @@ GameLoop::GameLoop() {
 
     WorldSerializer::loadWorld(*m_world, "world.bin");
     m_world->initActiveChunks();
+
+    m_ui = std::make_unique<UI>(m_renderer->getWindow(), m_renderer->getRenderer());
 }
 
 GameLoop::~GameLoop() {
@@ -58,6 +60,7 @@ void GameLoop::run() {
 void GameLoop::handleInput(float deltaTime) {
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
+        ImGui_ImplSDL3_ProcessEvent(&event);
         switch (event.type) {
             case SDL_EVENT_QUIT:
                 m_running = false;
@@ -80,10 +83,9 @@ void GameLoop::handleInput(float deltaTime) {
                     case SDLK_4: m_currentBrush = m_registry.findId("Wall"); break;
                     case SDLK_5: m_currentBrush = m_registry.findId("Oil"); break;
 
-                    case SDLK_SPACE:
-                        m_paused = !m_paused;
-                        break;
+                    case SDLK_SPACE: m_paused = !m_paused; break;
                     case SDLK_ESCAPE: m_running = false; break;
+                    case SDLK_F1: break; // handled by UI
                 }
                 break;
 
@@ -99,6 +101,8 @@ void GameLoop::handleInput(float deltaTime) {
                 break;
         }
     }
+
+    if (m_ui->wantsInput()) return;
 
     const bool* keys = SDL_GetKeyboardState(nullptr);
     Vec2f moveDelta{0.0f, 0.0f};
@@ -171,8 +175,15 @@ void GameLoop::update(float deltaTime) {
 void GameLoop::render() {
     SDL_Renderer* renderer = m_renderer->getRenderer();
 
+    m_ui->beginFrame();
+
     SDL_RenderClear(renderer);
     m_renderer->render(*m_world, *m_camera);
+
+    m_ui->render(*m_world, *m_renderer, m_paused, m_currentBrush, m_brushRadius,
+                 m_fps, WORLD_WIDTH, WORLD_HEIGHT);
+
+    m_ui->endFrame(renderer);
 
     SDL_RenderPresent(renderer);
 }

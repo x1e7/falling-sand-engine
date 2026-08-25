@@ -1,10 +1,11 @@
 #pragma once
 
+#include <SDL3/SDL.h>
 #include <memory>
 #include "World/World.h"
 #include "Render/Renderer.h"
 #include "Render/Camera.h"
-#include <SDL3/SDL.h>
+#include "Render/UI.h"
 
 class GameLoop {
 public:
@@ -22,6 +23,7 @@ private:
     std::unique_ptr<World> m_world;
     std::unique_ptr<Renderer> m_renderer;
     std::unique_ptr<Camera> m_camera;
+    std::unique_ptr<UI> m_ui;
 
     bool m_running = true;
     bool m_paused = false;

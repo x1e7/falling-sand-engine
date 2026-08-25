@@ -29,7 +29,6 @@ cmake --build . --config Release
 - [x] FPS counter overlay
 
 ### Core Physics
-- [ ] Surface tension for water
 - [ ] State changes: Water → Steam, Sand → Glass
 - [x] Density-based layering (oil floats on water)
 
@@ -47,15 +46,8 @@ cmake --build . --config Release
 
 ### Visual & UI
 - [x] Camera
-- [ ] Particle picker UI (click to select material)
 - [ ] Particle info tooltip (hover for details)
-- [ ] Grid overlay toggle
 - [x] Save/load worlds
-
-### Gameplay
-- [ ] Sandbox tools (fill, clear, copy/paste)
-- [ ] Undo/Redo system
-- [ ] Recording/Replay of simulations
 
 ### Performance & Polish
 - [ ] Multithreaded physics (parallel particle updates)

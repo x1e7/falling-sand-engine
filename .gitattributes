@@ -1,7 +1,5 @@
 # Auto detect text files and perform LF normalization
 * text=auto
-third_party/** linguist-vendored
-third_party/* linguist-vendored
-third_party/ linguist-vendored
+
 third_party/SDL/** linguist-vendored
 third_party/fastlz/** linguist-vendored

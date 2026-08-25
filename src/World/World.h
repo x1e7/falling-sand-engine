@@ -5,15 +5,15 @@
 #include "World/Chunk.h"
 #include <memory>
 #include <vector>
+#include <random>
 
 class World {
 public:
     World(int width, int height, ParticleRegistry& registry);
+    ~World() = default;
 
     void tick(float deltaTime);
-
     void setParticle(int x, int y, ParticleId id);
-
     bool isInside(int x, int y) const;
 
     int getWidth() const { return m_width; }
@@ -22,58 +22,55 @@ public:
     const ParticleRegistry& getRegistry() const { return m_registry; }
 
     inline ParticleInstance* getParticlePtr(int x, int y) {
-        int cx = x >> 4;
-        int cy = y >> 4;
-        int lx = x & 15;
-        int ly = y & 15;
+        int cx = x >> 4, cy = y >> 4;
+        int lx = x & 15, ly = y & 15;
         return &m_chunks[cy * m_chunksX + cx].cells[ly * CHUNK_SIZE + lx];
     }
 
     inline const ParticleInstance* getParticlePtr(int x, int y) const {
-        int cx = x >> 4;
-        int cy = y >> 4;
-        int lx = x & 15;
-        int ly = y & 15;
+        int cx = x >> 4, cy = y >> 4;
+        int lx = x & 15, ly = y & 15;
         return &m_chunks[cy * m_chunksX + cx].cells[ly * CHUNK_SIZE + lx];
     }
+
+    void initActiveChunks();
+
 private:
-    int m_width;
-    int m_height;
-
-    std::unique_ptr<Chunk[]> m_chunks;
+    // ====== CORE DATA ======
+    int m_width, m_height;
     int m_chunksX, m_chunksY;
-
+    std::unique_ptr<Chunk[]> m_chunks;
     std::unique_ptr<bool[]> m_movedThisFrame;
     ParticleRegistry& m_registry;
 
+    // ====== CACHED PARTICLE IDs ======
+    ParticleId m_smokeId;
+    ParticleId m_fireId;
+    const ParticleDefinition* m_defCache[256];
+
+    // ====== ACTIVE CHUNK QUEUE ======
+    std::vector<int> m_activeChunks;
+    std::vector<uint8_t> m_chunkInQueue;
+
+    // ====== HELPERS ======
     inline ParticleInstance& at(int x, int y) {
-        int cx = x >> 4;
-        int cy = y >> 4;
-        int lx = x & 15;
-        int ly = y & 15;
+        int cx = x >> 4, cy = y >> 4;
+        int lx = x & 15, ly = y & 15;
         return m_chunks[cy * m_chunksX + cx].cells[ly * CHUNK_SIZE + lx];
     }
 
     inline const ParticleInstance& at(int x, int y) const {
-        int cx = x >> 4;
-        int cy = y >> 4;
-        int lx = x & 15;
-        int ly = y & 15;
+        int cx = x >> 4, cy = y >> 4;
+        int lx = x & 15, ly = y & 15;
         return m_chunks[cy * m_chunksX + cx].cells[ly * CHUNK_SIZE + lx];
     }
 
     void wakeChunk(int x, int y);
 
-    void updatePowder(const Vec2i& pos);
-    void updateLiquid(const Vec2i& pos);
-    void updateGas(const Vec2i& pos);
-    void updateFire(const Vec2i& pos);
+    inline bool canMove(const Vec2i& from, const Vec2i& to, const ParticleDefinition& fromDef);
+    inline void performSwap(const Vec2i& from, const Vec2i& to);
 
-    bool canMove(const Vec2i& from, const Vec2i& to);
-    void performSwap(const Vec2i& from, const Vec2i& to);
-
+    // ====== TIMING ======
     float m_accumulator = 0.0f;
     static constexpr float FIXED_DT = 1.0f / 120.0f;
-    static constexpr float VELOCITY_DAMPING = 0.98f;
-    static constexpr float GRAVITY = 0.1f;
 };

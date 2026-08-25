@@ -47,6 +47,7 @@ GameLoop::GameLoop() {
     m_currentBrush = m_registry.findId("Sand");
 
     WorldSerializer::loadWorld(*m_world, "world.bin");
+    m_world->initActiveChunks();
 }
 
 GameLoop::~GameLoop() {

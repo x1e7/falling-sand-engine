@@ -17,6 +17,35 @@ endif()
 
 add_subdirectory(${GLM_DIR})
 
+if(NOT EXISTS ${GLAD_DIR}/src/gl.c)
+    message(FATAL_ERROR "GLAD not generated. Run: glad --api gl:core=3.3 --out-path ${GLAD_DIR}")
+endif()
+
+add_library(glad STATIC
+    ${GLAD_DIR}/src/gl.c
+)
+
+target_include_directories(glad
+    PUBLIC
+    ${GLAD_DIR}/include
+)
+
+if(WIN32)
+    target_link_libraries(glad PUBLIC opengl32)
+elseif(UNIX)
+    find_package(OpenGL REQUIRED)
+    target_link_libraries(glad PUBLIC ${OPENGL_LIBRARIES})
+endif()
+
+target_compile_definitions(glad PRIVATE GLAD_GL_IMPLEMENTATION)
+set_target_properties(glad PROPERTIES
+    C_STANDARD 99
+    C_STANDARD_REQUIRED ON
+    POSITION_INDEPENDENT_CODE ON
+)
+
+find_package(OpenGL REQUIRED)
+
 add_executable(Sand2D
     src/main.cpp
     src/World/World.cpp
@@ -31,19 +60,18 @@ add_executable(Sand2D
 
 set_source_files_properties(${FASTLZ_DIR}/fastlz.c PROPERTIES LANGUAGE C)
 
-target_link_libraries(Sand2D
-    PRIVATE
-    $<IF:$<TARGET_EXISTS:SDL2>,SDL2,SDL2::SDL2>
-    glm::glm
-)
-
-find_package(OpenGL REQUIRED)
-target_link_libraries(Sand2D PRIVATE ${OPENGL_LIBRARIES})
-
 target_include_directories(Sand2D PRIVATE
     src
     ${FASTLZ_DIR}
     ${GLAD_DIR}/include
+)
+
+target_link_libraries(Sand2D
+    PRIVATE
+    $<IF:$<TARGET_EXISTS:SDL2>,SDL2,SDL2::SDL2>
+    glm::glm
+    glad
+    ${OPENGL_LIBRARIES}
 )
 
 if(MSVC)
@@ -56,10 +84,7 @@ if(MSVC)
         /Ot
         /Oy-
     )
-
-    target_link_options(Sand2D PRIVATE
-        /LTCG
-    )
+    target_link_options(Sand2D PRIVATE /LTCG)
 endif()
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
@@ -72,10 +97,7 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
         -finline-functions
         -fomit-frame-pointer
     )
-
-    target_link_options(Sand2D PRIVATE
-        -flto                    # Link-Time Optimization
-    )
+    target_link_options(Sand2D PRIVATE -flto)
 endif()
 
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -DNDEBUG")

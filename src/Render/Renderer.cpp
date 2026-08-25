@@ -24,7 +24,7 @@ Renderer::Renderer(int windowWidth, int windowHeight,
     }
 
     m_renderer = SDL_CreateRenderer(m_window, -1,
-                                    SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+                                    SDL_RENDERER_ACCELERATED); //SDL_RENDERER_PRESENTVSYNC
 
     if (!m_renderer) {
         std::cerr << "SDL_CreateRenderer Error: " << SDL_GetError() << std::endl;

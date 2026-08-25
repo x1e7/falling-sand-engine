@@ -51,7 +51,6 @@ add_executable(Sand2D
     src/World/World.cpp
     src/Render/Renderer.cpp
     src/Render/Camera.cpp
-    src/Render/Text.cpp
     src/Serialization/WorldSerializer.cpp
     src/Serialization/Compression.cpp
     src/Game/GameLoop.cpp

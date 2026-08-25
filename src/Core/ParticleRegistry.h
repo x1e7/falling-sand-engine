@@ -7,7 +7,7 @@
 class ParticleRegistry {
 public:
     ParticleId registerParticle(const ParticleDefinition& def) {
-        ParticleId id = m_definitions.size();
+        ParticleId id = static_cast<ParticleId>(m_definitions.size());
         m_definitions.push_back(def);
         m_nameToId[def.name] = id;
         return id;

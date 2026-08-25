@@ -4,7 +4,6 @@
 #include "World/World.h"
 #include "Render/Renderer.h"
 #include "Render/Camera.h"
-#include "Render/Text.h"
 
 class GameLoop {
 public:
@@ -22,11 +21,6 @@ private:
     std::unique_ptr<World> m_world;
     std::unique_ptr<Renderer> m_renderer;
     std::unique_ptr<Camera> m_camera;
-
-    Text m_worldInfo;
-    Text m_fpsText;
-    Text m_brushText;
-    Text m_pauseText;
 
     bool m_running = true;
     bool m_paused = false;

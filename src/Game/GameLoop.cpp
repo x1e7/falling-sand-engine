@@ -1,15 +1,10 @@
 #include "Game/GameLoop.h"
+#include "Serialization/WorldSerializer.h"
 #include <SDL2/SDL.h>
 #include <iostream>
 #include <algorithm>
-#include <Serialization/WorldSerializer.h>
 
 GameLoop::GameLoop() {
-    if (SDL_Init(SDL_INIT_VIDEO) < 0) {
-        std::cerr << "SDL_Init Error: " << SDL_GetError() << std::endl;
-        exit(1);
-    }
-
     registerSand2DParticles(m_registry);
     m_registry.setBackgroundColor(0xFF1A1A2E);
 

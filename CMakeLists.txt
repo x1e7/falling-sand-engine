@@ -54,6 +54,7 @@ add_executable(Sand2D
     src/Serialization/WorldSerializer.cpp
     src/Serialization/Compression.cpp
     src/Game/GameLoop.cpp
+    ${GLAD_DIR}/src/gl.c
     ${FASTLZ_DIR}/fastlz.c
 )
 

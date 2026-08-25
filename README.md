@@ -1,5 +1,5 @@
-# Falling Sand Engine (SIMULATION)
 <p align="center">
+    # Falling Sand Engine (SIMULATION)
     <a href="https://isocpp.org/"><img alt="C++" src="https://img.shields.io/badge/C%2B%2B-17-blue"/></a>
     <img alt="size" src="https://img.shields.io/github/repo-size/x1e7/falling-sand-engine"/>
 </p>

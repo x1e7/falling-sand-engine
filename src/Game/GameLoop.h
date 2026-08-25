@@ -34,8 +34,8 @@ private:
     float m_fpsTimer = 0.0f;
     Uint32 m_lastTime = 0;
 
-    static constexpr int WORLD_WIDTH = 4000;
-    static constexpr int WORLD_HEIGHT = 2000;
+    static constexpr int WORLD_WIDTH = 16384;
+    static constexpr int WORLD_HEIGHT = 1024;
     static constexpr int WINDOW_WIDTH = 1280;
     static constexpr int WINDOW_HEIGHT = 720;
 };

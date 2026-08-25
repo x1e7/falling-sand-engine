@@ -67,7 +67,7 @@ set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -DNDEBUG")
 set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -DNDEBUG")
 
 if(WIN32 AND (MINGW OR MSVC))
-    set(SDL3_DLL_PATH "${CMAKE_BINARY_DIR}/libs/SDL/Release/SDL3.dll")
+    set(SDL3_DLL_PATH "${CMAKE_BINARY_DIR}/third_party/SDL/Release/SDL3.dll")
 
     if(EXISTS ${SDL3_DLL_PATH})
         add_custom_command(TARGET Sand2D POST_BUILD
@@ -78,6 +78,6 @@ if(WIN32 AND (MINGW OR MSVC))
         )
     else()
         message(WARNING "SDL3.dll not found at ${SDL3_DLL_PATH}")
-        message(WARNING "Please copy manually: copy build\\libs\\SDL\\Release\\SDL3.dll build\\Release\\")
+        message(WARNING "Please copy manually: copy build\\third_party\\SDL\\Release\\SDL3.dll build\\Release\\")
     endif()
 endif()

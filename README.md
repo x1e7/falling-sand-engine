@@ -7,12 +7,6 @@ A real-time 2D particle sandbox simulation with physics-based interactions. Feat
 
 ![Screenshot](sandbox.png)
 
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-This project uses [FastLZ](https://github.com/ariya/FastLZ) compression library, also under the MIT License.
-
 ## Build
 
 ### Prepare build files

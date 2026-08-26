@@ -1,8 +1,7 @@
 #pragma once
 
 #include "Core/ParticleInstance.h"
-#include "Core/ParticleTypes.h"
-#include "Core/Math/Vector2.h"
+#include "Core/ParticleRegistry.h"
 
 constexpr int CHUNK_SIZE = 16;
 

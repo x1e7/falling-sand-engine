@@ -1,5 +1,7 @@
 #include "Serialization/WorldSerializer.h"
+#include "Serialization/Compression.h"
 #include <iostream>
+#include <fstream>
 
 static const uint32_t MAGIC = 0x53414E44; // "SAND"
 static const uint32_t VERSION = 1;

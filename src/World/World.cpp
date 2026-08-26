@@ -1,6 +1,7 @@
 #include "World/World.h"
 #include <cstring>
 #include <chrono>
+#include <random>
 
 static std::mt19937& getRng() {
     static std::mt19937 rng(

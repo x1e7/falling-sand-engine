@@ -1,7 +1,7 @@
 #include "Game/GameLoop.h"
 #include "Serialization/WorldSerializer.h"
+#include "imgui_impl_sdl3.h"
 #include <SDL3/SDL.h>
-#include <iostream>
 #include <algorithm>
 
 GameLoop::GameLoop() {
@@ -16,7 +16,7 @@ GameLoop::GameLoop() {
     m_camera = std::make_unique<Camera>(WINDOW_WIDTH, WINDOW_HEIGHT);
     m_camera->setWorldBounds(WORLD_WIDTH, WORLD_HEIGHT);
     m_camera->setLogicalSize(WINDOW_WIDTH / 3, WINDOW_HEIGHT / 3);
-    m_camera->setPosition(Vec2f(WORLD_WIDTH / 2.0f, WORLD_HEIGHT - (m_camera->getLogicalHeight() / 2)));
+    m_camera->setPosition(Vec2f(WORLD_WIDTH / 2.0f, WORLD_HEIGHT - (m_camera->getLogicalHeight() / 2.0f)));
 
     m_currentBrush = m_registry.findId("Sand");
 

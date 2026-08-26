@@ -1,12 +1,8 @@
 #pragma once
 
 #include <SDL3/SDL.h>
-#include "imgui.h"
-#include "imgui_impl_sdl3.h"
-#include "imgui_impl_sdlrenderer3.h"
 #include "World/World.h"
 #include "Render/Renderer.h"
-#include "Serialization/WorldSerializer.h"
 
 class UI {
 public:

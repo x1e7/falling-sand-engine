@@ -2,7 +2,6 @@
 
 #include "Core/Math/Vector2.h"
 #include <algorithm>
-#include <cmath>
 
 class Camera {
 public:

@@ -12,12 +12,10 @@ A real-time 2D particle sandbox simulation with physics-based interactions. Feat
 
 ## Build
 
-### Prepare build files
-cmake -B build -G "Visual Studio 18 2026"
-
-### Run build
-cd build/
-cmake --build . --config Release
+```bash
+cmake -B build -G Ninja
+cmake --build build
+```
 
 ## TODO
 

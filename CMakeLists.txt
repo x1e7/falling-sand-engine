@@ -100,7 +100,6 @@ if(WIN32 AND (MINGW OR MSVC))
         "${SDL3_DLL_PATH}"
         "$<TARGET_FILE_DIR:Sand2D>/SDL3.dll"
       COMMENT "Copying SDL3.dll from ${SDL3_DLL_PATH}..."
-      DEPENDS SDL3
     )
   else()
     message(WARNING "SDL3.dll not found! Search paths:")

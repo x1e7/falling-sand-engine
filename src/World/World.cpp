@@ -247,25 +247,21 @@ void World::wakeChunk(int x, int y) {
         m_chunks[idx].idleFrames = 0;
     }
 
-    // Wake neighbors (macro for brevity)
-    #define WAKE_NEIGHBOR(ny, nx) \
-        if ((ny) >= 0 && (ny) < m_chunksY && (nx) >= 0 && (nx) < m_chunksX) { \
-            int nIdx = (ny) * m_chunksX + (nx); \
-            if (!m_chunkInQueue[nIdx]) { \
-                m_chunkInQueue[nIdx] = 1; \
-                m_chunks[nIdx].idleFrames = 0; \
-                m_activeChunks.push_back(nIdx); \
-            } else { \
-                m_chunks[nIdx].idleFrames = 0; \
-            } \
+    const int offsets[4][2] = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
+    for (const auto& offset : offsets) {
+        int ny = cy + offset[0];
+        int nx = cx + offset[1];
+        if (ny >= 0 && ny < m_chunksY && nx >= 0 && nx < m_chunksX) {
+            int nIdx = ny * m_chunksX + nx;
+            if (!m_chunkInQueue[nIdx]) {
+                m_chunkInQueue[nIdx] = 1;
+                m_chunks[nIdx].idleFrames = 0;
+                m_activeChunks.push_back(nIdx);
+            } else {
+                m_chunks[nIdx].idleFrames = 0;
+            }
         }
-
-    WAKE_NEIGHBOR(cy - 1, cx);
-    WAKE_NEIGHBOR(cy + 1, cx);
-    WAKE_NEIGHBOR(cy, cx - 1);
-    WAKE_NEIGHBOR(cy, cx + 1);
-
-    #undef WAKE_NEIGHBOR
+    }
 }
 
 // ====== CAN MOVE ======

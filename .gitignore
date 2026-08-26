@@ -2,6 +2,8 @@ build/
 release/
 cmake-build-*/
 __cmake_systeminformation/
+imgui.ini
+world.bin
 
 # Prerequisites
 *.d

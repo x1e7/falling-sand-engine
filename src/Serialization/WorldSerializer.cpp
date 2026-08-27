@@ -76,10 +76,7 @@ bool WorldSerializer::loadWorld(World& world, const std::string& fileName)
         rawData = std::move(compressedData);
     }
 
-    if (!deserializeParticles(world, rawData.data(), rawData.size())) {
-        std::cerr << "Deserialization failed" << std::endl;
-        return false;
-    }
+    world.loadParticles(rawData.data(), rawData.size());
 
     std::cout << "World loaded from " << fileName << std::endl;
     return true;
@@ -102,27 +99,4 @@ std::vector<uint8_t> WorldSerializer::serializeParticles(const World& world) {
     }
 
     return buffer;
-}
-
-bool WorldSerializer::deserializeParticles(World& world, const uint8_t* data, size_t size) {
-    const int width = world.getWidth();
-    const int height = world.getHeight();
-    const size_t expectedSize = width * height * 2; // id + age
-
-    if (size != expectedSize) {
-        std::cerr << "Particle data size mismatch";
-        return false;
-    }
-
-    const uint8_t* ptr = data;
-    for (int y = 0; y < height; ++y) {
-        for (int x = 0; x < width; ++x) {
-            ParticleId id = *ptr++;
-            uint8_t age = *ptr++;
-
-            world.setParticle(x, y, id, age);
-        }
-    }
-
-    return true;
 }

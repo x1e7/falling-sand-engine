@@ -4,7 +4,6 @@
 #include <string>
 #include <vector>
 #include <cstdint>
-#include <cstring>
 
 /*struct WorldMetadata {
     TODO
@@ -28,5 +27,4 @@ private:
     };
 
     static std::vector<uint8_t> serializeParticles(const World& world);
-    static bool deserializeParticles(World& world, const uint8_t* data, size_t size);
 };

@@ -33,12 +33,15 @@ public:
         return &m_chunks[cy * m_chunksX + cx].cells[ly * CHUNK_SIZE + lx];
     }
 
+    void loadParticles(const uint8_t* data, size_t size);
+
 private:
     // ====== CORE DATA ======
     int m_width, m_height;
     int m_chunksX, m_chunksY;
     std::unique_ptr<Chunk[]> m_chunks;
-    std::unique_ptr<bool[]> m_movedThisFrame;
+    std::unique_ptr<uint32_t[]> m_movedThisFrame;
+    int m_movedWords;
     ParticleRegistry& m_registry;
 
     // RANDOM
@@ -51,6 +54,18 @@ private:
     const ParticleDefinition* m_defCache[256];
 
     // ====== HELPERS ======
+    bool isMoved(int index) {
+        int word = index >> 5;
+        int bit = index & 31;
+        return (m_movedThisFrame[word] & (1u << bit)) != 0;
+    }
+
+    void setMoved(int index) {
+        int word = index >> 5;
+        int bit = index & 31;
+        m_movedThisFrame[word] |= (1u << bit);
+    }
+
     ParticleInstance& at(int x, int y) {
         int cx = x >> 4, cy = y >> 4;
         int lx = x & 15, ly = y & 15;

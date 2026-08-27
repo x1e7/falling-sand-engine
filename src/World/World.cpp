@@ -26,7 +26,8 @@ World::World(int width, int height, ParticleRegistry& registry)
     m_chunksY = (height + CHUNK_SIZE - 1) / CHUNK_SIZE;
 
     m_chunks = std::make_unique<Chunk[]>(m_chunksX * m_chunksY);
-    m_movedThisFrame = std::make_unique<bool[]>(width * height);
+    m_movedWords = (width * height + 31) / 32;
+    m_movedThisFrame = std::make_unique<uint32_t[]>(m_movedWords);
 
     // Cache particle IDs
     m_smokeId = registry.findId("Smoke");
@@ -35,6 +36,49 @@ World::World(int width, int height, ParticleRegistry& registry)
     // Cache particle definitions for zero-cost access
     for (int i = 0; i < 256; ++i) {
         m_defCache[i] = &registry.get(static_cast<ParticleId>(i));
+    }
+}
+
+void World::loadParticles(const uint8_t* data, size_t size) {
+    const size_t expectedSize = m_width * m_height * 2;
+
+    if (size != expectedSize) {
+        return;
+    }
+
+    const uint8_t* ptr = data;
+
+    for (int y = 0; y < m_height; ++y) {
+        for (int x = 0; x < m_width; ++x) {
+            ParticleId id = *ptr++;
+            uint8_t age = *ptr++;
+
+            ParticleInstance* p = getParticlePtr(x, y);
+            p->id = id;
+            p->age = age;
+            p->brightness = (id != ParticleRegistry::Empty) ? (getRng()() % 256) : 0;
+        }
+    }
+
+    for (int cy = 0; cy < m_chunksY; ++cy) {
+        for (int cx = 0; cx < m_chunksX; ++cx) {
+            int chunkIdx = cy * m_chunksX + cx;
+            Chunk& chunk = m_chunks[chunkIdx];
+
+            bool hasParticles = false;
+            for (int i = 0; i < CHUNK_SIZE * CHUNK_SIZE; ++i) {
+                if (chunk.cells[i].id != ParticleRegistry::Empty) {
+                    hasParticles = true;
+                    break;
+                }
+            }
+
+            if (hasParticles) {
+                chunk.idleFrames = 0;
+            } else {
+                chunk.idleFrames = 31;
+            }
+        }
     }
 }
 
@@ -47,7 +91,7 @@ void World::tick(float deltaTime) {
         int w = m_width;
         int total = w * m_height;
 
-        std::fill(m_movedThisFrame.get(), m_movedThisFrame.get() + total, false);
+        std::fill(m_movedThisFrame.get(), m_movedThisFrame.get() + m_movedWords, 0);
 
         auto& rng = getRng();
         Vec2i dirs[5];
@@ -90,7 +134,7 @@ void World::tick(float deltaTime) {
 
                     for (int x = startX; x != endX; x += stepX) {
                         int idx = y * w + x;
-                        if (m_movedThisFrame[idx]) continue;
+                        if (isMoved(idx)) continue;
 
                         ParticleInstance& p = at(x, y);
                         if (p.id == ParticleRegistry::Empty) {
@@ -237,7 +281,7 @@ inline bool World::canMove(const Vec2i& from, const Vec2i& to, const ParticleDef
     if (!isInside(to.x, to.y)) return false;
 
     int toIdx = to.y * getWidth() + to.x;
-    if (m_movedThisFrame[toIdx]) return false;
+    if (isMoved(toIdx)) return false;
 
     ParticleId toId = at(to.x, to.y).id;
     if (toId == ParticleRegistry::Empty) return true;
@@ -255,8 +299,8 @@ inline void World::performSwap(const Vec2i& from, const Vec2i& to) {
 
     int fromIdx = from.y * getWidth() + from.x;
     int toIdx = to.y * getWidth() + to.x;
-    m_movedThisFrame[toIdx] = 1;
-    m_movedThisFrame[fromIdx] = 1;
+    setMoved(toIdx);
+    setMoved(fromIdx);
 
     wakeChunk(from.x, from.y);
     wakeChunk(to.x, to.y);

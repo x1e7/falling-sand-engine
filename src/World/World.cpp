@@ -126,7 +126,7 @@ void World::tick(float deltaTime) {
                                 Vec2i target(x + dirs[d].x, y + dirs[d].y);
                                 if (canMove({x, y}, target, def)) {
                                     performSwap({x, y}, target);
-                                    goto next_particle;
+                                    break;
                                 }
                             }
                             break;
@@ -143,7 +143,7 @@ void World::tick(float deltaTime) {
                                 Vec2i target(x + dirs[d].x, y + dirs[d].y);
                                 if (canMove({x, y}, target, def)) {
                                     performSwap({x, y}, target);
-                                    goto next_particle;
+                                    break;
                                 }
                             }
                             break;
@@ -152,7 +152,7 @@ void World::tick(float deltaTime) {
                         case PhysicalState::Gas: {
                             if (distChance(rng) < 5) {
                                 p.id = ParticleRegistry::Empty;
-                                goto next_particle;
+                                break;
                             }
 
                             dirs[0] = {0, -1};
@@ -165,7 +165,7 @@ void World::tick(float deltaTime) {
                                 Vec2i target(x + dirs[d].x, y + dirs[d].y);
                                 if (canMove({x, y}, target, def)) {
                                     performSwap({x, y}, target);
-                                    goto next_particle;
+                                    break;
                                 }
                             }
                             break;
@@ -175,7 +175,7 @@ void World::tick(float deltaTime) {
                             if (p.age > 20 && distChance(rng) < 65 + p.age) {
                                 p.id = (m_smokeId != ParticleRegistry::Empty) ? m_smokeId : ParticleRegistry::Empty;
                                 p.age = 0;
-                                goto next_particle;
+                                break;
                             }
 
                             dirs[0] = {0, -1};
@@ -192,7 +192,7 @@ void World::tick(float deltaTime) {
                                 Vec2i target(x + dirs[d].x, y + dirs[d].y);
                                 if (canMove({x, y}, target, def)) {
                                     performSwap({x, y}, target);
-                                    goto next_particle;
+                                    break;
                                 }
                             }
 
@@ -221,8 +221,6 @@ void World::tick(float deltaTime) {
 
                         default: break;
                     }
-
-                    next_particle:;
                 }
             }
         }

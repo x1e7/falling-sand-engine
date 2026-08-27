@@ -44,7 +44,7 @@ void Renderer::createTexture(int width, int height) {
     m_pixels.resize(static_cast<size_t>(width) * height);
 
     m_texture = SDL_CreateTexture(m_renderer,
-                                  SDL_PIXELFORMAT_XRGB8888,
+                                  SDL_PIXELFORMAT_ARGB8888,
                                   SDL_TEXTUREACCESS_STREAMING,
                                   width, height);
 
@@ -65,8 +65,10 @@ void Renderer::render(World& world, Camera& camera) {
 
     createTexture(viewW, viewH);
 
-    uint32_t bg = m_registry.get(ParticleRegistry::Empty).color & 0x00FFFFFF;
+    uint32_t bg = (0xFF << 24) | (m_registry.get(ParticleRegistry::Empty).color & 0x00FFFFFF);
     std::fill(m_pixels.begin(), m_pixels.end(), bg);
+
+    SDL_SetTextureBlendMode(m_texture, SDL_BLENDMODE_BLEND);
 
     const auto& reg = world.getRegistry();
     for (int y = minY; y < maxY; ++y) {
@@ -76,21 +78,28 @@ void Renderer::render(World& world, Camera& camera) {
             if (p->id != ParticleRegistry::Empty) {
                 uint32_t baseColor = reg.get(p->id).color;
 
+                uint8_t a = (baseColor >> 24) & 0xFF;
                 uint8_t r = (baseColor >> 16) & 0xFF;
                 uint8_t g = (baseColor >> 8) & 0xFF;
                 uint8_t b = baseColor & 0xFF;
 
                 float bright = 0.9f + (p->brightness / 255.0f) * 0.2f;
-
                 r = static_cast<uint8_t>(std::clamp(r * bright, 0.0f, 255.0f));
                 g = static_cast<uint8_t>(std::clamp(g * bright, 0.0f, 255.0f));
                 b = static_cast<uint8_t>(std::clamp(b * bright, 0.0f, 255.0f));
-                m_pixels[row + (x - minX)] = (0xFF << 24) | (r << 16) | (g << 8) | b;
+
+                m_pixels[row + (x - minX)] = (a << 24) | (r << 16) | (g << 8) | b;
             }
         }
     }
 
     SDL_UpdateTexture(m_texture, nullptr, m_pixels.data(), viewW * sizeof(uint32_t));
+
+    uint8_t bgR = (bg >> 16) & 0xFF;
+    uint8_t bgG = (bg >> 8) & 0xFF;
+    uint8_t bgB = bg & 0xFF;
+    SDL_SetRenderDrawColor(m_renderer, bgR, bgG, bgB, 255);
+    SDL_RenderClear(m_renderer);
 
     SDL_FRect dst = {0.0f, 0.0f, static_cast<float>(m_windowWidth), static_cast<float>(m_windowHeight)};
     SDL_RenderTexture(m_renderer, m_texture, nullptr, &dst);

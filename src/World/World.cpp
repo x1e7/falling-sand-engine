@@ -146,6 +146,34 @@ void World::tick(float deltaTime) {
                         const ParticleDefinition& def = *m_defCache[p.id];
                         int dx = m_distDir(rng);
 
+                        if (def.canMelt) {
+                            bool hasLavaNearby = false;
+                            for (int dy = -1; dy <= 0; ++dy) {
+                                for (int dx = -1; dx <= 1; ++dx) {
+                                    if (dx == 0 && dy == 0) continue;
+                                    int nx = x + dx, ny = y + dy;
+                                    if (isInside(nx, ny)) {
+                                        ParticleId neighborId = at(nx, ny).id;
+                                        if (m_defCache[neighborId]->isHot) {
+                                            hasLavaNearby = true;
+                                            break;
+                                        }
+                                    }
+                                }
+                                if (hasLavaNearby) break;
+                            }
+
+                            if (hasLavaNearby && m_distChance(rng) < 10) {
+                                ParticleId meltId = m_registry.findId(def.meltInto);
+                                if (meltId != ParticleRegistry::Empty) {
+                                    p.id = meltId;
+                                    p.age = 0;
+                                    p.brightness = getRng()() % 256;
+                                    wakeChunk(x, y);
+                                }
+                            }
+                        }
+
                         switch (def.state) {
                             case PhysicalState::Powder: {
                                 dirs[0] = {0, 1};
@@ -171,11 +199,34 @@ void World::tick(float deltaTime) {
 
                                 for (int d = 0; d < 5; ++d) {
                                     Vec2i target(x + dirs[d].x, y + dirs[d].y);
-                                    if (canMove({x, y}, target, def)) {
+
+                                    if (def.isCorrosive && isInside(target.x, target.y)) {
+                                        ParticleId neighborId = at(target.x, target.y).id;
+                                        if (neighborId != ParticleRegistry::Empty && m_defCache[neighborId]->isCorrodible) {
+                                            at(target.x, target.y).id = ParticleRegistry::Empty;
+                                            p.id = ParticleRegistry::Empty;
+                                            wakeChunk(target.x, target.y);
+                                            break;
+                                        }
+                                    }
+
+                                    if (d < 3 && def.isHot && isInside(target.x, target.y) && m_distChance(rng) < 1 && p.age > 255) {
+                                        ParticleInstance& targetParticle = at(target.x, target.y);
+                                        ParticleId neighborId = targetParticle.id;
+
+                                        ParticleId meltId = m_registry.findId(m_defCache[neighborId]->meltInto);
+                                        if (meltId != ParticleRegistry::Empty) {
+                                            targetParticle.id = meltId;
+                                            targetParticle.age = 0;
+                                            targetParticle.brightness = getRng()() % 256;
+                                            wakeChunk(x, y);
+                                        }
+                                    } else if (canMove({x, y}, target, def)) {
                                         performSwap({x, y}, target);
                                         break;
                                     }
                                 }
+
                                 break;
                             }
 
@@ -211,6 +262,7 @@ void World::tick(float deltaTime) {
                                 dirs[0] = {0, -1};
                                 dirs[1] = {dx, -1};
                                 dirs[2] = {-dx, -1};
+
                                 shuffle(dirs, rng);
 
                                 for (int d = 0; d < 3; ++d) {
@@ -242,7 +294,6 @@ void World::tick(float deltaTime) {
                                 }
                                 break;
                             }
-
                             default: break;
                         }
                     }
@@ -289,6 +340,25 @@ inline bool World::canMove(const Vec2i& from, const Vec2i& to, const ParticleDef
     const ParticleDefinition& toDef = *m_defCache[toId];
 
     if (toDef.state == PhysicalState::Solid) return false;
+
+    if (fromDef.state == PhysicalState::Gas) return true;
+    if (toDef.state == PhysicalState::Gas) return true;
+
+    if (fromDef.state == PhysicalState::Liquid && toDef.state == PhysicalState::Liquid) {
+        return fromDef.density > toDef.density;
+    }
+
+    if (fromDef.state == PhysicalState::Liquid && toDef.state == PhysicalState::Powder) {
+        return false;
+    }
+
+    if (fromDef.state == PhysicalState::Powder && toDef.state == PhysicalState::Liquid) {
+        return true;
+    }
+
+    if (fromDef.state == PhysicalState::Powder && toDef.state == PhysicalState::Powder) {
+        return fromDef.density > toDef.density;
+    }
 
     return fromDef.density > toDef.density;
 }

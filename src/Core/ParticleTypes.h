@@ -3,8 +3,6 @@
 #include <string>
 #include <cstdint>
 
-constexpr uint8_t DEFAULT_TEMP = 0;
-
 enum class PhysicalState {
     Empty,
     Solid,
@@ -23,6 +21,14 @@ struct ParticleDefinition {
     uint32_t color = 0xFFFFFFFF;
 
     bool canIgnite = false;
+    bool canMelt = false;
+    std::string meltInto;
+    bool isHot = false;
+    bool isCorrosive = false;
+    bool isCorrodible = true;
+    std::string burnInto;
+    bool isAlive = false;
+    float growthRate = 0.0f;
 
     ParticleDefinition() = default;
 

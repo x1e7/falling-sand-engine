@@ -57,7 +57,10 @@ void UI::renderMainWindow(World& world, Renderer& renderer,
 
     ImGui::Separator();
 
-    const char* brushNames[] = { "Sand", "Water", "Fire", "Wall", "Oil" };
+    const char* brushNames[] = {
+        "Sand", "Water", "Fire", "Wall", "Oil",
+        "Stone", "Lava", "Wood", "Acid", "Dust", "Plant", "Seed", "Gas"
+    };
 
     ParticleRegistry& registry = world.getRegistry();
     ParticleId brushIds[] = {
@@ -65,15 +68,23 @@ void UI::renderMainWindow(World& world, Renderer& renderer,
         registry.findId("Water"),
         registry.findId("Fire"),
         registry.findId("Wall"),
-        registry.findId("Oil")
+        registry.findId("Oil"),
+        registry.findId("Stone"),
+        registry.findId("Lava"),
+        registry.findId("Wood"),
+        registry.findId("Acid"),
+        registry.findId("Dust"),
+        registry.findId("Plant"),
+        registry.findId("Seed"),
+        registry.findId("Gas")
     };
 
     int currentIndex = 0;
-    for (int i = 0; i < 5; ++i) {
+    for (int i = 0; i < 13; ++i) {
         if (currentBrush == brushIds[i]) { currentIndex = i; break; }
     }
 
-    if (ImGui::Combo("Brush", &currentIndex, brushNames, 5)) {
+    if (ImGui::Combo("Brush", &currentIndex, brushNames, 13)) {
         currentBrush = brushIds[currentIndex];
     }
 

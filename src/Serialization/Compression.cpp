@@ -1,4 +1,5 @@
 #include "Serialization/Compression.h"
+#include "fastlz.h"
 #include <cstring>
 #include <stdexcept>
 

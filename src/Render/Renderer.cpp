@@ -74,7 +74,18 @@ void Renderer::render(World& world, Camera& camera) {
         for (int x = minX; x < maxX; ++x) {
             const ParticleInstance* p = world.getParticlePtr(x, y);
             if (p->id != ParticleRegistry::Empty) {
-                m_pixels[row + (x - minX)] = reg.get(p->id).color & 0x00FFFFFF;
+                uint32_t baseColor = reg.get(p->id).color;
+
+                uint8_t r = (baseColor >> 16) & 0xFF;
+                uint8_t g = (baseColor >> 8) & 0xFF;
+                uint8_t b = baseColor & 0xFF;
+
+                float bright = 0.9f + (p->brightness / 255.0f) * 0.2f;
+
+                r = static_cast<uint8_t>(std::clamp(r * bright, 0.0f, 255.0f));
+                g = static_cast<uint8_t>(std::clamp(g * bright, 0.0f, 255.0f));
+                b = static_cast<uint8_t>(std::clamp(b * bright, 0.0f, 255.0f));
+                m_pixels[row + (x - minX)] = (0xFF << 24) | (r << 16) | (g << 8) | b;
             }
         }
     }

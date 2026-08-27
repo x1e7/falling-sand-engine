@@ -14,7 +14,7 @@ public:
     ~World() = default;
 
     void tick(float deltaTime);
-    void setParticle(int x, int y, ParticleId id);
+    void setParticle(int x, int y, ParticleId id, uint8_t age = 0);
     bool isInside(int x, int y) const;
 
     int getWidth() const { return m_width; }

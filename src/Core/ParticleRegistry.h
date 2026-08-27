@@ -46,7 +46,7 @@ inline void registerSand2DParticles(ParticleRegistry& registry) {
     sand.name = "Sand";
     sand.state = PhysicalState::Powder;
     sand.density = 1600.0f;
-    sand.color = 0xFFE8C87A;
+    sand.color = 0xFFBF9960;
     sand.canIgnite = false;
     registry.registerParticle(sand);
 
@@ -54,7 +54,7 @@ inline void registerSand2DParticles(ParticleRegistry& registry) {
     water.name = "Water";
     water.state = PhysicalState::Liquid;
     water.density = 1000.0f;
-    water.color = 0xFF40C8FF;
+    water.color = 0xFF4C7ABE;
     water.canIgnite = false;
     registry.registerParticle(water);
 

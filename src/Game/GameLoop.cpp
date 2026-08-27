@@ -6,7 +6,7 @@
 
 GameLoop::GameLoop() {
     registerSand2DParticles(m_registry);
-    m_registry.setBackgroundColor(0xFF1A1A2E);
+    m_registry.setBackgroundColor(0xFF2D2D2D);
 
     m_world = std::make_unique<World>(WORLD_WIDTH, WORLD_HEIGHT, m_registry);
 

@@ -291,11 +291,15 @@ inline void World::performSwap(const Vec2i& from, const Vec2i& to) {
 }
 
 // ====== SET PARTICLE ======
-void World::setParticle(int x, int y, ParticleId id) {
+void World::setParticle(int x, int y, ParticleId id, uint8_t age) {
     if (!isInside(x, y)) return;
     auto& p = at(x, y);
     p.id = id;
-    p.age = 0;
+
+    p.age = age;
+
+    if (id != ParticleRegistry::Empty) p.brightness = getRng()() % 256;
+
     wakeChunk(x, y);
 }
 

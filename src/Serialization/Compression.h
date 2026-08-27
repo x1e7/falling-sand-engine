@@ -3,8 +3,6 @@
 #include <vector>
 #include <cstdint>
 
-#include "fastlz.h"
-
 class Compression
 {
 public:

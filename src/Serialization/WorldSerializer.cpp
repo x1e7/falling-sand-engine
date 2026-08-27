@@ -120,9 +120,7 @@ bool WorldSerializer::deserializeParticles(World& world, const uint8_t* data, si
             ParticleId id = *ptr++;
             uint8_t age = *ptr++;
 
-            ParticleInstance* p = world.getParticlePtr(x, y);
-            p->id = id;
-            p->age = age;
+            world.setParticle(x, y, id, age);
         }
     }
 

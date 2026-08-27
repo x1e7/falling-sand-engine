@@ -1,9 +1,10 @@
 build/
-release/
+package/
 cmake-build-*/
 __cmake_systeminformation/
 imgui.ini
 world.bin
+deploy.bat
 
 # Prerequisites
 *.d

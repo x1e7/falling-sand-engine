@@ -1,13 +1,20 @@
 #include "World/World.h"
 #include <cstring>
 #include <chrono>
-#include <random>
 
 static std::mt19937& getRng() {
     static std::mt19937 rng(
         std::chrono::steady_clock::now().time_since_epoch().count()
     );
     return rng;
+}
+
+inline void shuffle(Vec2i dirs[3], std::mt19937& rng) {
+    int j = rng() % 3;
+    if (j != 0) std::swap(dirs[0], dirs[j]);
+
+    j = rng() % 2 + 1;
+    if (j != 1) std::swap(dirs[1], dirs[j]);
 }
 
 // ====== CONSTRUCTOR ======
@@ -69,9 +76,6 @@ void World::tick(float deltaTime) {
         std::fill(m_movedThisFrame.get(), m_movedThisFrame.get() + total, false);
 
         auto& rng = getRng();
-        std::uniform_int_distribution<int> distDir(-1, 1);
-        std::uniform_int_distribution<int> distChance(0, 99);
-
         // Pre-allocate direction arrays (reused for all particles)
         Vec2i dirs[5];
 
@@ -114,7 +118,7 @@ void World::tick(float deltaTime) {
 
                     p.age++;
                     const ParticleDefinition& def = *m_defCache[p.id];
-                    int dx = distDir(rng);
+                    int dx = m_distDir(rng);
 
                     switch (def.state) {
                         case PhysicalState::Powder: {
@@ -150,7 +154,7 @@ void World::tick(float deltaTime) {
                         }
 
                         case PhysicalState::Gas: {
-                            if (distChance(rng) < 5) {
+                            if (m_distChance(rng) < 5) {
                                 p.id = ParticleRegistry::Empty;
                                 break;
                             }
@@ -172,7 +176,7 @@ void World::tick(float deltaTime) {
                         }
 
                         case PhysicalState::Fire: {
-                            if (p.age > 20 && distChance(rng) < 65 + p.age) {
+                            if (p.age > 20 && m_distChance(rng) < 65 + p.age) {
                                 p.id = (m_smokeId != ParticleRegistry::Empty) ? m_smokeId : ParticleRegistry::Empty;
                                 p.age = 0;
                                 break;
@@ -183,10 +187,7 @@ void World::tick(float deltaTime) {
                             dirs[2] = {-dx, -1};
 
                             // Shuffle first 3 directions
-                            for (int d = 2; d > 0; --d) {
-                                int j = std::uniform_int_distribution<>(0, d)(rng);
-                                std::swap(dirs[d], dirs[j]);
-                            }
+                            shuffle(dirs, rng);
 
                             for (int d = 0; d < 3; ++d) {
                                 Vec2i target(x + dirs[d].x, y + dirs[d].y);
@@ -197,7 +198,7 @@ void World::tick(float deltaTime) {
                             }
 
                             // Ignite nearby flammable particles
-                            if (distChance(rng) < 15) {
+                            if (m_distChance(rng) < 15) {
                                 for (int dy = -2; dy <= 2; ++dy) {
                                     for (int dx2 = -2; dx2 <= 2; ++dx2) {
                                         if (dx2 == 0 && dy == 0) continue;

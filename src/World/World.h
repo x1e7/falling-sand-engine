@@ -6,6 +6,8 @@
 #include <memory>
 #include <vector>
 
+#include <random>
+
 class World {
 public:
     World(int width, int height, ParticleRegistry& registry);
@@ -41,6 +43,10 @@ private:
     std::unique_ptr<Chunk[]> m_chunks;
     std::unique_ptr<bool[]> m_movedThisFrame;
     ParticleRegistry& m_registry;
+
+    // RANDOM
+    std::uniform_int_distribution<int> m_distDir{-1, 1};
+    std::uniform_int_distribution<int> m_distChance{0, 99};
 
     // ====== CACHED PARTICLE IDs ======
     ParticleId m_smokeId;

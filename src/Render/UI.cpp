@@ -51,7 +51,7 @@ void UI::renderMainWindow(World& world, Renderer& renderer,
     ImGui::Begin("Sand2D");
 
     ImGui::Text("FPS: %d", fps);
-    ImGui::Text("World size: %d : %d", worldWidth, worldHeight);
+    ImGui::Text("World size: %dx%d", worldWidth, worldHeight);
     ImGui::Text("Brush: %d", brushRadius);
     ImGui::Text("Paused: %s", paused ? "Yes" : "No");
 

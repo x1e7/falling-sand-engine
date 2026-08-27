@@ -80,8 +80,8 @@ private:
 
     void wakeChunk(int x, int y);
 
-    inline bool canMove(const Vec2i& from, const Vec2i& to, const ParticleDefinition& fromDef);
-    inline void performSwap(const Vec2i& from, const Vec2i& to);
+    bool canMove(const Vec2i& from, const Vec2i& to, const ParticleDefinition& fromDef);
+    void performSwap(const Vec2i& from, const Vec2i& to);
 
     // ====== TIMING ======
     float m_accumulator = 0.0f;

@@ -105,7 +105,6 @@ void UI::renderMainWindow(World& world, Renderer& renderer,
 
     if (ImGui::Button("Load")) {
         WorldSerializer::loadWorld(world, "world.bin");
-        world.initActiveChunks();
     }
 
     ImGui::End();

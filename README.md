@@ -23,7 +23,6 @@ cmake --build build
 - [ ] Particle velocity system (inertia, momentum)
 - [x] Variable brush size
 - [x] Pause simulation (Spacebar)
-- [ ] Particle counter (total particles on screen)
 - [x] FPS counter overlay
 
 ### Core Physics

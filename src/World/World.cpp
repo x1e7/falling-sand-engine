@@ -1,5 +1,4 @@
 #include "World/World.h"
-#include <cstring>
 #include <chrono>
 
 static std::mt19937& getRng() {
@@ -28,7 +27,6 @@ World::World(int width, int height, ParticleRegistry& registry)
 
     m_chunks = std::make_unique<Chunk[]>(m_chunksX * m_chunksY);
     m_movedThisFrame = std::make_unique<bool[]>(width * height);
-    m_chunkInQueue.resize(m_chunksX * m_chunksY, 0);
 
     // Cache particle IDs
     m_smokeId = registry.findId("Smoke");
@@ -37,30 +35,6 @@ World::World(int width, int height, ParticleRegistry& registry)
     // Cache particle definitions for zero-cost access
     for (int i = 0; i < 256; ++i) {
         m_defCache[i] = &registry.get(static_cast<ParticleId>(i));
-    }
-}
-
-// ====== INIT ACTIVE CHUNKS ======
-void World::initActiveChunks() {
-    for (int cy = 0; cy < m_chunksY; ++cy) {
-        for (int cx = 0; cx < m_chunksX; ++cx) {
-            Chunk& chunk = m_chunks[cy * m_chunksX + cx];
-            bool hasParticles = false;
-
-            for (int i = 0; i < CHUNK_SIZE * CHUNK_SIZE; ++i) {
-                if (chunk.cells[i].id != ParticleRegistry::Empty) {
-                    hasParticles = true;
-                    break;
-                }
-            }
-
-            if (hasParticles) {
-                int idx = cy * m_chunksX + cx;
-                m_chunkInQueue[idx] = 1;
-                m_activeChunks.push_back(idx);
-                chunk.idleFrames = 0;
-            }
-        }
     }
 }
 
@@ -76,151 +50,157 @@ void World::tick(float deltaTime) {
         std::fill(m_movedThisFrame.get(), m_movedThisFrame.get() + total, false);
 
         auto& rng = getRng();
-        // Pre-allocate direction arrays (reused for all particles)
         Vec2i dirs[5];
 
-        for (size_t i = 0; i < m_activeChunks.size(); ++i) {
-            int chunkIdx = m_activeChunks[i];
-            Chunk& chunk = m_chunks[chunkIdx];
+        static int frameCounter = 0;
+        bool reverseOrder = (++frameCounter & 1);
 
-            if (chunk.idleFrames > 30) {
-                chunk.idleFrames = 0;
-                m_chunkInQueue[chunkIdx] = 0;
-                m_activeChunks[i] = m_activeChunks.back();
-                m_activeChunks.pop_back();
-                --i;
-                continue;
-            }
+        for (int cy = 0; cy < m_chunksY; ++cy) {
+            int actualCy = reverseOrder ? (m_chunksY - 1 - cy) : cy;
 
-            chunk.idleFrames++;
+            for (int cx = 0; cx < m_chunksX; ++cx) {
+                int actualCx = reverseOrder ? (m_chunksX - 1 - cx) : cx;
 
-            int cx = chunkIdx % m_chunksX;
-            int cy = chunkIdx / m_chunksX;
-            int baseX = cx << 4;
-            int baseY = cy << 4;
-            int maxX = std::min(baseX + CHUNK_SIZE, m_width);
-            int maxY = std::min(baseY + CHUNK_SIZE, m_height);
+                int chunkIdx = actualCy * m_chunksX + actualCx;
+                Chunk& chunk = m_chunks[chunkIdx];
 
-            for (int y = maxY - 1; y >= baseY; --y) {
-                int startX = (y & 1) ? baseX : maxX - 1;
-                int endX = (y & 1) ? maxX : baseX - 1;
-                int stepX = (y & 1) ? 1 : -1;
+                if (chunk.idleFrames > 30) {
+                    continue;
+                }
+                chunk.idleFrames++;
 
-                for (int x = startX; x != endX; x += stepX) {
-                    int idx = y * w + x;
-                    if (m_movedThisFrame[idx]) continue;
+                int baseX = actualCx << 4;
+                int baseY = actualCy << 4;
+                int realMaxX = std::min(baseX + CHUNK_SIZE, m_width);
+                int realMaxY = std::min(baseY + CHUNK_SIZE, m_height);
 
-                    ParticleInstance& p = at(x, y);
-                    if (p.id == ParticleRegistry::Empty) {
-                        p.age = 0;
-                        continue;
+                for (int y = realMaxY - 1; y >= baseY; --y) {
+                    int startX, endX, stepX;
+                    bool rowParity = (y & 1) ^ reverseOrder;
+
+                    if (rowParity) {
+                        startX = baseX;
+                        endX = realMaxX;
+                        stepX = 1;
+                    } else {
+                        startX = realMaxX - 1;
+                        endX = baseX - 1;
+                        stepX = -1;
                     }
 
-                    p.age++;
-                    const ParticleDefinition& def = *m_defCache[p.id];
-                    int dx = m_distDir(rng);
+                    for (int x = startX; x != endX; x += stepX) {
+                        int idx = y * w + x;
+                        if (m_movedThisFrame[idx]) continue;
 
-                    switch (def.state) {
-                        case PhysicalState::Powder: {
-                            dirs[0] = {0, 1};
-                            dirs[1] = {dx, 1};
-                            dirs[2] = {-dx, 1};
-
-                            for (int d = 0; d < 3; ++d) {
-                                Vec2i target(x + dirs[d].x, y + dirs[d].y);
-                                if (canMove({x, y}, target, def)) {
-                                    performSwap({x, y}, target);
-                                    break;
-                                }
-                            }
-                            break;
+                        ParticleInstance& p = at(x, y);
+                        if (p.id == ParticleRegistry::Empty) {
+                            p.age = 0;
+                            continue;
                         }
 
-                        case PhysicalState::Liquid: {
-                            dirs[0] = {0, 1};
-                            dirs[1] = {dx, 1};
-                            dirs[2] = {-dx, 1};
-                            dirs[3] = {dx, 0};
-                            dirs[4] = {-dx, 0};
+                        p.age++;
+                        const ParticleDefinition& def = *m_defCache[p.id];
+                        int dx = m_distDir(rng);
 
-                            for (int d = 0; d < 5; ++d) {
-                                Vec2i target(x + dirs[d].x, y + dirs[d].y);
-                                if (canMove({x, y}, target, def)) {
-                                    performSwap({x, y}, target);
-                                    break;
+                        switch (def.state) {
+                            case PhysicalState::Powder: {
+                                dirs[0] = {0, 1};
+                                dirs[1] = {dx, 1};
+                                dirs[2] = {-dx, 1};
+
+                                for (int d = 0; d < 3; ++d) {
+                                    Vec2i target(x + dirs[d].x, y + dirs[d].y);
+                                    if (canMove({x, y}, target, def)) {
+                                        performSwap({x, y}, target);
+                                        break;
+                                    }
                                 }
-                            }
-                            break;
-                        }
-
-                        case PhysicalState::Gas: {
-                            if (m_distChance(rng) < 5) {
-                                p.id = ParticleRegistry::Empty;
                                 break;
                             }
 
-                            dirs[0] = {0, -1};
-                            dirs[1] = {dx, -1};
-                            dirs[2] = {-dx, -1};
-                            dirs[3] = {dx, 0};
-                            dirs[4] = {-dx, 0};
+                            case PhysicalState::Liquid: {
+                                dirs[0] = {0, 1};
+                                dirs[1] = {dx, 1};
+                                dirs[2] = {-dx, 1};
+                                dirs[3] = {dx, 0};
+                                dirs[4] = {-dx, 0};
 
-                            for (int d = 0; d < 5; ++d) {
-                                Vec2i target(x + dirs[d].x, y + dirs[d].y);
-                                if (canMove({x, y}, target, def)) {
-                                    performSwap({x, y}, target);
-                                    break;
+                                for (int d = 0; d < 5; ++d) {
+                                    Vec2i target(x + dirs[d].x, y + dirs[d].y);
+                                    if (canMove({x, y}, target, def)) {
+                                        performSwap({x, y}, target);
+                                        break;
+                                    }
                                 }
-                            }
-                            break;
-                        }
-
-                        case PhysicalState::Fire: {
-                            if (p.age > 20 && m_distChance(rng) < 65 + p.age) {
-                                p.id = (m_smokeId != ParticleRegistry::Empty) ? m_smokeId : ParticleRegistry::Empty;
-                                p.age = 0;
                                 break;
                             }
 
-                            dirs[0] = {0, -1};
-                            dirs[1] = {dx, -1};
-                            dirs[2] = {-dx, -1};
-
-                            // Shuffle first 3 directions
-                            shuffle(dirs, rng);
-
-                            for (int d = 0; d < 3; ++d) {
-                                Vec2i target(x + dirs[d].x, y + dirs[d].y);
-                                if (canMove({x, y}, target, def)) {
-                                    performSwap({x, y}, target);
+                            case PhysicalState::Gas: {
+                                if (m_distChance(rng) < 5) {
+                                    p.id = ParticleRegistry::Empty;
                                     break;
                                 }
+
+                                dirs[0] = {0, -1};
+                                dirs[1] = {dx, -1};
+                                dirs[2] = {-dx, -1};
+                                dirs[3] = {dx, 0};
+                                dirs[4] = {-dx, 0};
+
+                                for (int d = 0; d < 5; ++d) {
+                                    Vec2i target(x + dirs[d].x, y + dirs[d].y);
+                                    if (canMove({x, y}, target, def)) {
+                                        performSwap({x, y}, target);
+                                        break;
+                                    }
+                                }
+                                break;
                             }
 
-                            // Ignite nearby flammable particles
-                            if (m_distChance(rng) < 15) {
-                                for (int dy = -2; dy <= 2; ++dy) {
-                                    for (int dx2 = -2; dx2 <= 2; ++dx2) {
-                                        if (dx2 == 0 && dy == 0) continue;
-                                        int nx = x + dx2;
-                                        int ny = y + dy;
-                                        if (isInside(nx, ny)) {
-                                            ParticleId pid = at(nx, ny).id;
-                                            if (pid != ParticleRegistry::Empty &&
-                                                m_defCache[pid]->canIgnite &&
-                                                m_fireId != ParticleRegistry::Empty) {
-                                                at(nx, ny).id = m_fireId;
-                                                at(nx, ny).age = 0;
-                                                wakeChunk(nx, ny);
+                            case PhysicalState::Fire: {
+                                if (p.age > 20 && m_distChance(rng) < 65 + p.age) {
+                                    p.id = (m_smokeId != ParticleRegistry::Empty) ? m_smokeId : ParticleRegistry::Empty;
+                                    p.age = 0;
+                                    break;
+                                }
+
+                                dirs[0] = {0, -1};
+                                dirs[1] = {dx, -1};
+                                dirs[2] = {-dx, -1};
+                                shuffle(dirs, rng);
+
+                                for (int d = 0; d < 3; ++d) {
+                                    Vec2i target(x + dirs[d].x, y + dirs[d].y);
+                                    if (canMove({x, y}, target, def)) {
+                                        performSwap({x, y}, target);
+                                        break;
+                                    }
+                                }
+
+                                if (m_distChance(rng) < 15) {
+                                    for (int dy = -2; dy <= 2; ++dy) {
+                                        for (int dx2 = -2; dx2 <= 2; ++dx2) {
+                                            if (dx2 == 0 && dy == 0) continue;
+                                            int nx = x + dx2;
+                                            int ny = y + dy;
+                                            if (isInside(nx, ny)) {
+                                                ParticleId pid = at(nx, ny).id;
+                                                if (pid != ParticleRegistry::Empty &&
+                                                    m_defCache[pid]->canIgnite &&
+                                                    m_fireId != ParticleRegistry::Empty) {
+                                                    at(nx, ny).id = m_fireId;
+                                                    at(nx, ny).age = 0;
+                                                    wakeChunk(nx, ny);
+                                                }
                                             }
                                         }
                                     }
                                 }
+                                break;
                             }
-                            break;
-                        }
 
-                        default: break;
+                            default: break;
+                        }
                     }
                 }
             }
@@ -238,13 +218,7 @@ void World::wakeChunk(int x, int y) {
     int cy = y >> 4;
     int idx = cy * m_chunksX + cx;
 
-    if (!m_chunkInQueue[idx]) {
-        m_chunkInQueue[idx] = 1;
-        m_chunks[idx].idleFrames = 0;
-        m_activeChunks.push_back(idx);
-    } else {
-        m_chunks[idx].idleFrames = 0;
-    }
+    m_chunks[idx].idleFrames = 0;
 
     const int offsets[4][2] = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
     for (const auto& offset : offsets) {
@@ -252,13 +226,8 @@ void World::wakeChunk(int x, int y) {
         int nx = cx + offset[1];
         if (ny >= 0 && ny < m_chunksY && nx >= 0 && nx < m_chunksX) {
             int nIdx = ny * m_chunksX + nx;
-            if (!m_chunkInQueue[nIdx]) {
-                m_chunkInQueue[nIdx] = 1;
-                m_chunks[nIdx].idleFrames = 0;
-                m_activeChunks.push_back(nIdx);
-            } else {
-                m_chunks[nIdx].idleFrames = 0;
-            }
+
+             m_chunks[nIdx].idleFrames = 0;
         }
     }
 }
@@ -274,7 +243,10 @@ inline bool World::canMove(const Vec2i& from, const Vec2i& to, const ParticleDef
     if (toId == ParticleRegistry::Empty) return true;
 
     const ParticleDefinition& toDef = *m_defCache[toId];
-    return toDef.state != PhysicalState::Solid && fromDef.density > toDef.density;
+
+    if (toDef.state == PhysicalState::Solid) return false;
+
+    return fromDef.density > toDef.density;
 }
 
 // ====== PERFORM SWAP ======

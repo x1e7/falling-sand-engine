@@ -21,7 +21,6 @@ GameLoop::GameLoop() {
     m_currentBrush = m_registry.findId("Sand");
 
     WorldSerializer::loadWorld(*m_world, "world.bin");
-    m_world->initActiveChunks();
 
     m_ui = std::make_unique<UI>(m_renderer->getWindow(), m_renderer->getRenderer());
 }

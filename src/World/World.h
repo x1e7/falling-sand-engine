@@ -4,7 +4,6 @@
 #include "Core/Math/Vector2.h"
 #include "World/Chunk.h"
 #include <memory>
-#include <vector>
 
 #include <random>
 
@@ -22,19 +21,17 @@ public:
     ParticleRegistry& getRegistry() { return m_registry; }
     const ParticleRegistry& getRegistry() const { return m_registry; }
 
-    inline ParticleInstance* getParticlePtr(int x, int y) {
+    ParticleInstance* getParticlePtr(int x, int y) {
         int cx = x >> 4, cy = y >> 4;
         int lx = x & 15, ly = y & 15;
         return &m_chunks[cy * m_chunksX + cx].cells[ly * CHUNK_SIZE + lx];
     }
 
-    inline const ParticleInstance* getParticlePtr(int x, int y) const {
+    const ParticleInstance* getParticlePtr(int x, int y) const {
         int cx = x >> 4, cy = y >> 4;
         int lx = x & 15, ly = y & 15;
         return &m_chunks[cy * m_chunksX + cx].cells[ly * CHUNK_SIZE + lx];
     }
-
-    void initActiveChunks();
 
 private:
     // ====== CORE DATA ======
@@ -53,18 +50,14 @@ private:
     ParticleId m_fireId;
     const ParticleDefinition* m_defCache[256];
 
-    // ====== ACTIVE CHUNK QUEUE ======
-    std::vector<int> m_activeChunks;
-    std::vector<uint8_t> m_chunkInQueue;
-
     // ====== HELPERS ======
-    inline ParticleInstance& at(int x, int y) {
+    ParticleInstance& at(int x, int y) {
         int cx = x >> 4, cy = y >> 4;
         int lx = x & 15, ly = y & 15;
         return m_chunks[cy * m_chunksX + cx].cells[ly * CHUNK_SIZE + lx];
     }
 
-    inline const ParticleInstance& at(int x, int y) const {
+    const ParticleInstance& at(int x, int y) const {
         int cx = x >> 4, cy = y >> 4;
         int lx = x & 15, ly = y & 15;
         return m_chunks[cy * m_chunksX + cx].cells[ly * CHUNK_SIZE + lx];

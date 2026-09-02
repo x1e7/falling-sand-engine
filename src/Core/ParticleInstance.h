@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ParticleTypes.h"
+#include "Core/ParticleTypes.h"
 #include <cstdint>
 
 struct ParticleInstance {

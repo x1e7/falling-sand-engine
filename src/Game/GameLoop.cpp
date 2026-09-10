@@ -1,4 +1,5 @@
 #include "Game/GameLoop.h"
+#include "Game/Config.h"
 #include "Serialization/WorldSerializer.h"
 #include "imgui_impl_sdl3.h"
 #include <SDL3/SDL.h>

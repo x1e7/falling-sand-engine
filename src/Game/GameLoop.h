@@ -6,7 +6,6 @@
 #include "Render/Renderer.h"
 #include "Render/Camera.h"
 #include "Render/UI.h"
-#include "Game/Config.h"
 
 class GameLoop {
 public:

@@ -40,8 +40,9 @@ void GameLoop::run() {
 
         handleInput(deltaTime);
 
+        m_camera->update(deltaTime);
         if (!m_paused) {
-            update(deltaTime);
+            m_world->tick(deltaTime);
         }
 
         render();
@@ -164,11 +165,6 @@ void GameLoop::handleInput(float deltaTime) {
             }
         }
     }
-}
-
-void GameLoop::update(float deltaTime) {
-    m_camera->update(deltaTime);
-    m_world->tick(deltaTime);
 }
 
 void GameLoop::render() {

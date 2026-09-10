@@ -16,7 +16,6 @@ public:
 
 private:
     void handleInput(float deltaTime);
-    void update(float deltaTime);
     void render();
 
     ParticleRegistry m_registry;

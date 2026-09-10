@@ -88,9 +88,6 @@ void World::tick(float deltaTime) {
     m_accumulator = std::min(m_accumulator, 0.1f);
 
     while (m_accumulator >= FIXED_DT) {
-        int w = m_width;
-        int total = w * m_height;
-
         std::fill(m_movedThisFrame.get(), m_movedThisFrame.get() + m_movedWords, 0);
 
         auto& rng = getRng();
@@ -133,7 +130,7 @@ void World::tick(float deltaTime) {
                     }
 
                     for (int x = startX; x != endX; x += stepX) {
-                        int idx = y * w + x;
+                        int idx = y * m_width + x;
                         if (isMoved(idx)) continue;
 
                         ParticleInstance& p = at(x, y);

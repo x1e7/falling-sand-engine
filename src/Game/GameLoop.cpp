@@ -128,13 +128,11 @@ void GameLoop::handleInput(float deltaTime) {
     m_camera->move(moveDelta * deltaTime);
 
     float mouseX, mouseY;
-    SDL_GetMouseState(&mouseX, &mouseY);
+    SDL_MouseButtonFlags mouseState = SDL_GetMouseState(&mouseX, &mouseY);
 
     Vec2f worldPos = m_camera->screenToWorld(Vec2f(mouseX, mouseY));
     int wx = static_cast<int>(worldPos.x);
     int wy = static_cast<int>(worldPos.y);
-
-    SDL_MouseButtonFlags mouseState = SDL_GetMouseState(nullptr, nullptr);
 
     if (mouseState & SDL_BUTTON_LMASK) {
         for (int dy = -m_brushRadius; dy <= m_brushRadius; ++dy) {

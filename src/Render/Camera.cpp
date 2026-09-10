@@ -34,18 +34,6 @@ void Camera::move(const Vec2f& delta) {
     m_target = m_target + delta;
 }
 
-void Camera::setZoom(float zoom) {
-    m_zoom = std::clamp(zoom, m_minZoom, m_maxZoom);
-}
-
-void Camera::zoomIn(float amount) {
-    setZoom(m_zoom * amount);
-}
-
-void Camera::zoomOut(float amount) {
-    setZoom(m_zoom / amount);
-}
-
 void Camera::update(float deltaTime) {
     if (m_smoothing > 0.0f && (m_target - m_position).lengthSquared() > 0.0001f) {
         float speed = 1.0f - std::pow(1.0f - m_smoothing, deltaTime * 60.0f);
@@ -84,18 +72,20 @@ void Camera::clampPosition() {
 }
 
 void Camera::getViewBounds(int& minX, int& minY, int& maxX, int& maxY) const {
-    float halfW = (m_logicalWidth / m_zoom) / 2.0f;
-    float halfH = (m_logicalHeight / m_zoom) / 2.0f;
+    int vw = m_logicalWidth;
+    int vh = m_logicalHeight;
 
-    minX = static_cast<int>(std::floor(m_position.x - halfW));
-    minY = static_cast<int>(std::floor(m_position.y - halfH));
-    maxX = static_cast<int>(std::ceil(m_position.x + halfW));
-    maxY = static_cast<int>(std::ceil(m_position.y + halfH));
+    minX = static_cast<int>(std::round(m_position.x - vw / 2.0f));
+    minY = static_cast<int>(std::round(m_position.y - vh / 2.0f));
 
-    minX = std::max(0, minX);
-    minY = std::max(0, minY);
-    maxX = std::min(m_worldWidth, maxX);
-    maxY = std::min(m_worldHeight, maxY);
+    if (m_worldWidth <= vw) minX = (m_worldWidth - vw) / 2;
+    else minX = std::clamp(minX, 0, m_worldWidth - vw);
+
+    if (m_worldHeight <= vh) minY = (m_worldHeight - vh) / 2;
+    else minY = std::clamp(minY, 0, m_worldHeight - vh);
+
+    maxX = minX + vw;
+    maxY = minY + vh;
 }
 
 Vec2f Camera::getViewCenter() const {
@@ -104,8 +94,8 @@ Vec2f Camera::getViewCenter() const {
 
 Vec2f Camera::getViewSize() const {
     return Vec2f(
-        m_logicalWidth / m_zoom,
-        m_logicalHeight / m_zoom
+        m_logicalWidth,
+        m_logicalHeight
     );
 }
 

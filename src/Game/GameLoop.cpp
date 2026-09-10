@@ -107,7 +107,7 @@ void GameLoop::handleInput(float deltaTime) {
 
     const bool* keys = SDL_GetKeyboardState(nullptr);
     Vec2f moveDelta{0.0f, 0.0f};
-    float moveSpeed = 800.0f / m_camera->getZoom();
+    float moveSpeed = 800.0f;
 
     if (keys[SDL_SCANCODE_W] || keys[SDL_SCANCODE_UP]) {
         moveDelta.y -= moveSpeed;

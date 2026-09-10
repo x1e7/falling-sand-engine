@@ -15,13 +15,6 @@ public:
     void setTarget(const Vec2f& target);
     void move(const Vec2f& delta);
 
-    void setZoom(float zoom);
-    float getZoom() const { return m_zoom; }
-    void zoomIn(float amount = 1.1f);
-    void zoomOut(float amount = 1.1f);
-    void setMinZoom(float minZoom) { m_minZoom = minZoom; }
-    void setMaxZoom(float maxZoom) { m_maxZoom = maxZoom; }
-
     void update(float deltaTime);
     void snapToTarget();
 
@@ -48,9 +41,6 @@ private:
     Vec2f m_position{0.0f, 0.0f};
     Vec2f m_target{0.0f, 0.0f};
 
-    float m_zoom = 1.0f;
-    float m_minZoom = 0.1f;
-    float m_maxZoom = 10.0f;
     float m_smoothing = 0.1f;
 
     int m_viewportWidth = 1280;

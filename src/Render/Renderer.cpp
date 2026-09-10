@@ -61,8 +61,8 @@ void Renderer::render(World& world, Camera& camera) {
     int minX, minY, maxX, maxY;
     camera.getViewBounds(minX, minY, maxX, maxY);
 
-    int viewW = maxX - minX;
-    int viewH = maxY - minY;
+    const int viewW = camera.getLogicalWidth();
+    const int viewH = camera.getLogicalHeight();
 
     createTexture(viewW, viewH);
 
@@ -70,25 +70,30 @@ void Renderer::render(World& world, Camera& camera) {
     std::fill(m_pixels.begin(), m_pixels.end(), bg);
 
     const auto& reg = world.getRegistry();
-    for (int y = minY; y < maxY; ++y) {
-        size_t row = static_cast<size_t>(y - minY) * viewW;
-        for (int x = minX; x < maxX; ++x) {
-            const ParticleInstance* p = world.getParticlePtr(x, y);
-            if (p->id != ParticleRegistry::Empty) {
-                uint32_t baseColor = reg.get(p->id).color;
+    for (int y = 0; y < viewH; ++y) {
+        int wy = minY + y;
+        size_t row = static_cast<size_t>(y) * viewW;
+        if (wy < 0 || wy >= world.getHeight()) continue;
 
-                uint8_t a = (baseColor >> 24) & 0xFF;
-                uint8_t r = (baseColor >> 16) & 0xFF;
-                uint8_t g = (baseColor >> 8) & 0xFF;
-                uint8_t b = baseColor & 0xFF;
+        for (int x = 0; x < viewW; ++x) {
+            int wx = minX + x;
+            if (wx < 0 || wx >= world.getWidth()) continue;
 
-                float bright = 0.9f + (p->brightness / 255.0f) * 0.2f;
-                r = static_cast<uint8_t>(std::clamp(r * bright, 0.0f, 255.0f));
-                g = static_cast<uint8_t>(std::clamp(g * bright, 0.0f, 255.0f));
-                b = static_cast<uint8_t>(std::clamp(b * bright, 0.0f, 255.0f));
+            const ParticleInstance* p = world.getParticlePtr(wx, wy);
+            if (p->id == ParticleRegistry::Empty) continue;
 
-                m_pixels[row + (x - minX)] = (a << 24) | (r << 16) | (g << 8) | b;
-            }
+            uint32_t baseColor = reg.get(p->id).color;
+            uint8_t a = (baseColor >> 24) & 0xFF;
+            uint8_t r = (baseColor >> 16) & 0xFF;
+            uint8_t g = (baseColor >> 8) & 0xFF;
+            uint8_t b = baseColor & 0xFF;
+
+            float bright = 0.9f + (p->brightness / 255.0f) * 0.2f;
+            r = static_cast<uint8_t>(std::clamp(r * bright, 0.0f, 255.0f));
+            g = static_cast<uint8_t>(std::clamp(g * bright, 0.0f, 255.0f));
+            b = static_cast<uint8_t>(std::clamp(b * bright, 0.0f, 255.0f));
+
+            m_pixels[row + x] = (a << 24) | (r << 16) | (g << 8) | b;
         }
     }
 
@@ -100,6 +105,8 @@ void Renderer::render(World& world, Camera& camera) {
     SDL_SetRenderDrawColor(m_renderer, bgR, bgG, bgB, 255);
     SDL_RenderClear(m_renderer);
 
-    SDL_FRect dst = {0.0f, 0.0f, static_cast<float>(m_windowWidth), static_cast<float>(m_windowHeight)};
+    SDL_FRect dst = {0.0f, 0.0f,
+                     static_cast<float>(m_windowWidth),
+                     static_cast<float>(m_windowHeight)};
     SDL_RenderTexture(m_renderer, m_texture, nullptr, &dst);
 }

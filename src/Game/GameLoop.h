@@ -6,6 +6,7 @@
 #include "Render/Renderer.h"
 #include "Render/Camera.h"
 #include "Render/UI.h"
+#include "Game/Config.h"
 
 class GameLoop {
 public:
@@ -34,9 +35,4 @@ private:
     int m_frameCount = 0;
     float m_fpsTimer = 0.0f;
     Uint32 m_lastTime = 0;
-
-    static constexpr int WORLD_WIDTH = 65536;
-    static constexpr int WORLD_HEIGHT = 512;
-    static constexpr int WINDOW_WIDTH = 1280;
-    static constexpr int WINDOW_HEIGHT = 720;
 };

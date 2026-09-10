@@ -161,7 +161,7 @@ void World::tick(float deltaTime) {
                             }
 
                             if (hasLavaNearby && m_distChance(rng) < 10) {
-                                ParticleId meltId = m_registry.findId(def.meltInto);
+                                ParticleId meltId = def.meltInto;
                                 if (meltId != ParticleRegistry::Empty) {
                                     p.id = meltId;
                                     p.age = 0;
@@ -211,7 +211,7 @@ void World::tick(float deltaTime) {
                                         ParticleInstance& targetParticle = at(target.x, target.y);
                                         ParticleId neighborId = targetParticle.id;
 
-                                        ParticleId meltId = m_registry.findId(m_defCache[neighborId]->meltInto);
+                                        ParticleId meltId = m_defCache[neighborId]->meltInto;
                                         if (meltId != ParticleRegistry::Empty) {
                                             targetParticle.id = meltId;
                                             targetParticle.age = 0;

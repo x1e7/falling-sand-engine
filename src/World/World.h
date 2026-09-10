@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Core/ParticleRegistry.h"
-#include "Core/Math/Vector2.h"
+#include "Core/Particle.h"
+#include "Core/Math.h"
 #include "World/Chunk.h"
 #include <memory>
 

@@ -49,6 +49,7 @@ void Renderer::createTexture(int width, int height) {
                                   width, height);
 
     SDL_SetTextureScaleMode(m_texture, SDL_SCALEMODE_NEAREST);
+    SDL_SetTextureBlendMode(m_texture, SDL_BLENDMODE_BLEND);
 }
 
 void Renderer::updateViewport(int width, int height) {
@@ -67,8 +68,6 @@ void Renderer::render(World& world, Camera& camera) {
 
     uint32_t bg = (0xFF << 24) | (m_registry.get(ParticleRegistry::Empty).color & 0x00FFFFFF);
     std::fill(m_pixels.begin(), m_pixels.end(), bg);
-
-    SDL_SetTextureBlendMode(m_texture, SDL_BLENDMODE_BLEND);
 
     const auto& reg = world.getRegistry();
     for (int y = minY; y < maxY; ++y) {

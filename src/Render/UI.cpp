@@ -1,5 +1,5 @@
 #include "UI.h"
-#include "Core/ParticleRegistry.h"
+#include "Core/Particle.h"
 #include "Serialization/WorldSerializer.h"
 #include "imgui.h"
 #include "imgui_impl_sdl3.h"

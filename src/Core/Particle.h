@@ -1,8 +1,48 @@
 #pragma once
 
-#include "Core/ParticleTypes.h"
+#include <cstdint>
+#include <string>
 #include <unordered_map>
 #include <vector>
+
+using ParticleId = uint8_t;
+
+struct ParticleInstance {
+    ParticleId id;
+    uint8_t age;
+    uint8_t brightness;
+};
+
+enum class PhysicalState {
+    Empty,
+    Solid,
+    Powder,
+    Fire,
+    Liquid,
+    Gas
+};
+
+struct ParticleDefinition {
+    std::string name;
+    PhysicalState state = PhysicalState::Empty;
+    float density = 0.0f;
+    uint32_t color = 0xFFFFFFFF;
+
+    bool canIgnite = false;
+    bool canMelt = false;
+    ParticleId meltInto = 0;
+    bool isHot = false;
+    bool isCorrosive = false;
+    bool isCorrodible = true;
+    ParticleId  burnInto = 0;
+    bool isAlive = false;
+    float growthRate = 0.0f;
+
+    ParticleDefinition() = default;
+
+    ParticleDefinition(const std::string& n, PhysicalState s, float d)
+        : name(n), state(s), density(d) {}
+};
 
 class ParticleRegistry {
 public:
@@ -87,16 +127,6 @@ inline void registerSand2DParticles(ParticleRegistry& registry) {
     oil.canIgnite = true;
     registry.registerParticle(oil);
 
-    // Stone
-    ParticleDefinition stone;
-    stone.name = "Stone";
-    stone.state = PhysicalState::Solid;
-    stone.density = 3000.0f;
-    stone.color = 0xFF808080;
-    stone.canMelt = true;
-    stone.meltInto = "Lava";
-    registry.registerParticle(stone);
-
     // Lava
     ParticleDefinition lava;
     lava.name = "Lava";
@@ -106,6 +136,16 @@ inline void registerSand2DParticles(ParticleRegistry& registry) {
     lava.isHot = true;
     registry.registerParticle(lava);
 
+    // Stone
+    ParticleDefinition stone;
+    stone.name = "Stone";
+    stone.state = PhysicalState::Solid;
+    stone.density = 3000.0f;
+    stone.color = 0xFF808080;
+    stone.canMelt = true;
+    stone.meltInto = registry.findId("Lava");
+    registry.registerParticle(stone);
+
     // Wood
     ParticleDefinition wood;
     wood.name = "Wood";
@@ -113,7 +153,7 @@ inline void registerSand2DParticles(ParticleRegistry& registry) {
     wood.density = 700.0f;
     wood.color = 0xFF8B6B4A;
     wood.canIgnite = true;
-    wood.burnInto = "Fire";
+    wood.burnInto = registry.findId("Fire");
     registry.registerParticle(wood);
 
     // Acid
@@ -142,7 +182,7 @@ inline void registerSand2DParticles(ParticleRegistry& registry) {
     plant.density = 200.0f;
     plant.color = 0xFF32CD32;
     plant.canIgnite = true;
-    plant.burnInto = "Fire";
+    plant.burnInto = registry.findId("Fire");
     registry.registerParticle(plant);
 
     // Seed

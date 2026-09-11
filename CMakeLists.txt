@@ -7,7 +7,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(SDL3_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third_party/SDL3-3.4.14)
-set(FASTLZ_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third_party/fastlz)
+set(LZ4_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third_party/lz4)
 set(IMGUI_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third_party/imgui)
 
 find_package(OpenGL REQUIRED)
@@ -35,15 +35,15 @@ add_executable(Sand2D
   src/Serialization/WorldSerializer.cpp
   src/Serialization/Compression.cpp
   src/Game/GameLoop.cpp
-  ${FASTLZ_DIR}/fastlz.c
+  ${LZ4_DIR}/lz4.c
   ${IMGUI_SOURCES}
 )
 
-set_source_files_properties(${FASTLZ_DIR}/fastlz.c PROPERTIES LANGUAGE C)
+set_source_files_properties(${LZ4_DIR}/lz4.c PROPERTIES LANGUAGE C)
 
 target_include_directories(Sand2D PRIVATE
   src
-  ${FASTLZ_DIR}
+  ${LZ4_DIR}
   ${SDL3_DIR}/include
   ${IMGUI_DIR}
   ${IMGUI_DIR}/backends
@@ -75,7 +75,6 @@ set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -DNDEBUG")
 
 if(WIN32 AND (MINGW OR MSVC))
   set(SDL3_DLL_PATH "")
-  # --- SDL3.dll search paths ---
   if(EXISTS "${CMAKE_BINARY_DIR}/third_party/SDL3-3.4.14/Release/SDL3.dll")
     set(SDL3_DLL_PATH
     "${CMAKE_BINARY_DIR}/third_party/SDL3-3.4.14/Release/SDL3.dll"

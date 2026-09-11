@@ -1,35 +1,36 @@
 #include "Serialization/Compression.h"
-#include "fastlz.h"
+#include "lz4.h"
 #include <cstring>
 #include <stdexcept>
-
-static size_t fastlz_max_compressed_size(size_t size) {
-    return size + (size / 255) + 16 + 2;
-}
 
 std::vector<uint8_t> Compression::compress(const uint8_t* data, size_t size) {
     if (size == 0) return {};
 
-    size_t maxSize = fastlz_max_compressed_size(size);
-    std::vector<uint8_t> output(maxSize + sizeof(uint32_t));
+    int maxCompressedSize = LZ4_compressBound(static_cast<int>(size));
+    if (maxCompressedSize <= 0) {
+        throw std::runtime_error("LZ4 compression bound calculation failed");
+    }
+
+    std::vector<uint8_t> output(sizeof(uint32_t) + maxCompressedSize);
 
     uint32_t originalSize = static_cast<uint32_t>(size);
     std::memcpy(output.data(), &originalSize, sizeof(uint32_t));
 
-    int compressedSize = fastlz_compress(
-        data,
+    int compressedSize = LZ4_compress_default(
+        reinterpret_cast<const char*>(data),
+        reinterpret_cast<char*>(output.data() + sizeof(uint32_t)),
         static_cast<int>(size),
-        output.data() + sizeof(uint32_t)
+        maxCompressedSize
     );
 
     if (compressedSize <= 0) {
-        throw std::runtime_error("FastLZ compression failed");
+        throw std::runtime_error("LZ4 compression failed");
     }
 
-    size_t totalSize = static_cast<size_t>(compressedSize) + sizeof(uint32_t);
+    size_t totalSize = sizeof(uint32_t) + static_cast<size_t>(compressedSize);
 
     if (static_cast<float>(totalSize) / size > COMPRESSION_THRESHOLD) {
-        std::vector<uint8_t> uncompressed(size + sizeof(uint32_t));
+        std::vector<uint8_t> uncompressed(sizeof(uint32_t) + size);
         uint32_t flag = 0xFFFFFFFF;
         std::memcpy(uncompressed.data(), &flag, sizeof(uint32_t));
         std::memcpy(uncompressed.data() + sizeof(uint32_t), data, size);
@@ -55,15 +56,16 @@ std::vector<uint8_t> Compression::decompress(const uint8_t* data, size_t size) {
     }
 
     std::vector<uint8_t> output(originalSize);
-    int result = fastlz_decompress(
-        data + sizeof(uint32_t),
+
+    int result = LZ4_decompress_safe(
+        reinterpret_cast<const char*>(data + sizeof(uint32_t)),
+        reinterpret_cast<char*>(output.data()),
         static_cast<int>(size - sizeof(uint32_t)),
-        output.data(),
         static_cast<int>(originalSize)
     );
 
-    if (result <= 0) {
-        throw std::runtime_error("FastLZ decompression failed");
+    if (result < 0) {
+        throw std::runtime_error("LZ4 decompression failed (malformed data)");
     }
 
     output.resize(static_cast<size_t>(result));

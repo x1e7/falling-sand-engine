@@ -1,6 +1,6 @@
 #pragma once
 #include <SDL3/SDL.h>
-#include <vector>
+#include <array>
 #include <string>
 #include "World/World.h"
 #include "Render/Camera.h"
@@ -10,6 +10,8 @@ public:
     Renderer(int windowWidth, int windowHeight,
              const std::string& title, ParticleRegistry& registry);
     ~Renderer();
+
+    void buildColorLUT(const ParticleRegistry& reg);
 
     void render(World& world, Camera& camera);
     void updateViewport(int width, int height);
@@ -30,6 +32,6 @@ private:
     int m_texWidth = 0;
     int m_texHeight = 0;
 
-    std::vector<uint32_t> m_pixels;
+    std::array<std::array<uint32_t, 256>, 256> m_colorLUT;
     ParticleRegistry& m_registry;
 };

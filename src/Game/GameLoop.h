@@ -13,6 +13,7 @@ public:
     ~GameLoop();
 
     void run();
+    void paintBrush(int wx, int wy, ParticleId id);
 
 private:
     void handleInput(float deltaTime);

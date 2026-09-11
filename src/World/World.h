@@ -82,6 +82,7 @@ private:
 
     void updateCell(int x, int y);
 
+    int m_frameCounter = 0;
     float m_accumulator = 0.0f;
     static constexpr float FIXED_DT = 1.0f / 120.0f;
 };

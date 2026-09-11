@@ -25,6 +25,8 @@ Renderer::Renderer(int windowWidth, int windowHeight,
         std::cerr << "SDL_CreateRenderer Error: " << SDL_GetError() << std::endl;
         exit(1);
     }
+
+    buildColorLUT(registry);
 }
 
 Renderer::~Renderer() {
@@ -34,6 +36,24 @@ Renderer::~Renderer() {
     SDL_Quit();
 }
 
+void Renderer::buildColorLUT(const ParticleRegistry& reg) {
+    for (int id = 0; id < 256; ++id) {
+        uint32_t c = reg.get(static_cast<ParticleId>(id)).color;
+        uint8_t a = (c >> 24) & 0xFF;
+        uint8_t r = (c >> 16) & 0xFF;
+        uint8_t g = (c >> 8) & 0xFF;
+        uint8_t b = c & 0xFF;
+
+        for (int br = 0; br < 256; ++br) {
+            float bright = 0.9f + (br / 255.0f) * 0.2f;
+            uint8_t rr = static_cast<uint8_t>(std::clamp(r * bright, 0.0f, 255.0f));
+            uint8_t gg = static_cast<uint8_t>(std::clamp(g * bright, 0.0f, 255.0f));
+            uint8_t bb = static_cast<uint8_t>(std::clamp(b * bright, 0.0f, 255.0f));
+            m_colorLUT[id][br] = (a << 24) | (rr << 16) | (gg << 8) | bb;
+        }
+    }
+}
+
 void Renderer::createTexture(int width, int height) {
     if (m_texWidth == width && m_texHeight == height && m_texture) return;
 
@@ -41,7 +61,6 @@ void Renderer::createTexture(int width, int height) {
 
     m_texWidth = width;
     m_texHeight = height;
-    m_pixels.resize(static_cast<size_t>(width) * height);
 
     m_texture = SDL_CreateTexture(m_renderer,
                                   SDL_PIXELFORMAT_ARGB8888,
@@ -67,37 +86,44 @@ void Renderer::render(World& world, Camera& camera) {
     createTexture(viewW, viewH);
 
     uint32_t bg = (0xFF << 24) | (m_registry.get(ParticleRegistry::Empty).color & 0x00FFFFFF);
-    std::fill(m_pixels.begin(), m_pixels.end(), bg);
+
+    void* pixels = nullptr;
+    int pitch = 0;
+    if (!SDL_LockTexture(m_texture, nullptr, &pixels, &pitch)) {
+        return;
+    }
+
+    uint32_t* dst = static_cast<uint32_t*>(pixels);
+    const int dstPitch = pitch / sizeof(uint32_t);
 
     const auto& reg = world.getRegistry();
     for (int y = 0; y < viewH; ++y) {
+        uint32_t* row = dst + static_cast<size_t>(y) * dstPitch;
         int wy = minY + y;
-        size_t row = static_cast<size_t>(y) * viewW;
-        if (wy < 0 || wy >= world.getHeight()) continue;
+
+        if (wy < 0 || wy >= world.getHeight()) {
+            for (int x = 0; x < viewW; ++x) row[x] = bg;
+            continue;
+        }
 
         for (int x = 0; x < viewW; ++x) {
             int wx = minX + x;
-            if (wx < 0 || wx >= world.getWidth()) continue;
+            if (wx < 0 || wx >= world.getWidth()) {
+                row[x] = bg;
+                continue;
+            }
 
             const ParticleInstance* p = world.getParticlePtr(wx, wy);
-            if (p->id == ParticleRegistry::Empty) continue;
+            if (p->id == ParticleRegistry::Empty) {
+                row[x] = bg;
+                continue;
+            }
 
-            uint32_t baseColor = reg.get(p->id).color;
-            uint8_t a = (baseColor >> 24) & 0xFF;
-            uint8_t r = (baseColor >> 16) & 0xFF;
-            uint8_t g = (baseColor >> 8) & 0xFF;
-            uint8_t b = baseColor & 0xFF;
-
-            float bright = 0.9f + (p->brightness / 255.0f) * 0.2f;
-            r = static_cast<uint8_t>(std::clamp(r * bright, 0.0f, 255.0f));
-            g = static_cast<uint8_t>(std::clamp(g * bright, 0.0f, 255.0f));
-            b = static_cast<uint8_t>(std::clamp(b * bright, 0.0f, 255.0f));
-
-            m_pixels[row + x] = (a << 24) | (r << 16) | (g << 8) | b;
+            row[x] = m_colorLUT[p->id][p->brightness];
         }
     }
 
-    SDL_UpdateTexture(m_texture, nullptr, m_pixels.data(), viewW * sizeof(uint32_t));
+    SDL_UnlockTexture(m_texture);
 
     uint8_t bgR = (bg >> 16) & 0xFF;
     uint8_t bgG = (bg >> 8) & 0xFF;
@@ -105,8 +131,8 @@ void Renderer::render(World& world, Camera& camera) {
     SDL_SetRenderDrawColor(m_renderer, bgR, bgG, bgB, 255);
     SDL_RenderClear(m_renderer);
 
-    SDL_FRect dst = {0.0f, 0.0f,
-                     static_cast<float>(m_windowWidth),
-                     static_cast<float>(m_windowHeight)};
-    SDL_RenderTexture(m_renderer, m_texture, nullptr, &dst);
+    SDL_FRect dstRect = {0.0f, 0.0f,
+                         static_cast<float>(m_windowWidth),
+                         static_cast<float>(m_windowHeight)};
+    SDL_RenderTexture(m_renderer, m_texture, nullptr, &dstRect);
 }

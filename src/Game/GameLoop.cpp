@@ -58,6 +58,23 @@ void GameLoop::run() {
     }
 }
 
+void GameLoop::paintBrush(int wx, int wy, ParticleId id) {
+    const int r2 = m_brushRadius * m_brushRadius;
+    for (int dy = -m_brushRadius; dy <= m_brushRadius; ++dy) {
+        for (int dx = -m_brushRadius; dx <= m_brushRadius; ++dx) {
+            if (dx*dx + dy*dy > r2) continue;
+            const int nx = wx + dx, ny = wy + dy;
+            if (!m_world->isInside(nx, ny)) continue;
+
+            ParticleId current = m_world->getParticlePtr(nx, ny)->id;
+
+            if (id == ParticleRegistry::Empty || (current == ParticleRegistry::Empty || current == m_registry.findId("Smoke"))) {
+                m_world->setParticle(nx, ny, id);
+            }
+        }
+    }
+}
+
 void GameLoop::handleInput(float deltaTime) {
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
@@ -135,34 +152,11 @@ void GameLoop::handleInput(float deltaTime) {
     int wy = static_cast<int>(worldPos.y);
 
     if (mouseState & SDL_BUTTON_LMASK) {
-        for (int dy = -m_brushRadius; dy <= m_brushRadius; ++dy) {
-            for (int dx = -m_brushRadius; dx <= m_brushRadius; ++dx) {
-                if (dx*dx + dy*dy > m_brushRadius*m_brushRadius) continue;
-                int nx = wx + dx;
-                int ny = wy + dy;
-
-                if (!m_world->isInside(nx, ny)) continue;
-
-                ParticleId current = m_world->getParticlePtr(nx, ny)->id;
-
-                if (current == ParticleRegistry::Empty || current == m_registry.findId("Smoke")) {
-                    m_world->setParticle(nx, ny, m_currentBrush);
-                }
-            }
-        }
+        paintBrush(wx, wy, m_currentBrush);
     }
 
     if (mouseState & SDL_BUTTON_RMASK) {
-        for (int dy = -m_brushRadius; dy <= m_brushRadius; ++dy) {
-            for (int dx = -m_brushRadius; dx <= m_brushRadius; ++dx) {
-                if (dx*dx + dy*dy > m_brushRadius*m_brushRadius) continue;
-                int nx = wx + dx;
-                int ny = wy + dy;
-                if (m_world->isInside(nx, ny)) {
-                    m_world->setParticle(nx, ny, ParticleRegistry::Empty);
-                }
-            }
-        }
+        paintBrush(wx, wy, ParticleRegistry::Empty);
     }
 }
 

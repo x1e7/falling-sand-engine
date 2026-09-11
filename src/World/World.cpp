@@ -50,8 +50,7 @@ void World::loadParticles(const uint8_t* data, size_t size) {
 void World::tick(float deltaTime) {
     m_accumulator = std::min(m_accumulator + deltaTime, 0.1f);
 
-    static int frameCounter = 0;
-    const bool reverse = (++frameCounter & 1) != 0;
+    const bool reverse = (++m_frameCounter & 1) != 0;
 
     while (m_accumulator >= FIXED_DT) {
         std::fill(m_movedThisFrame.get(), m_movedThisFrame.get() + m_movedWords, 0);

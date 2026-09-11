@@ -30,10 +30,10 @@ cmake --build build
 - [x] Density-based layering (oil floats on water)
 
 ### New Content
-- [ ] Lava (melts walls, ignites wood)
+- [x] Lava (melts walls, ignites wood)
 - [ ] Wood (burns, creates ash)
 - [x] Oil (floats on water, ignites)
-- [ ] Acid (dissolves most materials)
+- [x] Acid (dissolves most materials)
 - [ ] Plant/Seed (grows on soil)
 - [x] New particles
 

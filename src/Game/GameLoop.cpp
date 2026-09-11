@@ -32,21 +32,36 @@ GameLoop::~GameLoop() {
 }
 
 void GameLoop::run() {
+    m_perfFreq = SDL_GetPerformanceFrequency();
+    m_diagStart = SDL_GetPerformanceCounter();
     m_lastTime = SDL_GetTicks();
 
     while (m_running) {
+        Uint64 frameStart = SDL_GetPerformanceCounter();
+
         Uint64 currentTime = SDL_GetTicks();
         float deltaTime = std::min(static_cast<float>(currentTime - m_lastTime) / 1000.0f, 0.05f);
         m_lastTime = static_cast<Uint32>(currentTime);
 
         handleInput(deltaTime);
 
+        Uint64 t1 = SDL_GetPerformanceCounter();
         m_camera->update(deltaTime);
         if (!m_paused) {
             m_world->tick(deltaTime);
         }
+        Uint64 t2 = SDL_GetPerformanceCounter();
 
         render();
+        Uint64 t3 = SDL_GetPerformanceCounter();
+
+        SDL_RenderPresent(m_renderer->getRenderer());
+        Uint64 t4 = SDL_GetPerformanceCounter();
+
+        m_sumSim    += (t2 - t1);
+        m_sumRender += (t3 - t2);
+        m_sumTotal  += (t4 - frameStart);
+        m_diagFrames++;
 
         m_frameCount++;
         m_fpsTimer += deltaTime;
@@ -54,6 +69,18 @@ void GameLoop::run() {
             m_fps = m_frameCount;
             m_frameCount = 0;
             m_fpsTimer = 0.0f;
+        }
+
+        Uint64 now = SDL_GetPerformanceCounter();
+        if (now - m_diagStart >= m_perfFreq) {
+            float f = static_cast<float>(m_perfFreq);
+            m_msSim    = m_sumSim    * 1000.0f / f / m_diagFrames;
+            m_msRender = m_sumRender * 1000.0f / f / m_diagFrames;
+            m_msTotal  = m_sumTotal  * 1000.0f / f / m_diagFrames;
+
+            m_sumSim = m_sumRender = m_sumTotal = 0;
+            m_diagFrames = 0;
+            m_diagStart = now;
         }
     }
 }
@@ -103,7 +130,7 @@ void GameLoop::handleInput(float deltaTime) {
 
                     case SDLK_SPACE: m_paused = !m_paused; break;
                     case SDLK_ESCAPE: m_running = false; break;
-                    case SDLK_F1: break; // handled by UI
+                    case SDLK_F1: break;
                 }
                 break;
 
@@ -169,9 +196,8 @@ void GameLoop::render() {
     m_renderer->render(*m_world, *m_camera);
 
     m_ui->render(*m_world, m_paused, m_currentBrush, m_brushRadius,
-                 m_fps, WORLD_WIDTH, WORLD_HEIGHT);
+                 m_fps, m_msTotal, m_msSim, m_msRender,
+                 WORLD_WIDTH, WORLD_HEIGHT);
 
     m_ui->endFrame(renderer);
-
-    SDL_RenderPresent(renderer);
 }

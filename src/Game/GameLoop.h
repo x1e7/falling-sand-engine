@@ -35,4 +35,15 @@ private:
     int m_frameCount = 0;
     float m_fpsTimer = 0.0f;
     Uint32 m_lastTime = 0;
+
+    float m_msTotal = 0.0f;
+    float m_msSim = 0.0f;
+    float m_msRender = 0.0f;
+
+    Uint64 m_sumSim = 0;
+    Uint64 m_sumRender = 0;
+    Uint64 m_sumTotal = 0;
+    int m_diagFrames = 0;
+    Uint64 m_diagStart = 0;
+    Uint64 m_perfFreq = 0;
 };

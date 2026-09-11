@@ -13,14 +13,17 @@ public:
 
     void render(World& world,
                 bool& paused, ParticleId& currentBrush, int& brushRadius,
-                int fps, int worldWidth, int worldHeight);
+                int fps,
+                float msTotal, float msSim, float msRender,
+                int worldWidth, int worldHeight);
 
     bool wantsInput() const;
 
 private:
     void renderMainWindow(World& world,
                           bool& paused, ParticleId& currentBrush, int& brushRadius,
-                          int fps, int worldWidth, int worldHeight);
+                          int fps, float msTotal, float msSim, float msRender,
+                          int worldWidth, int worldHeight);
     void renderControlsWindow();
     void renderDemoWindow();
 

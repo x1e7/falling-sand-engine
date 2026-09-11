@@ -39,18 +39,29 @@ bool UI::wantsInput() const {
 
 void UI::render(World& world,
                 bool& paused, ParticleId& currentBrush, int& brushRadius,
-                int fps, int worldWidth, int worldHeight) {
-    renderMainWindow(world, paused, currentBrush, brushRadius, fps, worldWidth, worldHeight);
+                int fps,
+                float msTotal, float msSim, float msRender,
+                int worldWidth, int worldHeight) {
+    renderMainWindow(world, paused, currentBrush, brushRadius,
+                     fps, msTotal, msSim, msRender,
+                     worldWidth, worldHeight);
     renderControlsWindow();
     renderDemoWindow();
 }
 
 void UI::renderMainWindow(World& world,
                           bool& paused, ParticleId& currentBrush, int& brushRadius,
-                          int fps, int worldWidth, int worldHeight) {
+                          int fps, float msTotal, float msSim, float msRender,
+                          int worldWidth, int worldHeight) {
     ImGui::Begin("Sand2D");
 
     ImGui::Text("FPS: %d", fps);
+    ImGui::Text("Frame: %.3f ms", msTotal);
+    ImGui::Text("  sim: %.3f ms", msSim);
+    ImGui::Text("  render: %.3f ms", msRender);
+
+    ImGui::Separator();
+
     ImGui::Text("World size: %dx%d", worldWidth, worldHeight);
     ImGui::Text("Brush: %d", brushRadius);
     ImGui::Text("Paused: %s", paused ? "Yes" : "No");

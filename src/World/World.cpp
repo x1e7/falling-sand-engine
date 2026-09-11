@@ -99,13 +99,12 @@ void World::updateCell(int x, int y) {
     }
 
     p.age++;
-    const ParticleDefinition& def = m_registry.get(p.id);
+    ParticleDefinition def = m_registry.get(p.id);
 
     if (def.canMelt) tryMeltSelf(x, y, p, def);
     if (p.id == ParticleRegistry::Empty) return;
 
-    const ParticleDefinition& curDef =
-        (p.id != def.name.empty() ? m_registry.get(p.id) : def);
+    const ParticleDefinition& curDef = m_registry.get(p.id);
 
     switch (curDef.state) {
         case PhysicalState::Powder: updatePowder(x, y, p, curDef); break;

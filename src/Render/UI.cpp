@@ -37,15 +37,15 @@ bool UI::wantsInput() const {
     return io.WantCaptureKeyboard || io.WantCaptureMouse;
 }
 
-void UI::render(World& world, Renderer& renderer,
+void UI::render(World& world,
                 bool& paused, ParticleId& currentBrush, int& brushRadius,
                 int fps, int worldWidth, int worldHeight) {
-    renderMainWindow(world, renderer, paused, currentBrush, brushRadius, fps, worldWidth, worldHeight);
+    renderMainWindow(world, paused, currentBrush, brushRadius, fps, worldWidth, worldHeight);
     renderControlsWindow();
     renderDemoWindow();
 }
 
-void UI::renderMainWindow(World& world, Renderer& renderer,
+void UI::renderMainWindow(World& world,
                           bool& paused, ParticleId& currentBrush, int& brushRadius,
                           int fps, int worldWidth, int worldHeight) {
     ImGui::Begin("Sand2D");

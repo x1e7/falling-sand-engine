@@ -34,7 +34,6 @@ struct ParticleDefinition {
     bool isHot = false;
     bool isCorrosive = false;
     bool isCorrodible = true;
-    ParticleId  burnInto = 0;
     bool isAlive = false;
     float growthRate = 0.0f;
 
@@ -89,11 +88,20 @@ inline void registerSand2DParticles(ParticleRegistry& registry) {
     sand.color = 0xFFBF9960;
     registry.registerParticle(sand);
 
+    ParticleDefinition steam;
+    steam.name = "Steam";
+    steam.state = PhysicalState::Gas;
+    steam.density = 0.6f;
+    steam.color = 0xCCCCCCCC;
+    registry.registerParticle(steam);
+
     ParticleDefinition water;
     water.name = "Water";
     water.state = PhysicalState::Liquid;
     water.density = 1000.0f;
     water.color = 0xD24C7ABE;
+    water.canMelt = true;
+    water.meltInto = registry.findId("Steam");
     registry.registerParticle(water);
 
     ParticleDefinition smoke;
@@ -125,6 +133,8 @@ inline void registerSand2DParticles(ParticleRegistry& registry) {
     oil.density = 800.0f;
     oil.color = 0xFF8B4513;
     oil.canIgnite = true;
+    oil.canMelt = true;
+    oil.meltInto = registry.findId("Fire");
     registry.registerParticle(oil);
 
     // Lava
@@ -153,7 +163,8 @@ inline void registerSand2DParticles(ParticleRegistry& registry) {
     wood.density = 700.0f;
     wood.color = 0xFF8B6B4A;
     wood.canIgnite = true;
-    wood.burnInto = registry.findId("Fire");
+    wood.canMelt = true;
+    wood.meltInto = registry.findId("Fire");
     registry.registerParticle(wood);
 
     // Acid
@@ -173,6 +184,8 @@ inline void registerSand2DParticles(ParticleRegistry& registry) {
     dust.density = 500.0f;
     dust.color = 0xFFC4A882;
     dust.canIgnite = true;
+    dust.canMelt = true;
+    dust.meltInto = registry.findId("Fire");
     registry.registerParticle(dust);
 
     // Plant
@@ -182,7 +195,8 @@ inline void registerSand2DParticles(ParticleRegistry& registry) {
     plant.density = 200.0f;
     plant.color = 0xFF32CD32;
     plant.canIgnite = true;
-    plant.burnInto = registry.findId("Fire");
+    plant.canMelt = true;
+    plant.meltInto = registry.findId("Fire");
     registry.registerParticle(plant);
 
     // Seed
@@ -192,6 +206,8 @@ inline void registerSand2DParticles(ParticleRegistry& registry) {
     seed.density = 600.0f;
     seed.color = 0xFF8B7D3C;
     seed.canIgnite = true;
+    seed.canMelt = true;
+    seed.meltInto = registry.findId("Fire");
     registry.registerParticle(seed);
 
     // Gas
@@ -201,5 +217,7 @@ inline void registerSand2DParticles(ParticleRegistry& registry) {
     gas.density = 0.1f;
     gas.color = 0xB4C0C0C0;
     gas.canIgnite = true;
+    gas.canMelt = true;
+    gas.meltInto = registry.findId("Fire");
     registry.registerParticle(gas);
 }

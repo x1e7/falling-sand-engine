@@ -174,7 +174,7 @@ void GameLoop::render() {
     SDL_RenderClear(renderer);
     m_renderer->render(*m_world, *m_camera);
 
-    m_ui->render(*m_world, *m_renderer, m_paused, m_currentBrush, m_brushRadius,
+    m_ui->render(*m_world, m_paused, m_currentBrush, m_brushRadius,
                  m_fps, WORLD_WIDTH, WORLD_HEIGHT);
 
     m_ui->endFrame(renderer);

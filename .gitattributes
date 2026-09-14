@@ -2,5 +2,5 @@
 * text=auto
 
 third_party/SDL/** linguist-vendored
-third_party/fastlz/** linguist-vendored
+third_party/lz4/** linguist-vendored
 third_party/imgui/** linguist-vendored

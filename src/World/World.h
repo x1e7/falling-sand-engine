@@ -63,12 +63,19 @@ private:
         return m_chunks[(y >> 4) * m_chunksX + (x >> 4)].cells[(y & 15) * CHUNK_SIZE + (x & 15)];
     }
 
+    Vec2i velocityToDirection(int8_t& vx, int8_t& vy) {
+        int dx = (vx > 0.5f) ? 1 : (vx < -0.5f) ? -1 : 0;
+        int dy = (vy > 0.5f) ? 1 : (vy < -0.5f) ? -1 : 0;
+        return {dx, dy};
+    }
+
     void wakeChunk(int x, int y);
 
     bool canMove(const Vec2i& to, const ParticleDefinition& fromDef);
     void performSwap(const Vec2i& from, const Vec2i& to);
 
-    bool tryMove(int x, int y, const Vec2i* dirs, int count, const ParticleDefinition& def);
+    void updateVelocity(int x, int y, const Vec2i* dirs, int count, ParticleInstance& p, const ParticleDefinition& def);
+    bool tryMoveInDirection(int x, int y, Vec2i dir, const ParticleDefinition& def);
 
     void updatePowder(int x, int y, ParticleInstance& p, const ParticleDefinition& def);
     void updateLiquid(int x, int y, ParticleInstance& p, const ParticleDefinition& def);

@@ -112,13 +112,14 @@ void World::updateCell(int x, int y) {
         case PhysicalState::Fire:   updateFire  (x, y, p, curDef); break;
         default: break;
     }
+    tryMoveInDirection(x, y, velocityToDirection(p.vx, p.vy), curDef);
 }
 
 // ====== BEHAVIORS ======
-void World::updatePowder(int x, int y, ParticleInstance&, const ParticleDefinition& def) {
+void World::updatePowder(int x, int y, ParticleInstance& p, const ParticleDefinition& def) {
     int dx = m_distDir(m_rng);
     Vec2i dirs[3] = {{0, 1}, {dx, 1}, {-dx, 1}};
-    tryMove(x, y, dirs, 3, def);
+    updateVelocity(x, y, dirs, 3, p, def);
 }
 
 void World::updateLiquid(int x, int y, ParticleInstance& p, const ParticleDefinition& def) {
@@ -129,7 +130,7 @@ void World::updateLiquid(int x, int y, ParticleInstance& p, const ParticleDefini
 
     int dx = m_distDir(m_rng);
     Vec2i dirs[5] = {{0, 1}, {dx, 1}, {-dx, 1}, {dx, 0}, {-dx, 0}};
-    tryMove(x, y, dirs, 5, def);
+    updateVelocity(x, y, dirs, 5, p, def);
 }
 
 void World::updateGas(int x, int y, ParticleInstance& p, const ParticleDefinition& def) {
@@ -140,7 +141,7 @@ void World::updateGas(int x, int y, ParticleInstance& p, const ParticleDefinitio
 
     int dx = m_distDir(m_rng);
     Vec2i dirs[5] = {{0, -1}, {dx, -1}, {-dx, -1}, {dx, 0}, {-dx, 0}};
-    tryMove(x, y, dirs, 5, def);
+    updateVelocity(x, y, dirs, 5, p, def);
 }
 
 void World::updateFire(int x, int y, ParticleInstance& p, const ParticleDefinition& def) {
@@ -153,7 +154,7 @@ void World::updateFire(int x, int y, ParticleInstance& p, const ParticleDefiniti
 
     int dx = m_distDir(m_rng);
     Vec2i dirs[3] = {{0, -1}, {dx, -1}, {-dx, -1}};
-    tryMove(x, y, dirs, 3, def);
+    updateVelocity(x, y, dirs, 3, p, def);
 
     if (m_distChance(m_rng) < 15) tryIgnite(x, y);
 }
@@ -240,9 +241,30 @@ void World::tryIgnite(int x, int y) {
     }
 }
 
-bool World::tryMove(int x, int y, const Vec2i* dirs, int count, const ParticleDefinition& def) {
+void World::updateVelocity(int x, int y, const Vec2i* dirs, int count, ParticleInstance& p, const ParticleDefinition& def) {
     for (int i = 0; i < count; ++i) {
         Vec2i target{x + dirs[i].x, y + dirs[i].y};
+        if (canMove(target, def)) {
+            p.vx = target.x - x;
+            p.vy = target.y - y;
+            return;
+        }
+    }
+
+    p.vx = 0; p.vy = 0;
+}
+
+bool World::tryMoveInDirection(int x, int y, Vec2i dir, const ParticleDefinition& def) {
+    Vec2i dirs[3] = {
+        {dir.x, dir.y},
+        {dir.x, 0},
+        {0, dir.y}
+    };
+
+    for (auto& d : dirs) {
+        if (d.x == 0 && d.y == 0) continue;
+
+        Vec2i target{x + d.x, y + d.y};
         if (canMove(target, def)) {
             performSwap({x, y}, target);
             return true;

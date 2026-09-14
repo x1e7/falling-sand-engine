@@ -98,7 +98,7 @@ void World::updateCell(int x, int y) {
     }
 
     p.age++;
-    ParticleDefinition def = m_registry.get(p.id);
+    const ParticleDefinition& def = m_registry.get(p.id);
 
     if (def.canMelt) tryMeltSelf(x, y, p, def);
     if (p.id == ParticleRegistry::Empty) return;

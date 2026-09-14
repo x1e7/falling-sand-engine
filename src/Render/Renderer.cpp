@@ -96,7 +96,6 @@ void Renderer::render(World& world, Camera& camera) {
     uint32_t* dst = static_cast<uint32_t*>(pixels);
     const int dstPitch = pitch / sizeof(uint32_t);
 
-    const auto& reg = world.getRegistry();
     for (int y = 0; y < viewH; ++y) {
         uint32_t* row = dst + static_cast<size_t>(y) * dstPitch;
         int wy = minY + y;

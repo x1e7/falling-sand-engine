@@ -53,7 +53,8 @@ bool WorldSerializer::loadWorld(World& world, const std::string& fileName)
         return false;
     }
 
-    if (header.width != world.getWidth() || header.height != world.getHeight()) {
+    if (header.width != static_cast<uint32_t>(world.getWidth()) ||
+        header.height != static_cast<uint32_t>(world.getHeight())) {
         std::cerr << "World size mismatch: expected "
                   << world.getWidth() << "x" << world.getHeight()
                   << ", got " << header.width << "x" << header.height << std::endl;

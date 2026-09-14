@@ -6,7 +6,7 @@ template<typename T>
 struct Vector2 {
     T x, y;
 
-    Vector2(T x = 0, T y = 0) : x(x), y(y) {}
+    Vector2(T x_ = 0, T y_ = 0) : x(x_), y(y_) {}
 
     Vector2 operator+(const Vector2& other) const {
         return Vector2(x + other.x, y + other.y);

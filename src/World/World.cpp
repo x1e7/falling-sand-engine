@@ -243,7 +243,7 @@ void World::tryIgnite(int x, int y) {
 bool World::tryMove(int x, int y, const Vec2i* dirs, int count, const ParticleDefinition& def) {
     for (int i = 0; i < count; ++i) {
         Vec2i target{x + dirs[i].x, y + dirs[i].y};
-        if (canMove({x, y}, target, def)) {
+        if (canMove(target, def)) {
             performSwap({x, y}, target);
             return true;
         }
@@ -251,7 +251,7 @@ bool World::tryMove(int x, int y, const Vec2i* dirs, int count, const ParticleDe
     return false;
 }
 
-bool World::canMove(const Vec2i& from, const Vec2i& to, const ParticleDefinition& fromDef) {
+bool World::canMove(const Vec2i& to, const ParticleDefinition& fromDef) {
     if (!isInside(to.x, to.y)) return false;
     if (isMoved(to.y * m_width + to.x)) return false;
 

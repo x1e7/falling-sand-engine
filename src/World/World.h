@@ -65,7 +65,7 @@ private:
 
     void wakeChunk(int x, int y);
 
-    bool canMove(const Vec2i& from, const Vec2i& to, const ParticleDefinition& fromDef);
+    bool canMove(const Vec2i& to, const ParticleDefinition& fromDef);
     void performSwap(const Vec2i& from, const Vec2i& to);
 
     bool tryMove(int x, int y, const Vec2i* dirs, int count, const ParticleDefinition& def);

@@ -6,62 +6,52 @@ echo   Deploying Sand2D
 echo ========================================
 echo.
 
-if not exist package mkdir package
+set "SRC=build\release\src"
+set "DST=package"
 
-if exist build\release\src\Sand2D.exe (
-    echo [1/3] Copying executable...
-    copy build\release\src\Sand2D.exe package\ >nul
-) else (
-    echo ERROR: build\release\src\Sand2D.exe not found!
+if not exist "%SRC%\Sand2D.exe" (
+    echo ERROR: %SRC%\Sand2D.exe not found!
+    echo Build first: cmake --build --preset release
     pause
     exit /b 1
 )
 
-echo [2/3] Copying MinGW dependencies...
+if not exist "%DST%" mkdir "%DST%"
 
-set "MINGW_PATH=C:\msys64\ucrt64\bin"
+echo [1/3] Copying executable...
+copy "%SRC%\Sand2D.exe" "%DST%\" >nul
 
-set "DLL1=libgcc_s_seh-1.dll"
-set "DLL2=libwinpthread-1.dll"
-set "DLL3=libstdc++-6.dll"
-
-if exist "%MINGW_PATH%\%DLL1%" (
-    echo   Copying %DLL1%...
-    copy "%MINGW_PATH%\%DLL1%" package\ >nul
-) else (
-    echo   WARNING: %DLL1% not found!
+echo [2/3] Copying all DLLs from %SRC%...
+for %%F in ("%SRC%\*.dll") do (
+    echo   %%~nxF
+    copy "%%F" "%DST%\" >nul
 )
 
-if exist "%MINGW_PATH%\%DLL2%" (
-    echo   Copying %DLL2%...
-    copy "%MINGW_PATH%\%DLL2%" package\ >nul
+echo [3/3] Copying assets...
+if exist "assets" (
+    xcopy /E /I /Y "assets" "%DST%\assets" >nul
+    echo   assets\
 ) else (
-    echo   WARNING: %DLL2% not found!
+    echo   WARNING: assets\ not found, font will be missing
 )
 
-if exist "%MINGW_PATH%\%DLL3%" (
-    echo   Copying %DLL3%...
-    copy "%MINGW_PATH%\%DLL3%" package\ >nul
-) else (
-    echo   WARNING: %DLL3% not found!
+echo [4/4] Copying licenses...
+if exist "THIRD_PARTY_NOTICES.txt" (
+    copy "THIRD_PARTY_NOTICES.txt" "%DST%\" >nul
 )
-
-echo [3/3] Copying SDL3.dll...
-if exist build\release\src\SDL3.dll (
-    copy build\release\src\SDL3.dll package\ >nul
-    echo   Copied SDL3.dll
-) else (
-    echo   WARNING: SDL3.dll not found!
+if exist "LICENSE" (
+    copy "LICENSE" "%DST%\" >nul
 )
 
 echo.
 echo ========================================
 echo   Deployment complete!
-echo   Output: package\
+echo   Output: %DST%\
+echo ========================================
 echo.
 
-dir package
+dir "%DST%"
 
 echo.
-echo To run: package\Sand2D.exe
+echo To run: %DST%\Sand2D.exe
 pause

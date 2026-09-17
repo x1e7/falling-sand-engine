@@ -17,13 +17,6 @@ A real-time 2D particle sandbox simulation with physics-based interactions. Feat
 ![Screenshot](screenshots/17_09_26.png)
 *Preview (17/9/26)*
 
-## Build
-
-```bash
-cmake -B build -G Ninja
-cmake --build build
-```
-
 ## TODO
 
 ### v0.2 — Performance (in progress)
@@ -71,15 +64,14 @@ Dependencies (installed automatically by vcpkg):
 
 ---
 
-## 1. Install vcpkg
-
-If you don't have vcpkg yet:
+### Install vcpkg
 
 ### Windows
 ```powershell
 cmake --preset release
 cmake --build --preset release
 build\debug\src\Sand2D.exe
+```
 
 ## Controls
 

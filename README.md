@@ -51,6 +51,36 @@ cmake --build build
 - [ ] WASM port
 - [ ] Documentation
 
+# Build Guide
+
+How to build **Falling Sand Engine** on Windows.
+
+## Requirements
+
+| Tool | Version | Notes |
+|------|---------|-------|
+| CMake | 3.24+ | Required for `CMakePresets.json` v6 |
+| C++ compiler | C++20 | GCC 11+, Clang 14+, MSVC 19.30+ |
+| Ninja | 1.10+ | Or any other CMake generator |
+| vcpkg | latest | For dependency management |
+
+Dependencies (installed automatically by vcpkg):
+- SDL3
+- SDL3_ttf
+- LZ4
+
+---
+
+## 1. Install vcpkg
+
+If you don't have vcpkg yet:
+
+### Windows
+```powershell
+cmake --preset release
+cmake --build --preset release
+build\debug\src\Sand2D.exe
+
 ## Controls
 
 | Key | Action |

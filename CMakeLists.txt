@@ -21,6 +21,4 @@ endif()
 option(SANDBOX_WARNINGS_AS_ERRORS "Treat warnings as errors" OFF)
 option(SANDBOX_ENABLE_ASAN "Enable AddressSanitizer" OFF)
 
-include(cmake/Dependencies.cmake)
-
 add_subdirectory(src)

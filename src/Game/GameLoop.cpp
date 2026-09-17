@@ -1,7 +1,6 @@
 #include "Game/GameLoop.h"
 #include "Game/Config.h"
 #include "Serialization/WorldSerializer.h"
-#include "imgui_impl_sdl3.h"
 #include <SDL3/SDL.h>
 #include <algorithm>
 
@@ -23,12 +22,28 @@ GameLoop::GameLoop() {
 
     WorldSerializer::loadWorld(*m_world, "world.bin");
 
-    m_ui = std::make_unique<UI>(m_renderer->getWindow(), m_renderer->getRenderer());
+    m_uiRenderer = std::make_unique<UIRenderer>();
+    m_uiRenderer->init(m_renderer->getRenderer(), "assets/fonts/Pixuf.ttf", 16);
+
+    m_uiCanvas = std::make_unique<UICanvas>();
+
+    auto fpsLabel = std::make_unique<Label>();
+    fpsLabel->rect = {10, 10, 200, 30};
+    fpsLabel->text = "FPS: 0";
+    m_fpsLabel = fpsLabel.get();
+    m_uiCanvas->addItem(std::move(fpsLabel));
+
+    auto pauseBtn = std::make_unique<Button>();
+    pauseBtn->rect = {10, 50, 100, 40};
+    pauseBtn->text = "Pause";
+    pauseBtn->onClick = [this]() { m_paused = !m_paused; };
+    m_pauseBtn = pauseBtn.get();
+    m_uiCanvas->addItem(std::move(pauseBtn));
 }
 
 GameLoop::~GameLoop() {
     WorldSerializer::saveWorld(*m_world, "world.bin");
-    SDL_Quit();
+    if (m_uiRenderer) m_uiRenderer->destroy();
 }
 
 void GameLoop::run() {
@@ -105,7 +120,8 @@ void GameLoop::paintBrush(int wx, int wy, ParticleId id) {
 void GameLoop::handleInput(float deltaTime) {
     SDL_Event event;
     while (SDL_PollEvent(&event)) {
-        ImGui_ImplSDL3_ProcessEvent(&event);
+        if (m_uiCanvas->handleSDLEvent(event)) continue;
+
         switch (event.type) {
             case SDL_EVENT_QUIT:
                 m_running = false;
@@ -147,7 +163,12 @@ void GameLoop::handleInput(float deltaTime) {
         }
     }
 
-    if (m_ui->wantsInput()) return;
+    float mx, my;
+    SDL_MouseButtonFlags mouseState = SDL_GetMouseState(&mx, &my);
+    Vec2f mouse{ mx, my };
+
+    m_uiCanvas->update(deltaTime, mouse);
+    if (m_uiCanvas->isMouseCaptured()) return;
 
     const bool* keys = SDL_GetKeyboardState(nullptr);
     Vec2f moveDelta{0.0f, 0.0f};
@@ -171,10 +192,7 @@ void GameLoop::handleInput(float deltaTime) {
 
     m_camera->move(moveDelta * deltaTime);
 
-    float mouseX, mouseY;
-    SDL_MouseButtonFlags mouseState = SDL_GetMouseState(&mouseX, &mouseY);
-
-    Vec2f worldPos = m_camera->screenToWorld(Vec2f(mouseX, mouseY));
+    Vec2f worldPos = m_camera->screenToWorld(Vec2f(mouse.x, mouse.y));
     int wx = static_cast<int>(worldPos.x);
     int wy = static_cast<int>(worldPos.y);
 
@@ -190,14 +208,7 @@ void GameLoop::handleInput(float deltaTime) {
 void GameLoop::render() {
     SDL_Renderer* renderer = m_renderer->getRenderer();
 
-    m_ui->beginFrame();
-
-    SDL_RenderClear(renderer);
     m_renderer->render(*m_world, *m_camera);
-
-    m_ui->render(*m_world, m_paused, m_currentBrush, m_brushRadius,
-                 m_fps, m_msTotal, m_msSim, m_msRender,
-                 WORLD_WIDTH, WORLD_HEIGHT);
-
-    m_ui->endFrame(renderer);
+    m_fpsLabel->text = "FPS: " + std::to_string(m_fps);
+    m_uiCanvas->render(*m_uiRenderer);
 }

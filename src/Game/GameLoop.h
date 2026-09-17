@@ -5,7 +5,10 @@
 #include "World/World.h"
 #include "Render/Renderer.h"
 #include "Render/Camera.h"
-#include "Render/UI.h"
+#include "UI/UIRenderer.h"
+#include "UI/UICanvas.h"
+#include "UI/Label.h"
+#include "UI/Button.h"
 
 class GameLoop {
 public:
@@ -23,7 +26,11 @@ private:
     std::unique_ptr<World> m_world;
     std::unique_ptr<Renderer> m_renderer;
     std::unique_ptr<Camera> m_camera;
-    std::unique_ptr<UI> m_ui;
+
+    std::unique_ptr<UIRenderer> m_uiRenderer;
+    std::unique_ptr<UICanvas> m_uiCanvas;
+    Label* m_fpsLabel = nullptr;
+    Button* m_pauseBtn = nullptr;
 
     bool m_running = true;
     bool m_paused = false;

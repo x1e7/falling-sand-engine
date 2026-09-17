@@ -8,11 +8,11 @@ echo.
 
 if not exist package mkdir package
 
-if exist build\src\Sand2D.exe (
+if exist build\release\src\Sand2D.exe (
     echo [1/3] Copying executable...
-    copy build\src\Sand2D.exe package\ >nul
+    copy build\release\src\Sand2D.exe package\ >nul
 ) else (
-    echo ERROR: build\src\Sand2D.exe not found!
+    echo ERROR: build\release\src\Sand2D.exe not found!
     pause
     exit /b 1
 )
@@ -47,8 +47,8 @@ if exist "%MINGW_PATH%\%DLL3%" (
 )
 
 echo [3/3] Copying SDL3.dll...
-if exist build\src\SDL3.dll (
-    copy build\src\SDL3.dll package\ >nul
+if exist build\release\src\SDL3.dll (
+    copy build\release\src\SDL3.dll package\ >nul
     echo   Copied SDL3.dll
 ) else (
     echo   WARNING: SDL3.dll not found!

@@ -1,0 +1,9 @@
+{
+  "name": "falling-sand-engine",
+  "version": "1.0.0",
+  "dependencies": [
+    "sdl3",
+    "sdl3-ttf",
+    "lz4"
+  ]
+}

@@ -9,10 +9,13 @@ public:
     std::function<void()> onClick;
     std::function<void(float)> onHold;
 
+    bool active = false;
+
     struct Style {
         SDL_Color fill{40, 40, 40, 255};
         SDL_Color hoverFill{60, 60, 60, 255};
         SDL_Color pressedFill{30, 30, 30, 255};
+        SDL_Color activeFill{80, 120, 80, 255};
         SDL_Color border{136, 153, 170, 255};
         SDL_Color textColor{255, 255, 255, 255};
         int borderThickness = 2;
@@ -40,6 +43,7 @@ public:
 
     void render(UIRenderer& r) override {
         SDL_Color fill = m_pressed ? style.pressedFill
+                       : active    ? style.activeFill
                        : hovered   ? style.hoverFill
                        :             style.fill;
         r.drawRect(rect, fill);

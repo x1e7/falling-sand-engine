@@ -8,7 +8,14 @@ A real-time 2D particle sandbox simulation with physics-based interactions. Feat
 
 ## Screenshots
 
-![Screenshot](sandbox.png)
+![Screenshot](screenshots/16_07_26.png)
+*Preview (16/7/26)*
+
+![Screenshot](screenshots/02_09_26.png)
+*Preview (2/9/26)*
+
+![Screenshot](screenshots/17_09_26.png)
+*Preview (17/9/26)*
 
 ## Build
 

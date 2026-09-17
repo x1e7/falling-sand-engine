@@ -325,6 +325,8 @@ void World::setParticle(int x, int y, ParticleId id, uint8_t age) {
     ParticleInstance& p = at(x, y);
     p.id = id;
     p.age = age;
+    p.vx = 0;
+    p.vy = 0;
     if (id != ParticleRegistry::Empty) p.brightness = m_rng() % 256;
     wakeChunk(x, y);
 }

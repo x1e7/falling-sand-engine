@@ -2,6 +2,8 @@
 
 #include <SDL3/SDL.h>
 #include <memory>
+#include <string>
+#include <vector>
 #include "World/World.h"
 #include "Render/Renderer.h"
 #include "Render/Camera.h"
@@ -22,6 +24,9 @@ private:
     void handleInput(float deltaTime);
     void render();
 
+    void refreshBrushButtons();
+    void setBrush(ParticleId id, const std::string& name);
+
     ParticleRegistry m_registry;
     std::unique_ptr<World> m_world;
     std::unique_ptr<Renderer> m_renderer;
@@ -29,13 +34,22 @@ private:
 
     std::unique_ptr<UIRenderer> m_uiRenderer;
     std::unique_ptr<UICanvas> m_uiCanvas;
+
     Label* m_fpsLabel = nullptr;
+    Label* m_msLabel  = nullptr;
     Button* m_pauseBtn = nullptr;
+
+    struct BrushButton {
+        Button* button;
+        ParticleId id;
+    };
+    std::vector<BrushButton> m_brushButtons;
 
     bool m_running = true;
     bool m_paused = false;
 
     ParticleId m_currentBrush;
+    std::string m_currentBrushName = "Sand";
     int m_brushRadius = 1;
 
     int m_fps = 0;

@@ -64,8 +64,8 @@ private:
     }
 
     Vec2i velocityToDirection(int8_t& vx, int8_t& vy) {
-        int dx = (vx > 0.5f) ? 1 : (vx < -0.5f) ? -1 : 0;
-        int dy = (vy > 0.5f) ? 1 : (vy < -0.5f) ? -1 : 0;
+        int dx = (vx > 0) ? 1 : (vx < 0) ? -1 : 0;
+        int dy = (vy > 0) ? 1 : (vy < 0) ? -1 : 0;
         return {dx, dy};
     }
 

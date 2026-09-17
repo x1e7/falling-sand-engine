@@ -6,6 +6,10 @@
 
 A real-time 2D particle sandbox simulation with physics-based interactions. Features sand, water, and walls with realistic movement behaviors.
 
+## Licenses
+This project is licensed under the MIT License — see [LICENSE](LICENSE).
+Third-party dependencies are listed in [THIRD_PARTY_NOTICES.txt](THIRD_PARTY_NOTICES.txt).
+
 ## Screenshots
 
 ![Screenshot](screenshots/16_07_26.jpg)

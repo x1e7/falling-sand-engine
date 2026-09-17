@@ -64,8 +64,9 @@ Dependencies (installed automatically by vcpkg):
 
 ---
 
-### Install vcpkg
+### 1. Install vcpkg
 
+### 2. Build and run
 ### Windows
 ```powershell
 cmake --preset release

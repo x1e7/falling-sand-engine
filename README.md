@@ -19,43 +19,30 @@ cmake --build build
 
 ## TODO
 
-- [x] Background color
-- [ ] Particle velocity system (inertia, momentum)
-- [x] Variable brush size
-- [x] Pause simulation (Spacebar)
-- [x] FPS counter overlay
+### v0.2 — Performance (in progress)
+- [ ] Multithreaded simulation
+- [ ] Two-phase tick
+- [ ] RNG optimization
+- [ ] Direct cell access in renderer
 
-### Core Physics
-- [ ] State changes: Water → Steam, Sand → Glass
-- [x] Density-based layering (oil floats on water)
+### v0.3 — Physics
+- [ ] Temperature field
+- [ ] Reaction table
+- [ ] Liquid pressure
+- [ ] Phase transitions
 
-### New Content
-- [x] Lava (melts walls, ignites wood)
-- [ ] Wood (burns, creates ash)
-- [x] Oil (floats on water, ignites)
-- [x] Acid (dissolves most materials)
-- [ ] Plant/Seed (grows on soil)
-- [x] New particles
+### v0.4 — Tools
+- [ ] Line/rect/fill tools
+- [ ] Undo/redo
+- [ ] Particle editor
 
-### Advanced Physics
-- [ ] Explosion physics (shockwave, debris)
-- [ ] Wind simulation (directional airflow)
+### v0.5 — Scripting
+- [ ] Lua bindings
+- [ ] Demo scenes
 
-### Visual & UI
-- [x] Camera
-- [ ] Particle info tooltip (hover for details)
-- [x] Save/load worlds
-
-### Performance & Polish
-- [ ] Multithreaded physics (parallel particle updates)
-- [ ] GPU acceleration (OpenCL/CUDA for physics)
-- [ ] WebAssembly port (Emscripten)
-- [ ] Save to IndexedDB (web persistence)
-
-### Long-term
-- [ ] Multiplayer (real-time sharing)
-- [ ] Modding API (custom particles, behaviors)
-- [ ] Mobile support (touch controls)
+### v1.0 — Release
+- [ ] WASM port
+- [ ] Documentation
 
 ## Controls
 

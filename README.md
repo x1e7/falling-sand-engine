@@ -57,7 +57,7 @@ How to build **Falling Sand Engine** on Windows.
 | Ninja | 1.10+ | Or any other CMake generator |
 | vcpkg | latest | For dependency management |
 
-Dependencies (installed automatically by vcpkg):
+Dependencies:
 - SDL3
 - SDL3_ttf
 - LZ4

@@ -21,14 +21,18 @@ public:
     const ParticleRegistry& getRegistry() const { return m_registry; }
 
     ParticleInstance* getParticlePtr(int x, int y) {
-        int cx = x >> 4, cy = y >> 4;
-        int lx = x & 15, ly = y & 15;
+        int cx = x / CHUNK_SIZE;
+        int cy = y / CHUNK_SIZE;
+        int lx = x % CHUNK_SIZE;
+        int ly = y % CHUNK_SIZE;
         return &m_chunks[cy * m_chunksX + cx].cells[ly * CHUNK_SIZE + lx];
     }
 
     const ParticleInstance* getParticlePtr(int x, int y) const {
-        int cx = x >> 4, cy = y >> 4;
-        int lx = x & 15, ly = y & 15;
+        int cx = x / CHUNK_SIZE;
+        int cy = y / CHUNK_SIZE;
+        int lx = x % CHUNK_SIZE;
+        int ly = y % CHUNK_SIZE;
         return &m_chunks[cy * m_chunksX + cx].cells[ly * CHUNK_SIZE + lx];
     }
 
@@ -57,10 +61,18 @@ private:
     }
 
     ParticleInstance& at(int x, int y) {
-        return m_chunks[(y >> 4) * m_chunksX + (x >> 4)].cells[(y & 15) * CHUNK_SIZE + (x & 15)];
+        int cx = x / CHUNK_SIZE;
+        int cy = y / CHUNK_SIZE;
+        int lx = x % CHUNK_SIZE;
+        int ly = y % CHUNK_SIZE;
+        return m_chunks[cy * m_chunksX + cx].cells[ly * CHUNK_SIZE + lx];
     }
     const ParticleInstance& at(int x, int y) const {
-        return m_chunks[(y >> 4) * m_chunksX + (x >> 4)].cells[(y & 15) * CHUNK_SIZE + (x & 15)];
+        int cx = x / CHUNK_SIZE;
+        int cy = y / CHUNK_SIZE;
+        int lx = x % CHUNK_SIZE;
+        int ly = y % CHUNK_SIZE;
+        return m_chunks[cy * m_chunksX + cx].cells[ly * CHUNK_SIZE + lx];
     }
 
     Vec2i velocityToDirection(int8_t& vx, int8_t& vy) {

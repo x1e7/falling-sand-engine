@@ -1,7 +1,6 @@
 #include "World/World.h"
 #include <algorithm>
 
-// ====== CONSTRUCTOR ======
 World::World(int width, int height, ParticleRegistry& registry)
     : m_width(width)
     , m_height(height)
@@ -18,7 +17,6 @@ World::World(int width, int height, ParticleRegistry& registry)
     m_fireId  = registry.findId("Fire");
 }
 
-// ====== LOAD ======
 void World::loadParticles(const uint8_t* data, size_t size) {
     if (size != static_cast<size_t>(m_width) * m_height * 2) return;
 
@@ -46,7 +44,6 @@ void World::loadParticles(const uint8_t* data, size_t size) {
     }
 }
 
-// ====== TICK ======
 void World::tick(float deltaTime) {
     m_accumulator = std::min(m_accumulator + deltaTime, 0.1f);
 
@@ -64,8 +61,8 @@ void World::tick(float deltaTime) {
                 if (chunk.idleFrames > 30) continue;
                 chunk.idleFrames++;
 
-                int baseX = ax << 4;
-                int baseY = ay << 4;
+                int baseX = ax * CHUNK_SIZE;
+                int baseY = ay * CHUNK_SIZE;
                 int maxX = std::min(baseX + CHUNK_SIZE, m_width);
                 int maxY = std::min(baseY + CHUNK_SIZE, m_height);
 
@@ -86,7 +83,6 @@ void World::tick(float deltaTime) {
     }
 }
 
-// ====== CELL UPDATE ======
 void World::updateCell(int x, int y) {
     int idx = y * m_width + x;
     if (isMoved(idx)) return;
@@ -115,7 +111,6 @@ void World::updateCell(int x, int y) {
     tryMoveInDirection(x, y, velocityToDirection(p.vx, p.vy), curDef);
 }
 
-// ====== BEHAVIORS ======
 void World::updatePowder(int x, int y, ParticleInstance& p, const ParticleDefinition& def) {
     int dx = m_distDir(m_rng);
     Vec2i dirs[3] = {{0, 1}, {dx, 1}, {-dx, 1}};
@@ -307,7 +302,8 @@ void World::wakeChunk(int x, int y) {
     if (x < 0) x = 0;
     if (y < 0) y = 0;
 
-    int cx = x >> 4, cy = y >> 4;
+    int cx = x / CHUNK_SIZE;
+    int cy = y / CHUNK_SIZE;
     int idx = cy * m_chunksX + cx;
     m_chunks[idx].idleFrames = 0;
 

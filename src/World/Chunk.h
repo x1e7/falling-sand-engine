@@ -2,7 +2,7 @@
 
 #include "Core/Particle.h"
 
-constexpr int CHUNK_SIZE = 16;
+constexpr int CHUNK_SIZE = 64;
 
 struct Chunk {
     ParticleInstance cells[CHUNK_SIZE * CHUNK_SIZE];

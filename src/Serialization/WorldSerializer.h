@@ -1,29 +1,26 @@
 #pragma once
 
 #include "World/World.h"
+
 #include <string>
 #include <vector>
 #include <cstdint>
 
-/*struct WorldMetadata {
-    TODO
-};*/
-
 class WorldSerializer {
 public:
-    static void saveWorld(const World& world, const std::string& fileName);
-
+    static bool saveWorld(const World& world, const std::string& fileName);
     static bool loadWorld(World& world, const std::string& fileName);
+
 private:
     struct Header {
-        uint32_t magic;
-        uint32_t version;
-        uint32_t width;
-        uint32_t height;
-        uint32_t dataSize;
-        uint32_t compressedSize;
-        uint32_t compressed;
-        uint32_t reserved;
+        uint32_t magic = 0;
+        uint32_t version = 0;
+        uint32_t width = 0;
+        uint32_t height = 0;
+        uint32_t dataSize = 0;
+        uint32_t compressedSize = 0;
+        uint32_t compressed = 0;
+        uint32_t reserved = 0;
     };
 
     static std::vector<uint8_t> serializeParticles(const World& world);

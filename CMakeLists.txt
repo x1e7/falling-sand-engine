@@ -7,14 +7,12 @@ project(Sand2D
 
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED ON)
-
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
-
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-if(NOT CMAKE_BUILD_TYPE)
+if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
     set(CMAKE_BUILD_TYPE Release CACHE STRING "" FORCE)
 endif()
 
@@ -22,3 +20,11 @@ option(SANDBOX_WARNINGS_AS_ERRORS "Treat warnings as errors" OFF)
 option(SANDBOX_ENABLE_ASAN "Enable AddressSanitizer" OFF)
 
 add_subdirectory(src)
+
+if(EXISTS "${CMAKE_BINARY_DIR}/compile_commands.json")
+    configure_file(
+        "${CMAKE_BINARY_DIR}/compile_commands.json"
+        "${CMAKE_SOURCE_DIR}/compile_commands.json"
+        COPYONLY
+    )
+endif()

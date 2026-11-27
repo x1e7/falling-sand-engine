@@ -1,0 +1,17 @@
+CompileFlags:
+  Add:
+    - -Wno-unknown-warning-option
+    - -Wno-unknown-attributes
+  Remove:
+    - -fno-canonical-system-headers
+    - -fcoroutines
+    - -mno-*
+    - --param=*
+
+Diagnostics:
+  UnusedIncludes: None
+  Suppress:
+    - pp_file_not_found
+
+Index:
+  Background: Build

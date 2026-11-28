@@ -13,8 +13,6 @@ struct ParticleInstance {
     ParticleId id = 0;
     uint8_t age = 0;
     uint8_t brightness = 0;
-    int8_t vx = 0;
-    int8_t vy = 0;
 };
 
 enum class PhysicalState : uint8_t {

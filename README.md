@@ -74,7 +74,7 @@ Dependencies:
 ```powershell
 cmake --preset release
 cmake --build --preset release
-build\debug\src\Sand2D.exe
+build\release\src\Sand2D.exe
 ```
 
 ## Controls

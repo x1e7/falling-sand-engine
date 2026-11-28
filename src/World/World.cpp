@@ -37,7 +37,7 @@ void World::loadParticles(const uint8_t* data, size_t size) {
             Chunk& chunk = m_chunks[cy * m_chunksX + cx];
             chunk.idleFrames = IDLE_THRESHOLD + 1;
             for (int i = 0; i < CHUNK_AREA; ++i) {
-                if (chunk.cells[i].id != ParticleRegistry::Empty) {
+                if (chunk.cells[i].id != 0) {
                     chunk.idleFrames = 0;
                     break;
                 }

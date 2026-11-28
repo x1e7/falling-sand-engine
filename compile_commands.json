@@ -1,56 +1,56 @@
 [
 {
-  "directory": "D:/ProjectsCpp/falling-sand-engine/build/release",
-  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe -ID:/ProjectsCpp/falling-sand-engine/src -isystem D:/ProjectsCpp/falling-sand-engine/build/release/vcpkg_installed/x64-mingw-dynamic/include -O3 -DNDEBUG -std=c++20 -o src\\CMakeFiles\\sandbox_core.dir\\World\\World.cpp.obj -c D:\\ProjectsCpp\\falling-sand-engine\\src\\World\\World.cpp",
+  "directory": "D:/ProjectsCpp/falling-sand-engine/build/debug",
+  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe -ID:/ProjectsCpp/falling-sand-engine/src -isystem D:/ProjectsCpp/falling-sand-engine/build/debug/vcpkg_installed/x64-mingw-dynamic/include -g -std=c++20 -o src\\CMakeFiles\\sandbox_core.dir\\World\\World.cpp.obj -c D:\\ProjectsCpp\\falling-sand-engine\\src\\World\\World.cpp",
   "file": "D:/ProjectsCpp/falling-sand-engine/src/World/World.cpp",
-  "output": "D:/ProjectsCpp/falling-sand-engine/build/release/src/CMakeFiles/sandbox_core.dir/World/World.cpp.obj"
+  "output": "D:/ProjectsCpp/falling-sand-engine/build/debug/src/CMakeFiles/sandbox_core.dir/World/World.cpp.obj"
 },
 {
-  "directory": "D:/ProjectsCpp/falling-sand-engine/build/release",
-  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe -ID:/ProjectsCpp/falling-sand-engine/src -isystem D:/ProjectsCpp/falling-sand-engine/build/release/vcpkg_installed/x64-mingw-dynamic/include -O3 -DNDEBUG -std=c++20 -o src\\CMakeFiles\\sandbox_core.dir\\Render\\Renderer.cpp.obj -c D:\\ProjectsCpp\\falling-sand-engine\\src\\Render\\Renderer.cpp",
+  "directory": "D:/ProjectsCpp/falling-sand-engine/build/debug",
+  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe -ID:/ProjectsCpp/falling-sand-engine/src -isystem D:/ProjectsCpp/falling-sand-engine/build/debug/vcpkg_installed/x64-mingw-dynamic/include -g -std=c++20 -o src\\CMakeFiles\\sandbox_core.dir\\Render\\Renderer.cpp.obj -c D:\\ProjectsCpp\\falling-sand-engine\\src\\Render\\Renderer.cpp",
   "file": "D:/ProjectsCpp/falling-sand-engine/src/Render/Renderer.cpp",
-  "output": "D:/ProjectsCpp/falling-sand-engine/build/release/src/CMakeFiles/sandbox_core.dir/Render/Renderer.cpp.obj"
+  "output": "D:/ProjectsCpp/falling-sand-engine/build/debug/src/CMakeFiles/sandbox_core.dir/Render/Renderer.cpp.obj"
 },
 {
-  "directory": "D:/ProjectsCpp/falling-sand-engine/build/release",
-  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe -ID:/ProjectsCpp/falling-sand-engine/src -isystem D:/ProjectsCpp/falling-sand-engine/build/release/vcpkg_installed/x64-mingw-dynamic/include -O3 -DNDEBUG -std=c++20 -o src\\CMakeFiles\\sandbox_core.dir\\Render\\Camera.cpp.obj -c D:\\ProjectsCpp\\falling-sand-engine\\src\\Render\\Camera.cpp",
+  "directory": "D:/ProjectsCpp/falling-sand-engine/build/debug",
+  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe -ID:/ProjectsCpp/falling-sand-engine/src -isystem D:/ProjectsCpp/falling-sand-engine/build/debug/vcpkg_installed/x64-mingw-dynamic/include -g -std=c++20 -o src\\CMakeFiles\\sandbox_core.dir\\Render\\Camera.cpp.obj -c D:\\ProjectsCpp\\falling-sand-engine\\src\\Render\\Camera.cpp",
   "file": "D:/ProjectsCpp/falling-sand-engine/src/Render/Camera.cpp",
-  "output": "D:/ProjectsCpp/falling-sand-engine/build/release/src/CMakeFiles/sandbox_core.dir/Render/Camera.cpp.obj"
+  "output": "D:/ProjectsCpp/falling-sand-engine/build/debug/src/CMakeFiles/sandbox_core.dir/Render/Camera.cpp.obj"
 },
 {
-  "directory": "D:/ProjectsCpp/falling-sand-engine/build/release",
-  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe -ID:/ProjectsCpp/falling-sand-engine/src -isystem D:/ProjectsCpp/falling-sand-engine/build/release/vcpkg_installed/x64-mingw-dynamic/include -O3 -DNDEBUG -std=c++20 -o src\\CMakeFiles\\sandbox_core.dir\\UI\\UIRenderer.cpp.obj -c D:\\ProjectsCpp\\falling-sand-engine\\src\\UI\\UIRenderer.cpp",
+  "directory": "D:/ProjectsCpp/falling-sand-engine/build/debug",
+  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe -ID:/ProjectsCpp/falling-sand-engine/src -isystem D:/ProjectsCpp/falling-sand-engine/build/debug/vcpkg_installed/x64-mingw-dynamic/include -g -std=c++20 -o src\\CMakeFiles\\sandbox_core.dir\\UI\\UIRenderer.cpp.obj -c D:\\ProjectsCpp\\falling-sand-engine\\src\\UI\\UIRenderer.cpp",
   "file": "D:/ProjectsCpp/falling-sand-engine/src/UI/UIRenderer.cpp",
-  "output": "D:/ProjectsCpp/falling-sand-engine/build/release/src/CMakeFiles/sandbox_core.dir/UI/UIRenderer.cpp.obj"
+  "output": "D:/ProjectsCpp/falling-sand-engine/build/debug/src/CMakeFiles/sandbox_core.dir/UI/UIRenderer.cpp.obj"
 },
 {
-  "directory": "D:/ProjectsCpp/falling-sand-engine/build/release",
-  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe -ID:/ProjectsCpp/falling-sand-engine/src -isystem D:/ProjectsCpp/falling-sand-engine/build/release/vcpkg_installed/x64-mingw-dynamic/include -O3 -DNDEBUG -std=c++20 -o src\\CMakeFiles\\sandbox_core.dir\\UI\\UICanvas.cpp.obj -c D:\\ProjectsCpp\\falling-sand-engine\\src\\UI\\UICanvas.cpp",
+  "directory": "D:/ProjectsCpp/falling-sand-engine/build/debug",
+  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe -ID:/ProjectsCpp/falling-sand-engine/src -isystem D:/ProjectsCpp/falling-sand-engine/build/debug/vcpkg_installed/x64-mingw-dynamic/include -g -std=c++20 -o src\\CMakeFiles\\sandbox_core.dir\\UI\\UICanvas.cpp.obj -c D:\\ProjectsCpp\\falling-sand-engine\\src\\UI\\UICanvas.cpp",
   "file": "D:/ProjectsCpp/falling-sand-engine/src/UI/UICanvas.cpp",
-  "output": "D:/ProjectsCpp/falling-sand-engine/build/release/src/CMakeFiles/sandbox_core.dir/UI/UICanvas.cpp.obj"
+  "output": "D:/ProjectsCpp/falling-sand-engine/build/debug/src/CMakeFiles/sandbox_core.dir/UI/UICanvas.cpp.obj"
 },
 {
-  "directory": "D:/ProjectsCpp/falling-sand-engine/build/release",
-  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe -ID:/ProjectsCpp/falling-sand-engine/src -isystem D:/ProjectsCpp/falling-sand-engine/build/release/vcpkg_installed/x64-mingw-dynamic/include -O3 -DNDEBUG -std=c++20 -o src\\CMakeFiles\\sandbox_core.dir\\Serialization\\WorldSerializer.cpp.obj -c D:\\ProjectsCpp\\falling-sand-engine\\src\\Serialization\\WorldSerializer.cpp",
+  "directory": "D:/ProjectsCpp/falling-sand-engine/build/debug",
+  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe -ID:/ProjectsCpp/falling-sand-engine/src -isystem D:/ProjectsCpp/falling-sand-engine/build/debug/vcpkg_installed/x64-mingw-dynamic/include -g -std=c++20 -o src\\CMakeFiles\\sandbox_core.dir\\Serialization\\WorldSerializer.cpp.obj -c D:\\ProjectsCpp\\falling-sand-engine\\src\\Serialization\\WorldSerializer.cpp",
   "file": "D:/ProjectsCpp/falling-sand-engine/src/Serialization/WorldSerializer.cpp",
-  "output": "D:/ProjectsCpp/falling-sand-engine/build/release/src/CMakeFiles/sandbox_core.dir/Serialization/WorldSerializer.cpp.obj"
+  "output": "D:/ProjectsCpp/falling-sand-engine/build/debug/src/CMakeFiles/sandbox_core.dir/Serialization/WorldSerializer.cpp.obj"
 },
 {
-  "directory": "D:/ProjectsCpp/falling-sand-engine/build/release",
-  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe -ID:/ProjectsCpp/falling-sand-engine/src -isystem D:/ProjectsCpp/falling-sand-engine/build/release/vcpkg_installed/x64-mingw-dynamic/include -O3 -DNDEBUG -std=c++20 -o src\\CMakeFiles\\sandbox_core.dir\\Serialization\\Compression.cpp.obj -c D:\\ProjectsCpp\\falling-sand-engine\\src\\Serialization\\Compression.cpp",
+  "directory": "D:/ProjectsCpp/falling-sand-engine/build/debug",
+  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe -ID:/ProjectsCpp/falling-sand-engine/src -isystem D:/ProjectsCpp/falling-sand-engine/build/debug/vcpkg_installed/x64-mingw-dynamic/include -g -std=c++20 -o src\\CMakeFiles\\sandbox_core.dir\\Serialization\\Compression.cpp.obj -c D:\\ProjectsCpp\\falling-sand-engine\\src\\Serialization\\Compression.cpp",
   "file": "D:/ProjectsCpp/falling-sand-engine/src/Serialization/Compression.cpp",
-  "output": "D:/ProjectsCpp/falling-sand-engine/build/release/src/CMakeFiles/sandbox_core.dir/Serialization/Compression.cpp.obj"
+  "output": "D:/ProjectsCpp/falling-sand-engine/build/debug/src/CMakeFiles/sandbox_core.dir/Serialization/Compression.cpp.obj"
 },
 {
-  "directory": "D:/ProjectsCpp/falling-sand-engine/build/release",
-  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe -ID:/ProjectsCpp/falling-sand-engine/src -isystem D:/ProjectsCpp/falling-sand-engine/build/release/vcpkg_installed/x64-mingw-dynamic/include -O3 -DNDEBUG -std=c++20 -o src\\CMakeFiles\\sandbox_core.dir\\Game\\GameLoop.cpp.obj -c D:\\ProjectsCpp\\falling-sand-engine\\src\\Game\\GameLoop.cpp",
+  "directory": "D:/ProjectsCpp/falling-sand-engine/build/debug",
+  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe -ID:/ProjectsCpp/falling-sand-engine/src -isystem D:/ProjectsCpp/falling-sand-engine/build/debug/vcpkg_installed/x64-mingw-dynamic/include -g -std=c++20 -o src\\CMakeFiles\\sandbox_core.dir\\Game\\GameLoop.cpp.obj -c D:\\ProjectsCpp\\falling-sand-engine\\src\\Game\\GameLoop.cpp",
   "file": "D:/ProjectsCpp/falling-sand-engine/src/Game/GameLoop.cpp",
-  "output": "D:/ProjectsCpp/falling-sand-engine/build/release/src/CMakeFiles/sandbox_core.dir/Game/GameLoop.cpp.obj"
+  "output": "D:/ProjectsCpp/falling-sand-engine/build/debug/src/CMakeFiles/sandbox_core.dir/Game/GameLoop.cpp.obj"
 },
 {
-  "directory": "D:/ProjectsCpp/falling-sand-engine/build/release",
-  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe -ID:/ProjectsCpp/falling-sand-engine/src -isystem D:/ProjectsCpp/falling-sand-engine/build/release/vcpkg_installed/x64-mingw-dynamic/include -O3 -DNDEBUG -std=c++20 -o src\\CMakeFiles\\Sand2D.dir\\main.cpp.obj -c D:\\ProjectsCpp\\falling-sand-engine\\src\\main.cpp",
+  "directory": "D:/ProjectsCpp/falling-sand-engine/build/debug",
+  "command": "C:\\msys64\\ucrt64\\bin\\c++.exe -ID:/ProjectsCpp/falling-sand-engine/src -isystem D:/ProjectsCpp/falling-sand-engine/build/debug/vcpkg_installed/x64-mingw-dynamic/include -g -std=c++20 -o src\\CMakeFiles\\Sand2D.dir\\main.cpp.obj -c D:\\ProjectsCpp\\falling-sand-engine\\src\\main.cpp",
   "file": "D:/ProjectsCpp/falling-sand-engine/src/main.cpp",
-  "output": "D:/ProjectsCpp/falling-sand-engine/build/release/src/CMakeFiles/Sand2D.dir/main.cpp.obj"
+  "output": "D:/ProjectsCpp/falling-sand-engine/build/debug/src/CMakeFiles/Sand2D.dir/main.cpp.obj"
 }
 ]

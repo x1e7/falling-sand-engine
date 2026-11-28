@@ -48,7 +48,7 @@ private:
     int m_activeChunks = 0;
     float m_accumulator = 0.0f;
     static constexpr float FIXED_DT = 1.0f / 120.0f;
-    static constexpr int IDLE_THRESHOLD = 30;
+    static constexpr int IDLE_THRESHOLD = 300;
 
     uint32_t nextRand() {
         uint32_t x = m_rngState;
